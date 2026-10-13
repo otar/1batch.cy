@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Privacy rules. Your browser applies them (Content-Security-Policy):
+    default-src 'none'   the page loads nothing that is not in this list
+    script-src 'self'    only app.js from this site. No inline scripts, no scripts from other sites.
+    style-src 'self'     only style.css from this site
+    img-src 'self' data: only images from this site
+    connect-src 'none'   the page cannot send data to a server. No fetch, XHR, beacons or sockets.
+    form-action 'none'   the page cannot submit a form
+    base-uri 'none'      the page cannot change the base address of its links
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<title>1batch.cy · One payment file for Bank of Cyprus business customers</title>
+<meta name="description" content="For Bank of Cyprus business customers: put all your payments in one XML file and upload it once in 1bank. The page runs in your browser. It does not send or keep your data.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<a class="skip-link" href="#editor">Go to the editor</a>
+
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="./" aria-label="1batch.cy, home">1batch<span>.cy</span></a>
+    <div class="tagline">
+      <p class="tag-main">One file for all your payments. Upload it once in 1bank. For Bank of Cyprus business customers.</p>
+      <p class="tag-sub">Free and open source · Not made by Bank of Cyprus</p>
+    </div>
+    <nav class="top-actions" aria-label="File">
+      <button type="button" class="btn btn-quiet" data-action="export-csv" data-needs="payments" hidden>
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/></svg>Export CSV
+      </button>
+      <button type="button" class="btn btn-quiet" data-action="new" data-needs="data" hidden>
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 3.5H7A1.5 1.5 0 0 0 5.5 5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8.5zM13.5 3.5v5h5M12 11.5v6M9 14.5h6"/></svg>New file
+      </button>
+      <button type="button" class="btn btn-quiet" data-action="open">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7V5.5A1.5 1.5 0 0 1 5 4h4l2 2.5h8A1.5 1.5 0 0 1 20.5 8v1M3.5 7v11.5A1.5 1.5 0 0 0 5 20h13.2a1.5 1.5 0 0 0 1.45-1.1L22 10.9a1.5 1.5 0 0 0-1.45-1.9H7.6a1.5 1.5 0 0 0-1.45 1.1L3.5 19"/></svg>Open<span class="lbl-long"> XML or CSV</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<p class="privacy-bar">
+  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+  <span><strong>Your data stays on this computer.</strong> The page cannot send it anywhere, and it keeps nothing.
+  <a href="#privacy-check">Check it yourself</a> · <a href="https://github.com/otar/1batch.cy" rel="noopener noreferrer">Source code</a></span>
+</p>
+
+<!-- app.js removes this message when it starts -->
+<p class="noscript" id="no-js">This page needs JavaScript. The script runs only in your browser. Read app.js to see what it does.</p>
+
+<main>
+
+  <!-- How it works. app.js hides it when the list has payments. -->
+  <ol class="steps" id="steps" aria-label="How it works">
+    <li><span class="step-n" aria-hidden="true">1</span><span><strong>Add the payments</strong> <span class="step-text">Type them, paste from Excel, or open an old XML file.</span></span></li>
+    <li><span class="step-n" aria-hidden="true">2</span><span><strong>Download one XML file</strong> <span class="step-text">The page checks each payment first, with the rules of the bank.</span></span></li>
+    <li><span class="step-n" aria-hidden="true">3</span><span><strong>Upload it in 1bank</strong> <span class="step-text">In Multiple Payments, for Bank of Cyprus business customers. Then confirm with Digipass.</span></span></li>
+  </ol>
+
+  <!-- translate="no": online page translators do not get the payment data -->
+  <div class="editor" id="editor" translate="no">
+    <h1 class="sr-only">Make a payment file for 1bank</h1>
+
+    <section class="block" id="debtor" aria-labelledby="debtor-title">
+      <h2 class="block-title" id="debtor-title">Pay from</h2>
+
+      <div class="debtor-grid">
+        <div class="field f-name">
+          <label class="field-label" for="debtor-name">Company name</label>
+          <input class="input" id="debtor-name" data-debtor="name" type="text" placeholder="DEMO COMPANY LTD"
+                 autocomplete="off" spellcheck="false" aria-describedby="debtor-name-msg">
+          <div class="field-msg" id="debtor-name-msg" hidden></div>
+        </div>
+
+        <div class="field f-iban">
+          <label class="field-label" for="debtor-iban">Debit account <span class="label-note">(Bank of Cyprus IBAN)</span></label>
+          <input class="input mono caps" id="debtor-iban" data-debtor="iban" type="text" placeholder="CY17002001280000001200527600"
+                 autocomplete="off" spellcheck="false" autocapitalize="characters" aria-describedby="debtor-iban-msg debtor-iban-info">
+          <div class="field-msg" id="debtor-iban-msg" hidden></div>
+          <p class="field-info" id="debtor-iban-info"></p>
+        </div>
+
+        <div class="field f-date">
+          <label class="field-label" for="debtor-date">Execution date</label>
+          <input class="input" id="debtor-date" data-debtor="execDate" type="date"
+                 autocomplete="off" aria-describedby="debtor-date-msg debtor-date-words">
+          <div class="field-msg" id="debtor-date-msg" hidden></div>
+          <p class="field-info" id="debtor-date-words"></p>
+        </div>
+      </div>
+
+      <!-- The file reference is optional. One line. "Change" opens the field. -->
+      <div class="ref">
+        <p class="ref-line"><span id="ref-text"></span><span aria-hidden="true">·</span><button type="button" class="link" id="ref-toggle" data-action="edit-ref" aria-expanded="false" aria-controls="ref-field">Change</button></p>
+        <div class="field ref-field" id="ref-field" hidden>
+          <label class="field-label" for="debtor-ref">File reference</label>
+          <input class="input mono" id="debtor-ref" data-debtor="batchRef" type="text"
+                 autocomplete="off" spellcheck="false" aria-describedby="debtor-ref-msg debtor-ref-hint">
+          <div class="field-msg" id="debtor-ref-msg" hidden></div>
+          <p class="field-hint" id="debtor-ref-hint">Letters, digits and hyphens, 11 maximum. All payment IDs include the reference, so you can find the payments in your books. Empty: 6 random characters.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="payments-block" aria-labelledby="payments-title">
+      <div class="block-head">
+        <h2 class="block-title" id="payments-title">Payments</h2>
+        <div class="block-tools">
+          <p class="block-meta" id="payments-meta"></p>
+          <button type="button" class="btn btn-quiet btn-sm" id="clear-all" data-action="clear" hidden>
+            <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l.8 12.5h9.4L17.5 7"/></svg>Clear all
+          </button>
+        </div>
+      </div>
+
+      <!-- When the page opens, the table has sample payments -->
+      <div class="sample-note" id="sample-note" hidden>
+        <p><strong>This is sample data.</strong> The names and accounts are not real. Try the table, then clear it and add your payments.</p>
+        <button type="button" class="btn btn-primary btn-sm" data-action="clear">Clear and start</button>
+      </div>
+
+      <!-- After you open a file: what the page did, and help for the new month -->
+      <div class="opened" id="opened" hidden>
+        <div class="opened-head">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 3.5H7A1.5 1.5 0 0 0 5.5 5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8.5zM13.5 3.5v5h5"/></svg>
+          <p class="opened-text" id="opened-text"></p>
+          <button type="button" class="icon-btn" data-action="close-opened" aria-label="Close this message"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        </div>
+        <div class="month" id="month" hidden>
+          <strong>New month?</strong>
+          <label class="month-field"><span>Replace</span><input class="input mono" id="month-from" type="text" aria-label="Text to replace" autocomplete="off" spellcheck="false"></label>
+          <label class="month-field"><span>with</span><input class="input mono" id="month-to" type="text" aria-label="New text" autocomplete="off" spellcheck="false"></label>
+          <span>in the descriptions.</span>
+          <button type="button" class="btn btn-primary" id="month-btn" data-action="replace-month">Replace</button>
+        </div>
+        <p class="opened-tip">To change the amounts fast: click the first amount and type the new amount. Then press Enter to go to the next amount.</p>
+      </div>
+
+      <!-- An empty list: three ways to start -->
+      <div class="start" id="start" hidden>
+        <div class="start-cards">
+          <div class="start-card">
+            <h3 class="start-title"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="4.5" width="13" height="16" rx="1.5"/><path d="M9 4.5V3.5h6v1M9 10h6M9 13.5h6M9 17h3.5"/></svg>Paste from Excel</h3>
+            <p class="start-text">Copy the rows in Excel or Google Sheets. The columns can be in any order. You see a preview first.</p>
+            <textarea class="paste-box" id="paste-box" rows="2" aria-label="Paste the rows here" autocomplete="off" spellcheck="false"></textarea>
+          </div>
+          <div class="start-card">
+            <h3 class="start-title"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7V5.5A1.5 1.5 0 0 1 5 4h4l2 2.5h8A1.5 1.5 0 0 1 20.5 8v1M3.5 7v11.5A1.5 1.5 0 0 0 5 20h13.2a1.5 1.5 0 0 0 1.45-1.1L22 10.9a1.5 1.5 0 0 0-1.45-1.9H7.6a1.5 1.5 0 0 0-1.45 1.1L3.5 19"/></svg>Open an old XML file</h3>
+            <p class="start-text">A file from this page or from the command-line tool. The page fills in all the fields. You change only what is new. CSV files also work.</p>
+            <div class="start-act">
+              <button type="button" class="btn btn-quiet" data-action="open">Open XML or CSV</button>
+              <span class="start-note">or drop it here</span>
+            </div>
+          </div>
+          <div class="start-card">
+            <h3 class="start-title"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6.5" width="18" height="11" rx="1.5"/><path d="M7 10h.01M10.5 10h.01M14 10h.01M17 10h.01M7.5 14h9"/></svg>Type the payments</h3>
+            <p class="start-text">Start with one empty row. Tab goes to the next cell. Enter goes to the next row.</p>
+            <div class="start-act">
+              <button type="button" class="btn btn-primary" id="start-add" data-action="add"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add the first payment</button>
+            </div>
+          </div>
+        </div>
+        <p class="start-example">First time here? <button type="button" class="link" data-action="example">Show the sample data again</button>. The names and accounts are not real.</p>
+      </div>
+
+      <div class="sheet" id="sheet" hidden>
+        <!-- Desktop column names. The cells have their own labels for screen readers. -->
+        <div class="sheet-head" aria-hidden="true">
+          <span class="c-num">#</span>
+          <span class="c-name">Beneficiary name</span>
+          <span class="c-iban">IBAN</span>
+          <span class="c-amount">Amount, EUR</span>
+          <span class="c-desc">Description</span>
+          <span class="c-actions"></span>
+        </div>
+        <ol class="payments" id="payments" aria-labelledby="payments-title"></ol>
+        <button type="button" class="add-row" data-action="add">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add payment</span><span class="add-row-note">or paste rows from Excel</span>
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Below the editor: three blocks, one under the other -->
+  <div class="info">
+    <section class="guide-card" id="upload" aria-labelledby="upload-title">
+      <div class="guide-head">
+        <h2 class="info-title" id="upload-title">Upload in 1bank</h2>
+        <p class="guide-lead">After “Download XML”, do these six steps. You need your Digipass two times.</p>
+      </div>
+      <!-- app.js copies these steps into the window that opens after the download -->
+      <ol class="guide" id="guide">
+        <li class="guide-step" data-step="1">
+          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">1</span>Open Multiple Payments</h3>
+          <p>Log in to 1bank. Go to <strong>Transfers &amp; Payments › Mass Payments › Multiple Payments</strong>.</p>
+          <a class="shot" href="img/1bank-step-1.png" target="_blank" rel="noopener"><img src="img/1bank-step-1.png" alt="1bank: the Multiple Payments page" width="1600" height="1000" loading="lazy"></a>
+        </li>
+        <li class="guide-step" data-step="2">
+          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">2</span>Upload the file</h3>
+          <p>Click <strong>Select file</strong> and select the XML file. Then click <strong>Upload</strong>.</p>
+          <a class="shot" href="img/1bank-step-2.png" target="_blank" rel="noopener"><img src="img/1bank-step-2.png" alt="1bank: Select file and Upload" width="1600" height="1000" loading="lazy"></a>
+        </li>
+        <li class="guide-step" data-step="3">
+          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">3</span>Compare the totals</h3>
+          <p>Make sure that 1bank shows the same number of payments and the same total as this page.</p>
+          <a class="shot" href="img/1bank-step-3.png" target="_blank" rel="noopener"><img src="img/1bank-step-3.png" alt="1bank: the number of payments and the total" width="1600" height="1000" loading="lazy"></a>
+        </li>
+        <li class="guide-step" data-step="4">
+          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">4</span>Confirm the upload</h3>
+          <p>Enter the Digipass code. Then click <strong>Confirm</strong>.</p>
+          <a class="shot" href="img/1bank-step-4.png" target="_blank" rel="noopener"><img src="img/1bank-step-4.png" alt="1bank: the Digipass code and Confirm" width="1600" height="1000" loading="lazy"></a>
+        </li>
+        <li class="guide-step" data-step="5">
+          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">5</span>Read the result</h3>
+          <p>Read the result in 1bank <strong>Messages</strong>. Now 1bank makes a pending payment for each payment in the file. If 1bank rejects a payment, make a new file with only that payment.</p>
+          <a class="shot" href="img/1bank-step-5.png" target="_blank" rel="noopener"><img src="img/1bank-step-5.png" alt="1bank: the result in Messages" width="1600" height="1000" loading="lazy"></a>
+        </li>
+        <li class="guide-step" data-step="6">
+          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">6</span>Confirm the pending payments</h3>
+          <p>Go to <strong>[Pending Payments]</strong>. Confirm the payments with a second Digipass code. Then the bank sends them.</p>
+          <a class="shot" href="img/1bank-step-6.png" target="_blank" rel="noopener"><img src="img/1bank-step-6.png" alt="1bank: the pending payments" width="1600" height="1000" loading="lazy"></a>
+        </li>
+      </ol>
+    </section>
+
+    <section class="faq" id="faq" aria-labelledby="faq-title">
+      <h2 class="info-title" id="faq-title">FAQ</h2>
+      <div class="faq-list">
+          <details class="faq-item">
+            <summary><span class="faq-q">Who can use this page?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>Bank of Cyprus business customers who use 1bank with Multiple Payments. The debit account must be a Bank of Cyprus account in euro. If you do not see Multiple Payments in 1bank, ask your relationship manager.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">Is it free? Who made it?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>Yes, it is free and open source (MIT licence). An independent developer made it. It is not made by, or connected to, Bank of Cyprus. The code is on <a href="https://github.com/otar/1batch.cy" rel="noopener noreferrer">GitHub</a>.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">Can I stop and continue later?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>The page keeps nothing. Before you close the tab, download the XML file. If there are problems, use Export CSV. Next time, open the file here.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">Can I use it on a phone?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>Yes. On a phone, each payment shows as a card. For a large batch, a computer is faster: you can paste from Excel and use the keyboard.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">Is there a command-line tool?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>Yes: <a href="https://github.com/otar/boc_payments_xml" rel="noopener noreferrer">boc_payments_xml</a> on GitHub. It uses the same rules and makes the same XML. It reads CSV files in the same format as Export CSV.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">Where does my data go?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>Nowhere. The page runs only in your browser. Its security policy blocks all connections to servers. It uses no cookies and no storage, so the data is gone when you close the tab. There are no analytics, ads, fonts or scripts from other sites.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">How can I check this?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>Open the page, then turn off Wi-Fi or remove the network cable. Make a file and download it. It works, because the page does not use the network. You can also read the three code files with View Source.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">SEPA or TBOC: which one?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>TBOC is a transfer to a Bank of Cyprus account. SEPA is a euro transfer to a bank in the SEPA zone. The page sets the type from the IBAN. To change it, click “⋯” on the row.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">Which characters can I use?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>A–Z, a–z, 0–9, space and <span class="mono">/ - ? : ( ) . , ' +</span> The bank does not accept accents, Greek letters or <span class="mono">&amp;</span>. Names: 35 characters maximum. Descriptions: 140. For many errors, the page shows a button with a correction.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">Which execution date can I use?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>Today or a later business day. If you open an old file with a past date, the page moves it to the next business day. The bank has cut-off times for each payment type. For the times, see the Bank of Cyprus website or ask your relationship manager.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">How many payments can one file have?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>The page has no limit. 1bank can have a limit for each file: ask your relationship manager. With 1000 or more payments, the file reference must be shorter. The page tells you.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">What does the page check?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>The same rules as the command-line tool: names, IBANs, BICs, amounts, descriptions and the date. If one check fails, the page does not make the file. The bank name comes from a short list in the page. It does not prove that the account exists.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">Which CSV format can I open?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>The format of the command-line tool. The first line is <span class="mono">type,name,iban,bic,amount,description</span>. Then one line for each payment. Use Export CSV to get a correct example. A CSV file has no “Pay from” data.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">1bank does not accept the file. What now?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>Read the message in 1bank. Make the correction here, then download a new file and upload it. If the message is not clear, ask your relationship manager.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">1bank rejected one payment. What now?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>Make a new file with only that payment. Do not upload the full file again: the other payments would go two times.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">What are the bank fees?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>The page does not add fees. For the bank fees, see the Bank of Cyprus price list or ask your relationship manager. In the file, SEPA payments use shared charges (SLEV).</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-q">How do I use an old XML file again?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <div class="faq-a"><p>Click “Open XML or CSV” and select the old XML file. The page fills in all the fields and offers to change the month in the descriptions. Change the amounts, then download a new file.</p></div>
+          </details>
+      </div>
+    </section>
+
+    <section class="privacy-note" id="privacy" aria-labelledby="privacy-title">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      <div>
+        <h2 class="privacy-title" id="privacy-title">Your data stays on this computer.</h2>
+        <p>The page cannot send it anywhere, and it keeps nothing. No connections to servers, no cookies, no storage, no scripts from other sites.</p>
+        <p id="privacy-check"><strong>Check it yourself:</strong> open this page, turn off Wi-Fi, then make a file. It still works. <a href="https://github.com/otar/1batch.cy" rel="noopener noreferrer">Read the code on GitHub</a></p>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <p><span class="footer-brand">1batch.cy</span> For Bank of Cyprus business customers. Not made by, or connected to, Bank of Cyprus.</p>
+  <p><a href="https://github.com/otar/1batch.cy" rel="noopener noreferrer">Source code on GitHub</a> · No cookies. No tracking.</p>
+</footer>
+
+<!-- One payment. app.js copies this for each payment. -->
+<template id="row-template">
+  <li class="payment">
+    <div class="c-num">
+      <span class="grip" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span>
+      <span class="num"></span>
+    </div>
+    <label class="c-name">
+      <span class="c-label">Beneficiary name</span>
+      <input class="input" data-field="name" type="text" placeholder="Name as on the account" autocomplete="off" spellcheck="false">
+    </label>
+    <div class="c-iban">
+      <label class="c-label iban-label">IBAN</label>
+      <div class="iban-wrap">
+        <input class="input mono caps" data-field="iban" type="text" placeholder="IBAN" autocomplete="off" spellcheck="false" autocapitalize="characters">
+        <span class="iban-marks"><span class="type-tag" data-row-action="more" aria-hidden="true" hidden></span><span class="iban-ok" aria-hidden="true" hidden><svg class="icon" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span>
+      </div>
+      <p class="iban-info"></p>
+    </div>
+    <label class="c-amount">
+      <span class="c-label">Amount, EUR</span>
+      <input class="input" data-field="amount" type="text" inputmode="decimal" placeholder="0.00" autocomplete="off" spellcheck="false">
+    </label>
+    <label class="c-desc">
+      <span class="c-label">Description</span>
+      <input class="input" data-field="desc" type="text" placeholder="What the payment is for" autocomplete="off" spellcheck="false">
+    </label>
+    <!-- Row buttons: one Tab stop. The arrow keys move between them. -->
+    <div class="c-actions" role="toolbar">
+      <button type="button" class="icon-btn act-copy" data-row-action="duplicate" tabindex="-1"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="1.5"/><path d="M15.5 8.5V6A1.5 1.5 0 0 0 14 4.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/></svg></button>
+      <button type="button" class="icon-btn icon-btn-danger act-delete" data-row-action="delete" tabindex="-1"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l.8 12.5h9.4L17.5 7M10 10.5v6M14 10.5v6"/></svg></button>
+      <button type="button" class="icon-btn act-more" data-row-action="more" aria-expanded="false" tabindex="0"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/></svg></button>
+    </div>
+    <ul class="row-msgs"></ul>
+    <div class="row-more" hidden>
+      <label class="rm-field">
+        <span class="rm-label">Type</span>
+        <select class="input" data-field="type">
+          <option value="auto">Auto</option>
+          <option value="sepa">SEPA</option>
+          <option value="tboc">TBOC</option>
+        </select>
+      </label>
+      <label class="rm-field">
+        <span class="rm-label">Beneficiary BIC</span>
+        <input class="input mono caps" data-field="bic" type="text" autocomplete="off" spellcheck="false" autocapitalize="characters">
+      </label>
+      <p class="rm-hint">Auto: TBOC for a Bank of Cyprus IBAN, SEPA for all other IBANs. The BIC is optional. TBOC payments do not use it.</p>
+      <div class="rm-actions">
+        <button type="button" class="btn btn-quiet btn-sm rm-copy" data-row-action="duplicate">Copy</button>
+        <button type="button" class="btn btn-quiet btn-sm" data-row-action="up">Move up</button>
+        <button type="button" class="btn btn-quiet btn-sm" data-row-action="down">Move down</button>
+        <button type="button" class="btn btn-quiet btn-sm rm-delete" data-row-action="delete">Delete</button>
+      </div>
+    </div>
+  </li>
+</template>
+
+<!-- Bottom bar: number of payments, total, and the main button -->
+<div class="bar" id="bar" translate="no">
+  <div class="bar-in">
+    <div class="bar-text">
+      <p class="bar-sum"><span id="bar-count">0 payments</span> <strong class="mono" id="bar-total">€0.00</strong></p>
+      <p class="bar-status" id="bar-status" aria-live="polite"></p>
+    </div>
+    <div class="bar-nav" id="bar-nav" hidden>
+      <button type="button" class="bar-arrow" data-action="prev-problem" aria-label="Previous problem"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"/></svg></button>
+      <button type="button" class="bar-arrow" data-action="next-problem" aria-label="Next problem"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"/></svg></button>
+    </div>
+    <button type="button" class="btn btn-lg" id="bar-btn" data-action="download">Download XML</button>
+  </div>
+</div>
+
+<!-- After the download: what to compare in 1bank, and the upload steps -->
+<dialog class="dialog dialog-done" id="done" aria-labelledby="done-title" translate="no">
+  <div class="done-head">
+    <span class="done-ok" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+    <div>
+      <h2 class="dialog-title" id="done-title">The file is ready</h2>
+      <p class="done-file"><span class="mono" id="done-name"></span> is downloaded.</p>
+    </div>
+  </div>
+  <dl class="done-nums">
+    <div><dt>Payments</dt><dd class="mono" id="done-count"></dd></div>
+    <div><dt>Total</dt><dd class="mono" id="done-total"></dd></div>
+    <div><dt>Execution date</dt><dd class="done-date" id="done-date"></dd></div>
+  </dl>
+  <p class="done-note">1bank must show the same three values.</p>
+  <h3 class="done-sub">Upload the file in 1bank</h3>
+  <div id="done-guide"></div>
+  <p class="done-keep"><strong>Keep this file.</strong> Next month, open it here. Then change only what is new.</p>
+  <div class="dialog-actions">
+    <button type="button" class="btn btn-quiet" data-action="done-new">Start a new file</button>
+    <button type="button" class="btn btn-primary" id="done-close" data-action="done-close">Done</button>
+  </div>
+</dialog>
+
+<dialog class="dialog" id="dialog" aria-labelledby="dialog-title">
+  <h2 class="dialog-title" id="dialog-title"></h2>
+  <div class="dialog-body" id="dialog-body"></div>
+  <div class="dialog-actions" id="dialog-actions"></div>
+</dialog>
+
+<div class="toast" id="toast" role="status" hidden>
+  <p id="toast-text"></p>
+  <button type="button" class="btn btn-quiet btn-sm" id="toast-undo" hidden>Undo</button>
+  <button type="button" class="icon-btn" id="toast-close" aria-label="Close the message"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+</div>
+
+<p class="sr-only" id="announcer" aria-live="polite"></p>
+
+<div class="drop" id="drop" hidden><p>Drop the XML or CSV file to open it</p></div>
+
+<input type="file" id="file-input" accept=".xml,.csv,application/xml,text/xml,text/csv" hidden>
+
+</body>
+</html>

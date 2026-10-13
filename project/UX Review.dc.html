@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1batch.cy · Usability review</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#f5f2ea;color:#2b2c28;font:16px/1.55 system-ui,-apple-system,"Segoe UI","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#17573a;text-underline-offset:2px}
+a:hover{color:#1c1d1a}
+</style>
+</helmet>
+
+<header style="max-width:1100px;margin:0 auto;padding:56px 32px 36px;">
+  <p style="margin:0 0 12px;font-size:12.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5f6058;">Usability review · 9 October 2026 · desktop and phone</p>
+  <h1 style="margin:0 0 18px;font:600 46px/1.1 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;text-wrap:balance;">1batch<span style="color:#1f6f4a;">.cy</span>: the first file, with no help</h1>
+  <p style="max-width:760px;margin:0 0 14px;font-size:18px;text-wrap:pretty;">Goal: a bookkeeper opens the page for the first time and makes a correct 1bank file without reading help. I tested the page with an empty file, the example data, errors, an opened old file and a paste. Below are 8 changes, with the biggest gain first.</p>
+  <p style="max-width:760px;margin:0;color:#5f6058;text-wrap:pretty;">Users: accountants and bookkeepers who know 1bank, SEPA and BIC. They make a batch every month, from typing, Excel, a CSV export or last month's file. Method: Nielsen's 10 heuristics (H1–H10) and Krug's “Don't make me think”.</p>
+</header>
+
+<section id="summary" style="max-width:1100px;margin:0 auto;padding:8px 32px 48px;">
+  <h2 style="margin:0 0 6px;font:600 24px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">The 8 changes</h2>
+  <p style="margin:0 0 18px;font-size:14px;color:#5f6058;">Effort: S = small change, M = changes in HTML, CSS and JS, L = new flow.</p>
+  <ol style="list-style:none;margin:0;padding:0;border-top:1px solid #b8b1a1;">
+    <li style="display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:4px 16px;align-items:baseline;padding:13px 0;border-bottom:1px solid #ddd7c9;"><span style="font:600 22px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1f6f4a;">1</span><a href="#f1" style="font-weight:600;font-size:17px;text-decoration:none;color:#1c1d1a;">Say what the page does, and offer three ways to start</a><span style="font-size:13px;color:#5f6058;white-space:nowrap;">Gain high · Effort M · H6 H10</span></li>
+    <li style="display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:4px 16px;align-items:baseline;padding:13px 0;border-bottom:1px solid #ddd7c9;"><span style="font:600 22px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1f6f4a;">2</span><a href="#f2" style="font-weight:600;font-size:17px;text-decoration:none;color:#1c1d1a;">Show less in the payment list</a><span style="font-size:13px;color:#5f6058;white-space:nowrap;">Gain high · Effort M · H8 H7</span></li>
+    <li style="display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:4px 16px;align-items:baseline;padding:13px 0;border-bottom:1px solid #ddd7c9;"><span style="font:600 22px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1f6f4a;">3</span><a href="#f3" style="font-weight:600;font-size:17px;text-decoration:none;color:#1c1d1a;">One main button that always says “Download XML”</a><span style="font-size:13px;color:#5f6058;white-space:nowrap;">Gain high · Effort S · H4 H1</span></li>
+    <li style="display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:4px 16px;align-items:baseline;padding:13px 0;border-bottom:1px solid #ddd7c9;"><span style="font:600 22px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1f6f4a;">4</span><a href="#f4" style="font-weight:600;font-size:17px;text-decoration:none;color:#1c1d1a;">After the download, show the 1bank steps</a><span style="font-size:13px;color:#5f6058;white-space:nowrap;">Gain high · Effort M · H10 H1</span></li>
+    <li style="display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:4px 16px;align-items:baseline;padding:13px 0;border-bottom:1px solid #ddd7c9;"><span style="font:600 22px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1f6f4a;">5</span><a href="#f5" style="font-weight:600;font-size:17px;text-decoration:none;color:#1c1d1a;">Next month: start from last month's file</a><span style="font-size:13px;color:#5f6058;white-space:nowrap;">Gain high · Effort M · H7</span></li>
+    <li style="display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:4px 16px;align-items:baseline;padding:13px 0;border-bottom:1px solid #ddd7c9;"><span style="font:600 22px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1f6f4a;">6</span><a href="#f6" style="font-weight:600;font-size:17px;text-decoration:none;color:#1c1d1a;">Correct common errors with one click <span style="margin-left:6px;padding:2px 7px;border-radius:3px;background:#fbf2dc;color:#835000;font-size:12px;font-weight:600;vertical-align:2px;">Rejected before</span></a><span style="font-size:13px;color:#5f6058;white-space:nowrap;">Gain medium · Effort S · H9</span></li>
+    <li style="display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:4px 16px;align-items:baseline;padding:13px 0;border-bottom:1px solid #ddd7c9;"><span style="font:600 22px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1f6f4a;">7</span><a href="#f7" style="font-weight:600;font-size:17px;text-decoration:none;color:#1c1d1a;">Make “Pay from” shorter</a><span style="font-size:13px;color:#5f6058;white-space:nowrap;">Gain medium · Effort S · H8 H5</span></li>
+    <li style="display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:4px 16px;align-items:baseline;padding:13px 0;border-bottom:1px solid #ddd7c9;"><span style="font:600 22px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1f6f4a;">8</span><a href="#f8" style="font-weight:600;font-size:17px;text-decoration:none;color:#1c1d1a;">Help and privacy: a new layout (3 directions)</a><span style="font-size:13px;color:#5f6058;white-space:nowrap;">Gain medium · Effort M · H8 H10</span></li>
+  </ol>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px 48px;margin-top:32px;">
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5f6058;">Keep: this works well</h3>
+      <ul style="margin:0;padding-left:18px;font-size:15px;display:grid;gap:4px;">
+        <li>Undo for 10 seconds, not “Are you sure?” dialogs.</li>
+        <li>Errors show only after you leave a field.</li>
+        <li>Count and total are always in the bottom bar.</li>
+        <li>Enter goes down one row, as in a spreadsheet.</li>
+        <li>The paste preview shows the columns before it adds rows.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5f6058;">Heuristics used</h3>
+      <p style="margin:0;font-size:14px;color:#5f6058;">H1 status is visible · H2 real-world words · H3 control and freedom · H4 consistency · H5 error prevention · H6 recognition, not recall · H7 efficiency · H8 minimalist design · H9 recover from errors · H10 help</p>
+    </div>
+  </div>
+</section>
+
+<section id="f1" style="max-width:1100px;margin:0 auto;padding:56px 32px 24px;border-top:1px solid #b8b1a1;">
+  <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:10px;"><span style="font:600 44px/1 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1f6f4a;">1</span><h2 style="margin:0;font:600 30px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;text-wrap:balance;">Say what the page does, and offer three ways to start</h2></div>
+  <p style="margin:0 0 26px 0;font-size:13.5px;color:#5f6058;">Gain high · Effort M · H6 recognition, not recall · H10 help · your note 1</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px 48px;margin-bottom:32px;">
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#b3261e;">What users see</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>The first screen is a form. It does not say what the result is, or how it saves work.</li>
+        <li>The tagline “Batch payment files for Bank of Cyprus 1bank” names the file, not the gain.</li>
+        <li>Two of the three ways to start are hidden. Paste is a grey sentence under the list. “Open file” does not say which files. Drag and drop has no sign.</li>
+        <li>Three “Add payment” buttons show at the same time. “New file” on an empty page does nothing.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#1f6f4a;">The fix</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>Tagline with the gain: “One file for all your payments. Upload it once in 1bank.” Plus “Free and open source”.</li>
+        <li>Three steps above the form: add, download, upload. They go away when the list has data.</li>
+        <li>An empty list shows three start cards: paste from Excel (with a paste box), open last month's file, type. Plus “See an example”.</li>
+        <li>One way to add a row. “New file” shows only when there is data.</li>
+      </ul>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1c1d1a;color:#fff;">Before</span><span style="font-size:13.5px;color:#5f6058;">First visit, desktop</span></div>
+  <div style="border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;background:#fff;margin-bottom:28px;"><img src="review/shots/d-first.png" alt="The first screen now: a form with three fields and an empty payment row" style="display:block;width:100%;height:auto;"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1f6f4a;color:#fff;">After</span><span style="font-size:13.5px;color:#5f6058;">First visit, desktop</span></div>
+  <div id="f1-after" style="border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;background:#f5f2ea;margin-bottom:12px;">
+    <div data-fit="1240" style="width:1240px;background:#f5f2ea;font:15px/1.5 system-ui,-apple-system,'Segoe UI','Helvetica Neue',sans-serif;color:#2b2c28;">
+      <div style="display:flex;align-items:center;gap:20px;padding:14px 24px;border-bottom:1px solid #ddd7c9;">
+        <span style="font:700 24px/1 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;letter-spacing:-.01em;">1batch<span style="color:#1f6f4a;">.cy</span></span>
+        <span style="font-size:14.5px;color:#2b2c28;">One file for all your payments. Upload it once in Bank of Cyprus 1bank.</span>
+        <span style="margin-left:auto;font-size:13px;color:#5f6058;">Free and open source</span>
+        <span style="display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;color:#1c1d1a;font:600 14px/1.2 system-ui,sans-serif;white-space:nowrap;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7V5.5A1.5 1.5 0 0 1 5 4h4l2 2.5h8A1.5 1.5 0 0 1 20.5 8v1M3.5 7v11.5A1.5 1.5 0 0 0 5 20h13.2a1.5 1.5 0 0 0 1.45-1.1L22 10.9a1.5 1.5 0 0 0-1.45-1.9H7.6a1.5 1.5 0 0 0-1.45 1.1L3.5 19"></path></svg>Open XML or CSV</span>
+      </div>
+      <div style="display:flex;justify-content:center;align-items:center;gap:10px;padding:10px 24px;background:#e5eee7;border-bottom:1px solid #c9dccf;color:#17573a;font-size:14px;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="1.5"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+        <span><strong style="color:#1c1d1a;">Your data stays on this computer.</strong> The page cannot send it anywhere, and it keeps nothing. <u style="font-weight:600;">Check it yourself</u> · <u style="font-weight:600;">Source code</u></span>
+      </div>
+      <div style="padding:26px 24px 30px;">
+        <ol style="list-style:none;margin:0 0 30px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #ddd7c9;border-radius:3px;background:#fffdf8;">
+          <li style="display:flex;gap:14px;padding:16px 20px;border-right:1px solid #ddd7c9;"><span style="flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#1c1d1a;color:#fff;font:600 15px/1 'Iowan Old Style',Palatino,Georgia,serif;">1</span><span><strong style="display:block;color:#1c1d1a;">Add the payments</strong><span style="font-size:14px;color:#5f6058;">Type them, paste from Excel, or open last month's file.</span></span></li>
+          <li style="display:flex;gap:14px;padding:16px 20px;border-right:1px solid #ddd7c9;"><span style="flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#1c1d1a;color:#fff;font:600 15px/1 'Iowan Old Style',Palatino,Georgia,serif;">2</span><span><strong style="display:block;color:#1c1d1a;">Download one XML file</strong><span style="font-size:14px;color:#5f6058;">The page checks each payment first, with the bank's rules.</span></span></li>
+          <li style="display:flex;gap:14px;padding:16px 20px;"><span style="flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#1c1d1a;color:#fff;font:600 15px/1 'Iowan Old Style',Palatino,Georgia,serif;">3</span><span><strong style="display:block;color:#1c1d1a;">Upload it in 1bank</strong><span style="font-size:14px;color:#5f6058;">In Multiple Payments. Approve all with one Digipass code.</span></span></li>
+        </ol>
+        <h2 style="margin:0 0 14px;font:600 24px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Pay from</h2>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) 220px;gap:16px 20px;padding:18px 20px;background:#fffdf8;border:1px solid #ddd7c9;border-radius:3px;">
+          <div style="display:grid;gap:5px;align-content:start;"><span style="font-weight:600;font-size:13px;color:#1c1d1a;">Company name</span><span style="display:flex;align-items:center;min-height:42px;padding:8px 11px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;color:#8b8a80;">DEMO COMPANY LTD</span></div>
+          <div style="display:grid;gap:5px;align-content:start;"><span style="font-weight:600;font-size:13px;color:#1c1d1a;">Debit account <span style="font-weight:400;color:#5f6058;">(Bank of Cyprus IBAN)</span></span><span style="display:flex;align-items:center;min-height:42px;padding:8px 11px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;color:#8b8a80;font:14px/1.3 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">CY17002001280000001200527600</span></div>
+          <div style="display:grid;gap:5px;align-content:start;"><span style="font-weight:600;font-size:13px;color:#1c1d1a;">Execution date</span><span style="display:flex;align-items:center;justify-content:space-between;min-height:42px;padding:8px 11px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;color:#1c1d1a;">12.10.2026<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="5.5" width="16" height="14" rx="1.5"></rect><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"></path></svg></span><span style="font-size:13px;color:#5f6058;">Monday 12 October 2026</span></div>
+        </div>
+        <p style="margin:8px 2px 34px;font-size:13px;color:#5f6058;">File reference MSXHDS (random) · <u style="color:#17573a;">Change</u></p>
+        <h2 style="margin:0 0 14px;font:600 24px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Payments</h2>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;">
+          <div style="display:flex;flex-direction:column;gap:10px;padding:18px 20px 20px;background:#fffdf8;border:1px solid #ddd7c9;border-radius:3px;">
+            <div style="display:flex;align-items:center;gap:10px;color:#1c1d1a;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="4.5" width="13" height="16" rx="1.5"></rect><path d="M9 4.5V3.5h6v1M9 10h6M9 13.5h6M9 17h3.5"></path></svg><strong style="font-size:16px;">Paste from Excel</strong></div>
+            <p style="margin:0;font-size:14px;color:#5f6058;">Copy the rows in Excel or Google Sheets. The columns can be in any order. You see a preview first.</p>
+            <div style="margin-top:auto;display:grid;place-items:center;min-height:64px;border:1.5px dashed #1f6f4a;border-radius:3px;background:#f1f6f1;color:#17573a;font-size:14px;font-weight:600;">Click here, then press Ctrl+V</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;padding:18px 20px 20px;background:#fffdf8;border:1px solid #ddd7c9;border-radius:3px;">
+            <div style="display:flex;align-items:center;gap:10px;color:#1c1d1a;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7V5.5A1.5 1.5 0 0 1 5 4h4l2 2.5h8A1.5 1.5 0 0 1 20.5 8v1M3.5 7v11.5A1.5 1.5 0 0 0 5 20h13.2a1.5 1.5 0 0 0 1.45-1.1L22 10.9a1.5 1.5 0 0 0-1.45-1.9H7.6a1.5 1.5 0 0 0-1.45 1.1L3.5 19"></path></svg><strong style="font-size:16px;">Open last month's file</strong></div>
+            <p style="margin:0;font-size:14px;color:#5f6058;">An XML file from this page, or a CSV file. The page fills in all the fields. You change only what is new.</p>
+            <div style="margin-top:auto;display:flex;align-items:center;gap:12px;min-height:64px;"><span style="display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;color:#1c1d1a;font:600 14px/1.2 system-ui,sans-serif;white-space:nowrap;">Open XML or CSV</span><span style="font-size:13px;color:#5f6058;">or drop it here</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;padding:18px 20px 20px;background:#fffdf8;border:1px solid #ddd7c9;border-radius:3px;">
+            <div style="display:flex;align-items:center;gap:10px;color:#1c1d1a;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="11" rx="1.5"></rect><path d="M7 10h.01M10.5 10h.01M14 10h.01M17 10h.01M7.5 14h9"></path></svg><strong style="font-size:16px;">Type the payments</strong></div>
+            <p style="margin:0;font-size:14px;color:#5f6058;">Start with one empty row. Tab goes to the next cell. Enter goes to the next row.</p>
+            <div style="margin-top:auto;display:flex;align-items:center;min-height:64px;"><span style="display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;border-radius:3px;background:#1f6f4a;color:#fff;font:600 14px/1.2 system-ui,sans-serif;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Add the first payment</span></div>
+          </div>
+        </div>
+        <p style="margin:14px 2px 0;font-size:14px;color:#5f6058;">First time here? <u style="color:#17573a;">See an example with 8 payments</u>. The names and accounts are not real.</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;min-height:76px;padding:10px 24px;background:#1c1d1a;color:#f3f0e8;">
+        <div style="flex:1;"><p style="margin:0;font-size:15px;">0 payments<strong style="margin-left:8px;font:600 17px ui-monospace,'SF Mono',Menlo,Consolas,monospace;color:#fff;">€0.00</strong></p><p style="display:flex;align-items:center;gap:8px;margin:2px 0 0;font-size:13px;color:#cfcabd;"><span style="width:8px;height:8px;border-radius:50%;background:#8b8a80;"></span>Add payments to start.</p></div>
+        <span style="display:inline-flex;align-items:center;min-height:46px;padding:0 22px;border:1px solid #5f6058;border-radius:3px;color:#cfcabd;font:600 15px/1.2 system-ui,sans-serif;">Download XML</span>
+      </div>
+    </div>
+  </div>
+  <p style="margin:0 0 8px;font-size:13.5px;color:#5f6058;max-width:760px;">The header keeps only “Open XML or CSV” on an empty page. With data, it also shows “Export CSV” and “New file”.</p>
+</section>
+
+
+<section id="f2" style="max-width:1100px;margin:0 auto;padding:56px 32px 24px;border-top:1px solid #b8b1a1;">
+  <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:10px;"><span style="font:600 44px/1 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1f6f4a;">2</span><h2 style="margin:0;font:600 30px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;text-wrap:balance;">Show less in the payment list</h2></div>
+  <p style="margin:0 0 26px;font-size:13.5px;color:#5f6058;">Gain high · Effort M · H8 minimalist design · H7 efficiency · your note 2</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px 48px;margin-bottom:32px;">
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#b3261e;">What users see</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>Each payment has two lines and ten controls: checkbox, handle, four cells, type label, bank line and three icons. 30 payments give 300 things to scan.</li>
+        <li>You marked these as too much: search, column sort, the type and bank line under each IBAN, and the “More” line.</li>
+        <li>A click on a column name sorts the payments. This also changes their order in the file, and nothing says so.</li>
+        <li>With Tab, each row has 6 extra stops between the cells.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#1f6f4a;">The fix</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>One line for each payment: number, name, IBAN, amount, description.</li>
+        <li>A green ✓ in the IBAN cell for a valid IBAN. The bank and the type show only while the cell has focus. A row shows its type only if you changed it.</li>
+        <li>The handle and the row actions show on hover and on focus. The actions are one Tab stop. The arrow keys move between them.</li>
+        <li>Remove search, column sort and the checkboxes. Delete rows one at a time, with Undo.</li>
+        <li>One “Add payment” row at the end. Enter in the last row also adds a row.</li>
+        <li>“Export CSV” moves to the header, next to “Open”. All file actions are in one place.</li>
+      </ul>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1c1d1a;color:#fff;">Before</span><span style="font-size:13.5px;color:#5f6058;">Example data, desktop</span></div>
+  <div style="border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;background:#fff;margin-bottom:28px;"><img src="review/shots/d-grid.png" alt="The payment list now: two lines for each payment, with type labels, bank names, checkboxes and icons" style="display:block;width:100%;height:auto;"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1f6f4a;color:#fff;">After</span><span style="font-size:13.5px;color:#5f6058;">Example data, desktop. Row 2 has focus in the IBAN cell. The pointer is on row 3.</span></div>
+  <div style="border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;background:#f5f2ea;margin-bottom:10px;">
+    <div data-fit="1240" style="width:1240px;padding:26px 24px 28px;background:#f5f2ea;font:15px/1.5 system-ui,-apple-system,'Segoe UI','Helvetica Neue',sans-serif;color:#2b2c28;">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;"><h2 style="margin:0;font:600 24px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Payments</h2><span style="font-size:14px;color:#5f6058;">5 SEPA · 3 TBOC</span></div>
+      <div style="background:#fffdf8;border:1px solid #ddd7c9;border-radius:3px;font-size:14px;color:#1c1d1a;">
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:40px;padding:0 10px;border-bottom:1px solid #b8b1a1;font-size:12.5px;font-weight:600;color:#5f6058;">
+          <span style="padding-left:30px;">#</span><span style="padding-left:11px;">Beneficiary name</span><span style="padding-left:11px;">IBAN</span><span style="text-align:right;padding-right:11px;">Amount, EUR</span><span style="padding-left:11px;">Description</span><span></span>
+        </div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:46px;padding:0 10px;">
+          <span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">1</span>
+          <span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">ANDREAS GEORGIOU</span>
+          <span style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">CY21002001950000357001234567<span style="display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span style="display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#c08308;color:#fff;font:700 11px/1 system-ui,sans-serif;">1</span></span></span>
+          <span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">2450.00</span>
+          <span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">SALARY SEPTEMBER 2026</span>
+          <span></span>
+        </div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:start;padding:4px 10px 8px;border-top:1px solid #ddd7c9;">
+          <span style="padding:12px 0 0 30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">2</span>
+          <span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">ELENI CHRISTOU</span>
+          <span style="display:grid;gap:4px;"><span style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#fff;border:1px solid #1f6f4a;box-shadow:0 0 0 1px #1f6f4a;border-radius:3px;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">CY16002003020000357009876543<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="display:flex;align-items:center;gap:6px;padding-left:11px;font-size:12.5px;color:#5f6058;">Bank of Cyprus · Cyprus · TBOC<span style="display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#c08308;color:#fff;font:700 11px/1 system-ui,sans-serif;">2</span></span></span>
+          <span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">2180.00</span>
+          <span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">SALARY SEPTEMBER 2026</span>
+          <span></span>
+        </div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:46px;padding:0 10px;border-top:1px solid #ddd7c9;background:#f6f2e8;">
+          <span style="display:flex;align-items:center;gap:6px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;"><svg viewBox="0 0 24 24" width="22" height="22" fill="#5f6058"><circle cx="9" cy="6" r="1.5"></circle><circle cx="15" cy="6" r="1.5"></circle><circle cx="9" cy="12" r="1.5"></circle><circle cx="15" cy="12" r="1.5"></circle><circle cx="9" cy="18" r="1.5"></circle><circle cx="15" cy="18" r="1.5"></circle></svg>3</span>
+          <span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #b8b1a1;">MICHALIS IOANNOU</span>
+          <span style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;box-shadow:inset 0 -1px 0 #b8b1a1;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">CY25002005700000357004561237<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+          <span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #b8b1a1;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">1960.50</span>
+          <span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #b8b1a1;">SALARY SEPTEMBER 2026</span>
+          <span style="display:flex;align-items:center;justify-content:flex-end;gap:2px;color:#5f6058;"><span style="display:grid;place-items:center;width:30px;height:30px;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="11" height="11" rx="1.5"></rect><path d="M15.5 8.5V6A1.5 1.5 0 0 0 14 4.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"></path></svg></span><span style="display:grid;place-items:center;width:30px;height:30px;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l.8 12.5h9.4L17.5 7"></path></svg></span><span style="display:grid;place-items:center;width:30px;height:30px;"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="6" cy="12" r="1.4"></circle><circle cx="12" cy="12" r="1.4"></circle><circle cx="18" cy="12" r="1.4"></circle></svg></span><span style="display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#c08308;color:#fff;font:700 11px/1 system-ui,sans-serif;">3</span></span>
+        </div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:46px;padding:0 10px;border-top:1px solid #ddd7c9;">
+          <span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">4</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">LIMASSOL OFFICE RENT LTD</span><span style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">CY15005001040000001017733441<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">1500.00</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">OFFICE RENT OCTOBER 2026</span><span></span>
+        </div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:46px;padding:0 10px;border-top:1px solid #ddd7c9;">
+          <span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">5</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">MUELLER SOFTWARE GMBH</span><span style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">DE89370400440532013000<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">3200.00</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">INVOICE 2026-0917</span><span></span>
+        </div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:46px;padding:0 10px;border-top:1px solid #ddd7c9;">
+          <span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">6</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">DE VRIES CONSULTING B.V.</span><span style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">NL91ABNA0417164300<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">875.25</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">INVOICE NL-4471</span><span></span>
+        </div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:46px;padding:0 10px;border-top:1px solid #ddd7c9;">
+          <span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">7</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">ATHENS DESIGN STUDIO</span><span style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">GR1601101250000000012300695<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">640.00</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">WEBSITE DESIGN - PHASE 2</span><span></span>
+        </div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:46px;padding:0 10px;border-top:1px solid #ddd7c9;">
+          <span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">8</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">BRUXELLES TRADING</span><span style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">BE68539007547034<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">199.99</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">ORDER 88213</span><span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;min-height:48px;padding:0 20px 0 50px;border-top:1px solid #ddd7c9;color:#17573a;font-weight:600;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Add payment<span style="margin-left:8px;font-weight:400;color:#5f6058;">or paste rows from Excel</span><span style="display:grid;place-items:center;width:18px;height:18px;margin-left:6px;border-radius:50%;background:#c08308;color:#fff;font:700 11px/1 system-ui,sans-serif;">4</span></div>
+      </div>
+    </div>
+  </div>
+  <ol style="margin:0 0 30px;padding-left:22px;font-size:14px;color:#5f6058;display:grid;gap:2px;max-width:820px;">
+    <li>✓ means the IBAN has a correct length and check digits.</li>
+    <li>The bank and the type show only while you type in the cell.</li>
+    <li>The handle, Copy, Delete and “⋯” (type and BIC) show on hover and on focus. On touch screens they always show.</li>
+    <li>One way to add a row. No search, no sort, no checkboxes.</li>
+  </ol>
+  <div style="display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;">
+    <div style="display:grid;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1c1d1a;color:#fff;">Before</span><span style="font-size:13.5px;color:#5f6058;">Phone</span></div>
+      <div style="width:330px;border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;background:#fff;"><img src="review/shots/m-cards.png" alt="Phone now: search, select all, sort and a card with five controls in its header" style="display:block;width:100%;height:auto;"></div>
+    </div>
+    <div style="display:grid;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1f6f4a;color:#fff;">After</span><span style="font-size:13.5px;color:#5f6058;">Phone</span></div>
+      <div style="width:330px;border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;background:#f5f2ea;">
+        <div data-fit="390" style="width:390px;height:540px;overflow:hidden;padding:16px 12px;background:#f5f2ea;font:16px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;color:#2b2c28;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;"><h2 style="margin:0;font:600 24px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Payments</h2><span style="font-size:14px;color:#5f6058;">5 SEPA · 3 TBOC</span></div>
+          <div style="display:grid;gap:10px;padding:8px 6px 14px 14px;background:#fffdf8;border:1px solid #ddd7c9;border-radius:3px;margin-bottom:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;"><strong style="font-size:14px;color:#1c1d1a;">Payment 1</strong><span style="display:grid;place-items:center;width:44px;height:44px;color:#5f6058;"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><circle cx="6" cy="12" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="18" cy="12" r="1.5"></circle></svg></span></div>
+            <div style="display:grid;gap:4px;padding-right:8px;"><span style="font-size:12px;font-weight:600;color:#1c1d1a;">Beneficiary name</span><span style="display:flex;align-items:center;min-height:44px;padding:8px 11px;border:1px solid #b8b1a1;border-radius:3px;color:#1c1d1a;">ANDREAS GEORGIOU</span></div>
+            <div style="display:grid;gap:4px;padding-right:8px;"><span style="font-size:12px;font-weight:600;color:#1c1d1a;">IBAN</span><span style="display:flex;align-items:center;justify-content:space-between;min-height:44px;padding:8px 11px;border:1px solid #b8b1a1;border-radius:3px;color:#1c1d1a;font:15px/1.3 ui-monospace,'SF Mono',Menlo,monospace;">CY21002001950000357001234567<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span></div>
+            <div style="display:grid;grid-template-columns:118px minmax(0,1fr);gap:10px;padding-right:8px;">
+              <div style="display:grid;gap:4px;"><span style="font-size:12px;font-weight:600;color:#1c1d1a;">Amount, EUR</span><span style="display:flex;align-items:center;justify-content:flex-end;min-height:44px;padding:8px 11px;border:1px solid #b8b1a1;border-radius:3px;color:#1c1d1a;font:15px/1.3 ui-monospace,'SF Mono',Menlo,monospace;">2450.00</span></div>
+              <div style="display:grid;gap:4px;"><span style="font-size:12px;font-weight:600;color:#1c1d1a;">Description</span><span style="display:flex;align-items:center;min-height:44px;padding:8px 11px;border:1px solid #b8b1a1;border-radius:3px;color:#1c1d1a;white-space:nowrap;overflow:hidden;">SALARY SEPTEMBER 2026</span></div>
+            </div>
+          </div>
+          <div style="display:grid;gap:10px;padding:8px 6px 14px 14px;background:#fffdf8;border:1px solid #ddd7c9;border-radius:3px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;"><strong style="font-size:14px;color:#1c1d1a;">Payment 2</strong><span style="display:grid;place-items:center;width:44px;height:44px;color:#5f6058;"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><circle cx="6" cy="12" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="18" cy="12" r="1.5"></circle></svg></span></div>
+            <div style="display:grid;gap:4px;padding-right:8px;"><span style="font-size:12px;font-weight:600;color:#1c1d1a;">Beneficiary name</span><span style="display:flex;align-items:center;min-height:44px;padding:8px 11px;border:1px solid #b8b1a1;border-radius:3px;color:#1c1d1a;">ELENI CHRISTOU</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="flex:1 1 260px;margin:34px 0 0;font-size:14.5px;color:#5f6058;text-wrap:pretty;">On a phone, the same changes remove the search box, “Select all”, “Sort” and four of the five card controls. Amount and description share one line. One “⋯” menu holds Copy, Move, Type and BIC, and Delete.</p>
+  </div>
+</section>
+
+<section id="f3" style="max-width:1100px;margin:0 auto;padding:56px 32px 24px;border-top:1px solid #b8b1a1;">
+  <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:10px;"><span style="font:600 44px/1 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1f6f4a;">3</span><h2 style="margin:0;font:600 30px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;text-wrap:balance;">One main button that always says “Download XML”</h2></div>
+  <p style="margin:0 0 26px;font-size:13.5px;color:#5f6058;">Gain high · Effort S · H4 consistency · H1 status is visible</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px 48px;margin-bottom:32px;">
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#b3261e;">What users see</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>The main button changes its name and its job: “Add payment”, then “Show next error”, then “Download XML”. Users must read it again each time.</li>
+        <li>“Show next error” is a strange main action. Users want the file, not the errors.</li>
+        <li>On a narrow screen, the bar cuts the error text. “Look at 2 warnings” has no link.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#1f6f4a;">The fix</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>The button always says “Download XML”. If there are problems, a click shows all of them and goes to the first one.</li>
+        <li>The bar gives the state in words. The button is green only when the file is ready.</li>
+        <li>Arrows go to the previous and the next problem. The bar has the short text. The row has the full text.</li>
+        <li>“1 warning” is a link to the warning. Warnings do not stop the download.</li>
+      </ul>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1c1d1a;color:#fff;">Before</span><span style="font-size:13.5px;color:#5f6058;">The bottom bar: empty, with errors, ready</span></div>
+  <div style="display:grid;gap:6px;margin-bottom:28px;">
+    <div style="position:relative;aspect-ratio:909/56;overflow:hidden;border:1px solid #b8b1a1;border-radius:4px;"><img src="review/shots/d-first.png" alt="Bar with the button Add payment" style="position:absolute;left:0;bottom:0;width:100%;height:auto;"></div>
+    <div style="position:relative;aspect-ratio:909/56;overflow:hidden;border:1px solid #b8b1a1;border-radius:4px;"><img src="review/shots/d-errors-bar.png" alt="Bar with the button Show next error" style="position:absolute;left:0;bottom:0;width:100%;height:auto;"></div>
+    <div style="position:relative;aspect-ratio:909/56;overflow:hidden;border:1px solid #b8b1a1;border-radius:4px;"><img src="review/shots/d-ready-toast.png" alt="Bar with the button Download XML" style="position:absolute;left:0;bottom:0;width:100%;height:auto;"></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1f6f4a;color:#fff;">After</span><span style="font-size:13.5px;color:#5f6058;">The same three states. The button keeps its name.</span></div>
+  <div style="display:grid;gap:6px;margin-bottom:12px;">
+    <div style="border-radius:4px;overflow:hidden;">
+      <div data-fit="1240" style="width:1240px;display:flex;align-items:center;gap:16px;min-height:76px;padding:10px 24px;background:#1c1d1a;color:#f3f0e8;font:15px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;">
+        <div style="flex:1;"><p style="margin:0;">0 payments<strong style="margin-left:8px;font:600 17px ui-monospace,'SF Mono',Menlo,Consolas,monospace;color:#fff;">€0.00</strong></p><p style="display:flex;align-items:center;gap:8px;margin:2px 0 0;font-size:13px;color:#cfcabd;"><span style="width:8px;height:8px;border-radius:50%;background:#8b8a80;"></span>Add payments to start.</p></div>
+        <span style="display:inline-flex;align-items:center;min-height:46px;padding:0 22px;border:1px solid #5f6058;border-radius:3px;color:#cfcabd;font:600 15px/1.2 system-ui,sans-serif;">Download XML</span>
+      </div>
+    </div>
+    <div style="border-radius:4px;overflow:hidden;">
+      <div data-fit="1240" style="width:1240px;display:flex;align-items:center;gap:16px;min-height:76px;padding:10px 24px;background:#1c1d1a;color:#f3f0e8;font:15px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;">
+        <div style="flex:1;min-width:0;"><p style="margin:0;">8 payments<strong style="margin-left:8px;font:600 17px ui-monospace,'SF Mono',Menlo,Consolas,monospace;color:#fff;">€12,365.74</strong></p><p style="display:flex;align-items:center;gap:8px;margin:2px 0 0;font-size:13px;color:#cfcabd;"><span style="width:8px;height:8px;border-radius:50%;background:#f08a7e;"></span><strong style="color:#fff;font-weight:600;">3 problems to correct.</strong> Problem 1: payment 3, IBAN check digits.</p></div>
+        <span style="display:flex;gap:4px;"><span style="display:grid;place-items:center;width:40px;height:40px;border:1px solid #5f6058;border-radius:3px;color:#f3f0e8;font-size:18px;">‹</span><span style="display:grid;place-items:center;width:40px;height:40px;border:1px solid #5f6058;border-radius:3px;color:#f3f0e8;font-size:18px;">›</span></span>
+        <span style="display:inline-flex;align-items:center;min-height:46px;padding:0 22px;border-radius:3px;background:#fffdf8;color:#1c1d1a;font:600 15px/1.2 system-ui,sans-serif;">Download XML</span>
+      </div>
+    </div>
+    <div style="border-radius:4px;overflow:hidden;">
+      <div data-fit="1240" style="width:1240px;display:flex;align-items:center;gap:16px;min-height:76px;padding:10px 24px;background:#1c1d1a;color:#f3f0e8;font:15px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;">
+        <div style="flex:1;"><p style="margin:0;">8 payments<strong style="margin-left:8px;font:600 17px ui-monospace,'SF Mono',Menlo,Consolas,monospace;color:#fff;">€13,005.74</strong></p><p style="display:flex;align-items:center;gap:8px;margin:2px 0 0;font-size:13px;color:#cfcabd;"><span style="width:8px;height:8px;border-radius:50%;background:#6fcf97;"></span>All 8 payments pass the checks.<u style="color:#f3d38a;font-weight:600;">1 warning</u></p></div>
+        <span style="display:inline-flex;align-items:center;min-height:46px;padding:0 22px;border-radius:3px;background:#2a8a5d;color:#fff;font:600 15px/1.2 system-ui,sans-serif;">Download XML</span>
+      </div>
+    </div>
+  </div>
+  <p style="margin:0 0 8px;font-size:13.5px;color:#5f6058;max-width:760px;">A click on “Download XML” with problems: the page shows all problems, goes to the first one and says “Correct 3 problems first.” It does not make a file. This is the same rule as the CLI.</p>
+</section>
+
+<section id="f4" style="max-width:1100px;margin:0 auto;padding:56px 32px 24px;border-top:1px solid #b8b1a1;">
+  <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:10px;"><span style="font:600 44px/1 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1f6f4a;">4</span><h2 style="margin:0;font:600 30px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;text-wrap:balance;">After the download, show the 1bank steps</h2></div>
+  <p style="margin:0 0 26px;font-size:13.5px;color:#5f6058;">Gain high · Effort M · H10 help · H1 status is visible · your 1bank screenshots idea</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px 48px;margin-bottom:32px;">
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#b3261e;">What users see</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>After the download, a small message says “Upload it in 1bank. Then approve it with Digipass.” It closes after 6 seconds.</li>
+        <li>The 1bank steps and the numbers to compare are one sentence in Help, far below.</li>
+        <li>Nothing says what to do if 1bank does not accept one payment. If users upload the full file again, the good payments go two times.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#1f6f4a;">The fix</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>A panel opens after the download: the file name, the three numbers to compare in 1bank, and five steps with screenshots.</li>
+        <li>Step 5 says: if 1bank rejects a payment, make a new file with only that payment.</li>
+        <li>“Keep this file” points to change 5, for next month.</li>
+        <li>The same steps are in Help, for users who read first. The screenshots are image files, as you decided.</li>
+      </ul>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1c1d1a;color:#fff;">Before</span><span style="font-size:13.5px;color:#5f6058;">Just after “Download XML”</span></div>
+  <div style="border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;background:#fff;margin-bottom:28px;"><img src="review/shots/d-ready-toast.png" alt="A short message above the bottom bar after the download" style="display:block;width:100%;height:auto;"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1f6f4a;color:#fff;">After</span><span style="font-size:13.5px;color:#5f6058;">A panel that stays open until you close it</span></div>
+  <div style="border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;margin-bottom:12px;">
+    <div data-fit="1240" style="width:1240px;padding:44px 0;background:#9b988f;font:15px/1.5 system-ui,-apple-system,'Segoe UI','Helvetica Neue',sans-serif;color:#2b2c28;">
+      <div style="width:820px;margin:0 auto;background:#fffdf8;border:1px solid #b8b1a1;border-top:3px solid #1c1d1a;border-radius:3px;box-shadow:0 20px 60px rgba(28,29,26,.25);">
+        <div style="padding:22px 28px 0;">
+          <div style="display:flex;align-items:center;gap:12px;"><span style="display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#1f6f4a;color:#fff;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><h2 style="margin:0;font:600 24px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">The file is ready</h2></div>
+          <p style="margin:8px 0 0 42px;color:#5f6058;"><span style="font:14px ui-monospace,'SF Mono',Menlo,Consolas,monospace;color:#1c1d1a;">payments-2026-10-12-K7QP9F.xml</span> is in your Downloads folder.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:20px 28px 0;border:1px solid #ddd7c9;border-radius:3px;">
+          <div style="padding:12px 16px;border-right:1px solid #ddd7c9;"><span style="display:block;font-size:12.5px;font-weight:600;color:#5f6058;">Payments</span><strong style="font:600 22px/1.3 ui-monospace,'SF Mono',Menlo,Consolas,monospace;color:#1c1d1a;">8</strong></div>
+          <div style="padding:12px 16px;border-right:1px solid #ddd7c9;"><span style="display:block;font-size:12.5px;font-weight:600;color:#5f6058;">Total</span><strong style="font:600 22px/1.3 ui-monospace,'SF Mono',Menlo,Consolas,monospace;color:#1c1d1a;">€13,005.74</strong></div>
+          <div style="padding:12px 16px;"><span style="display:block;font-size:12.5px;font-weight:600;color:#5f6058;">Execution date</span><strong style="font:600 22px/1.3 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">Mon 12 Oct 2026</strong></div>
+        </div>
+        <p style="margin:8px 28px 0;font-size:13.5px;color:#5f6058;">1bank must show the same three values.</p>
+        <h3 style="margin:24px 28px 6px;font:600 18px/1.3 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Upload the file in 1bank</h3>
+        <ol style="list-style:none;margin:0 28px;padding:0;">
+          <li style="display:grid;grid-template-columns:28px minmax(0,1fr) 168px;gap:16px;align-items:center;padding:12px 0;border-top:1px solid #ddd7c9;"><span style="display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1.5px solid #1c1d1a;font:600 14px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">1</span><span>Log in to 1bank. Go to <strong style="color:#1c1d1a;">Transfers &amp; Payments › Mass Payments › Multiple Payments</strong>.</span><span style="display:grid;place-items:center;height:94px;border:1px solid #ddd7c9;border-radius:2px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 1</span></li>
+          <li style="display:grid;grid-template-columns:28px minmax(0,1fr) 168px;gap:16px;align-items:center;padding:12px 0;border-top:1px solid #ddd7c9;"><span style="display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1.5px solid #1c1d1a;font:600 14px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">2</span><span>Click <strong style="color:#1c1d1a;">Select file</strong> and select the XML file. Then click <strong style="color:#1c1d1a;">Upload</strong>.</span><span style="display:grid;place-items:center;height:94px;border:1px solid #ddd7c9;border-radius:2px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 2</span></li>
+          <li style="display:grid;grid-template-columns:28px minmax(0,1fr) 168px;gap:16px;align-items:center;padding:12px 0;border-top:1px solid #ddd7c9;"><span style="display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1.5px solid #1c1d1a;font:600 14px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">3</span><span>Make sure that 1bank shows <strong style="color:#1c1d1a;">8 payments</strong> and <strong style="color:#1c1d1a;">€13,005.74</strong>.</span><span style="display:grid;place-items:center;height:94px;border:1px solid #ddd7c9;border-radius:2px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 3</span></li>
+          <li style="display:grid;grid-template-columns:28px minmax(0,1fr) 168px;gap:16px;align-items:center;padding:12px 0;border-top:1px solid #ddd7c9;"><span style="display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1.5px solid #1c1d1a;font:600 14px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">4</span><span>Enter the Digipass code. Then click <strong style="color:#1c1d1a;">Confirm</strong>.</span><span style="display:grid;place-items:center;height:94px;border:1px solid #ddd7c9;border-radius:2px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 4</span></li>
+          <li style="display:grid;grid-template-columns:28px minmax(0,1fr) 168px;gap:16px;align-items:center;padding:12px 0;border-top:1px solid #ddd7c9;border-bottom:1px solid #ddd7c9;"><span style="display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1.5px solid #1c1d1a;font:600 14px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">5</span><span>Read the result in 1bank <strong style="color:#1c1d1a;">Messages</strong>. If 1bank rejects a payment, make a new file with only that payment.</span><span style="display:grid;place-items:center;height:94px;border:1px solid #ddd7c9;border-radius:2px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 5</span></li>
+        </ol>
+        <p style="margin:16px 28px 0;padding:12px 14px;background:#e5eee7;border:1px solid #c9dccf;border-radius:3px;font-size:14px;color:#17573a;"><strong style="color:#1c1d1a;">Keep this file.</strong> Next month, open it here. Then change only the amounts and the descriptions.</p>
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:18px 28px 22px;">
+          <span style="display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;color:#1c1d1a;font:600 14px/1.2 system-ui,sans-serif;">Start a new file</span>
+          <span style="display:inline-flex;align-items:center;min-height:38px;padding:0 18px;border-radius:3px;background:#1f6f4a;color:#fff;font:600 14px/1.2 system-ui,sans-serif;">Done</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p style="margin:0 0 8px;font-size:13.5px;color:#5f6058;max-width:760px;">Step names come from the Bank of Cyprus help pages. They are placeholders until you send the real steps and screenshots.</p>
+</section>
+
+<section id="f5" style="max-width:1100px;margin:0 auto;padding:56px 32px 24px;border-top:1px solid #b8b1a1;">
+  <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:10px;"><span style="font:600 44px/1 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1f6f4a;">5</span><h2 style="margin:0;font:600 30px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;text-wrap:balance;">Next month: start from last month's file</h2></div>
+  <p style="margin:0 0 26px;font-size:13.5px;color:#5f6058;">Gain high for monthly users · Effort M · H7 efficiency · H1 status is visible</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px 48px;margin-bottom:32px;">
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#b3261e;">What users see</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>Each month, users change the amounts and the descriptions, and add or remove some payees.</li>
+        <li>They type the new month in each description by hand: “SEPTEMBER” to “OCTOBER” in every salary row.</li>
+        <li>After Open, a message says only “The execution date moved”. It closes after 10 seconds. A long amber note stays under the date.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#1f6f4a;">The fix</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>After Open, a box above the list stays until you close it. It tells what the page opened and what changed.</li>
+        <li>In the same box: “Replace SEPTEMBER with OCTOBER in the descriptions”. The page finds the month name and suggests the next month. You can edit both words.</li>
+        <li>The words that change have a highlight before you click. Undo works for 10 seconds.</li>
+        <li>A tip for the amounts: Enter goes down the column.</li>
+      </ul>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1c1d1a;color:#fff;">Before</span><span style="font-size:13.5px;color:#5f6058;">Just after opening last month's XML file</span></div>
+  <div style="border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;background:#fff;margin-bottom:28px;"><img src="review/shots/d-opened.png" alt="After Open: an amber note under the date and a short message at the bottom" style="display:block;width:100%;height:auto;"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1f6f4a;color:#fff;">After</span><span style="font-size:13.5px;color:#5f6058;">The box above the list, after Open</span></div>
+  <div style="border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;background:#f5f2ea;margin-bottom:12px;">
+    <div data-fit="1240" style="width:1240px;padding:26px 24px 28px;background:#f5f2ea;font:15px/1.5 system-ui,-apple-system,'Segoe UI','Helvetica Neue',sans-serif;color:#2b2c28;">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;"><h2 style="margin:0;font:600 24px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Payments</h2><span style="font-size:14px;color:#5f6058;">5 SEPA · 3 TBOC</span></div>
+      <div style="display:grid;gap:12px;margin-bottom:12px;padding:16px 18px;background:#fffdf8;border:1px solid #b8b1a1;border-radius:3px;">
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#1c1d1a" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M13.5 3.5H7A1.5 1.5 0 0 0 5.5 5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8.5zM13.5 3.5v5h5"></path></svg>
+          <p style="flex:1;margin:0;color:#1c1d1a;"><strong>You opened <span style="font:600 14px ui-monospace,'SF Mono',Menlo,Consolas,monospace;">payments-2026-09-11-K7QP9F.xml</span>.</strong> 8 payments. The date moved from Fri 11 Sep to <strong>Mon 12 Oct</strong>, the next business day.</p>
+          <span style="display:grid;place-items:center;width:30px;height:30px;color:#5f6058;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-left:32px;padding:12px 14px;background:#e5eee7;border:1px solid #c9dccf;border-radius:3px;color:#1c1d1a;">
+          <strong>New month?</strong><span>Replace</span>
+          <span style="display:inline-flex;align-items:center;min-height:36px;width:150px;padding:0 10px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;font:14px ui-monospace,'SF Mono',Menlo,Consolas,monospace;">SEPTEMBER</span>
+          <span>with</span>
+          <span style="display:inline-flex;align-items:center;min-height:36px;width:150px;padding:0 10px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;font:14px ui-monospace,'SF Mono',Menlo,Consolas,monospace;">OCTOBER</span>
+          <span>in the descriptions.</span>
+          <span style="display:inline-flex;align-items:center;min-height:36px;margin-left:auto;padding:0 14px;border-radius:3px;background:#1f6f4a;color:#fff;font:600 14px/1.2 system-ui,sans-serif;">Replace in 3 descriptions</span>
+        </div>
+        <p style="margin:0 0 0 32px;font-size:13.5px;color:#5f6058;">To change the amounts fast: click the first amount and type. Then press Enter to go to the next amount.</p>
+      </div>
+      <div style="background:#fffdf8;border:1px solid #ddd7c9;border-radius:3px;font-size:14px;color:#1c1d1a;">
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:40px;padding:0 10px;border-bottom:1px solid #b8b1a1;font-size:12.5px;font-weight:600;color:#5f6058;"><span style="padding-left:30px;">#</span><span style="padding-left:11px;">Beneficiary name</span><span style="padding-left:11px;">IBAN</span><span style="text-align:right;padding-right:11px;">Amount, EUR</span><span style="padding-left:11px;">Description</span><span></span></div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:46px;padding:0 10px;"><span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">1</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">ANDREAS GEORGIOU</span><span style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">CY21002001950000357001234567<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">2450.00</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">SALARY <span style="padding:1px 3px;border-radius:2px;background:#f6e3b0;color:#5a3a00;">SEPTEMBER</span> 2026</span><span></span></div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:46px;padding:0 10px;border-top:1px solid #ddd7c9;"><span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">2</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">ELENI CHRISTOU</span><span style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">CY16002003020000357009876543<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">2180.00</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">SALARY <span style="padding:1px 3px;border-radius:2px;background:#f6e3b0;color:#5a3a00;">SEPTEMBER</span> 2026</span><span></span></div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:46px;padding:0 10px;border-top:1px solid #ddd7c9;"><span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">3</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">MICHALIS IOANNOU</span><span style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">CY25002005700000357004561237<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">1960.50</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">SALARY <span style="padding:1px 3px;border-radius:2px;background:#f6e3b0;color:#5a3a00;">SEPTEMBER</span> 2026</span><span></span></div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:46px;padding:0 10px;border-top:1px solid #ddd7c9;"><span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">4</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">LIMASSOL OFFICE RENT LTD</span><span style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">CY15005001040000001017733441<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">1500.00</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">OFFICE RENT OCTOBER 2026</span><span></span></div>
+      </div>
+    </div>
+  </div>
+  <p style="margin:0 0 8px;font-size:13.5px;color:#5f6058;max-width:760px;">The date note moves into this box. The field under the date shows only the weekday (see change 7).</p>
+</section>
+
+<section id="f6" style="max-width:1100px;margin:0 auto;padding:56px 32px 24px;border-top:1px solid #b8b1a1;">
+  <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:10px;"><span style="font:600 44px/1 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1f6f4a;">6</span><h2 style="margin:0;font:600 30px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;text-wrap:balance;">Correct common errors with one click</h2></div>
+  <p style="margin:0 0 14px;font-size:13.5px;color:#5f6058;">Gain medium · Effort S · H9 recover from errors · H5 error prevention</p>
+  <p style="max-width:760px;margin:0 0 26px;padding:10px 14px;background:#fbf2dc;border:1px solid #ecd9a6;border-radius:3px;font-size:14.5px;color:#5a3a00;"><strong>Rejected before:</strong> auto-fix of characters and comma decimals. Here it is an offer that the user clicks. The page never changes data on its own.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px 48px;margin-bottom:32px;">
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#b3261e;">What users see</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>Data from Excel and payroll programs often has “1,250.00”, “Ü” or “&amp;”. The page finds the error, but users must type the fix in each cell.</li>
+        <li>The character message lists all allowed characters: 24 words to read in each row.</li>
+        <li>The paste preview does not tell that the amounts have thousands separators. The errors show only after the paste.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#1f6f4a;">The fix</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>Under the error, a button with the exact new value: “Change to 1250.00”.</li>
+        <li>An offer only when the fix is sure. “1,250.00” gets a button. “1,250” does not: it can be 1250 or 1.25.</li>
+        <li>Two or more rows with the same kind of error get one button: “Change 6 amounts”.</li>
+        <li>A shorter message. The list of allowed characters stays in Help.</li>
+        <li>The paste preview says: “6 amounts have thousands separators. Remove them?”</li>
+      </ul>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1c1d1a;color:#fff;">Before</span><span style="font-size:13.5px;color:#5f6058;">Three errors after “Show next error”</span></div>
+  <div style="border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;background:#fff;margin-bottom:28px;"><img src="review/shots/d-errors.png" alt="Three rows with red cells and long error messages" style="display:block;width:100%;height:auto;"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1f6f4a;color:#fff;">After</span><span style="font-size:13.5px;color:#5f6058;">The same three errors, rows 3 to 7</span></div>
+  <div style="border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;background:#f5f2ea;margin-bottom:12px;">
+    <div data-fit="1240" style="width:1240px;padding:24px;background:#f5f2ea;font:15px/1.5 system-ui,-apple-system,'Segoe UI','Helvetica Neue',sans-serif;color:#2b2c28;">
+      <div style="background:#fffdf8;border:1px solid #ddd7c9;border-radius:3px;font-size:14px;color:#1c1d1a;">
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;row-gap:6px;align-items:center;padding:7px 10px 10px;">
+          <span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">3</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">MICHALIS IOANNOU</span><span style="padding:7px 11px;background:#fbebe9;box-shadow:inset 0 -2px 0 #b3261e;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">CY25002005700000357004561238</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">1960.50</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">SALARY SEPTEMBER 2026</span><span></span>
+          <span></span><span style="grid-column:2 / -1;padding-left:11px;font-size:13.5px;color:#b3261e;"><strong>IBAN:</strong> the check digits are not correct. Look for a typing error.</span>
+        </div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:46px;padding:0 10px;border-top:1px solid #ddd7c9;"><span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">4</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">LIMASSOL OFFICE RENT LTD</span><span style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">CY15005001040000001017733441<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">1500.00</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">OFFICE RENT OCTOBER 2026</span><span></span></div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;row-gap:6px;align-items:center;padding:7px 10px 10px;border-top:1px solid #ddd7c9;">
+          <span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">5</span><span style="padding:7px 11px;background:#fbebe9;box-shadow:inset 0 -2px 0 #b3261e;">MÜLLER &amp; CO GMBH</span><span style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">DE89370400440532013000<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">3200.00</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">INVOICE 2026-0917</span><span></span>
+          <span></span><span style="grid-column:2 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding-left:11px;font-size:13.5px;color:#b3261e;"><span><strong>Name:</strong> the bank does not accept “Ü” and “&amp;”.</span><span style="display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:0 10px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;color:#1c1d1a;font:600 13px/1.2 system-ui,sans-serif;">Change to <span style="font:500 13px ui-monospace,'SF Mono',Menlo,Consolas,monospace;">MULLER AND CO GMBH</span></span></span>
+        </div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;align-items:center;min-height:46px;padding:0 10px;border-top:1px solid #ddd7c9;"><span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">6</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">DE VRIES CONSULTING B.V.</span><span style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">NL91ABNA0417164300<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">875.25</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">INVOICE NL-4471</span><span></span></div>
+        <div style="display:grid;grid-template-columns:64px minmax(0,1.15fr) 330px 130px minmax(0,1.5fr) 112px;column-gap:8px;row-gap:6px;align-items:center;padding:7px 10px 10px;border-top:1px solid #ddd7c9;">
+          <span style="padding-left:30px;font:13px/1 ui-monospace,Menlo,Consolas,monospace;color:#5f6058;">7</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">ATHENS DESIGN STUDIO</span><span style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">GR1601101250000000012300695<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1f6f4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><span style="padding:7px 11px;background:#fbebe9;box-shadow:inset 0 -2px 0 #b3261e;text-align:right;font:13.5px/1.5 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">1,250.00</span><span style="padding:7px 11px;box-shadow:inset 0 -1px 0 #ddd7c9;">WEBSITE DESIGN - PHASE 2</span><span></span>
+          <span></span><span style="grid-column:2 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding-left:11px;font-size:13.5px;color:#b3261e;"><span><strong>Amount:</strong> use a dot for decimals and no thousands separator.</span><span style="display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:0 10px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;color:#1c1d1a;font:600 13px/1.2 system-ui,sans-serif;">Change to <span style="font:500 13px ui-monospace,'SF Mono',Menlo,Consolas,monospace;">1250.00</span></span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p style="margin:0 0 8px;font-size:13.5px;color:#5f6058;max-width:760px;">The field name stays in bold at the start of each message, because one row can have two errors. A click on “Change to” puts the value in the cell and moves the focus to the next problem.</p>
+</section>
+
+<section id="f7" style="max-width:1100px;margin:0 auto;padding:56px 32px 24px;border-top:1px solid #b8b1a1;">
+  <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:10px;"><span style="font:600 44px/1 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1f6f4a;">7</span><h2 style="margin:0;font:600 30px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;text-wrap:balance;">Make “Pay from” shorter</h2></div>
+  <p style="margin:0 0 26px;font-size:13.5px;color:#5f6058;">Gain medium · Effort S · H8 minimalist design · H5 error prevention</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px 48px;margin-bottom:32px;">
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#b3261e;">What users see</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>Three hints tell accountants what they know: “As on the account. 70 characters maximum.”, “Default: next business day.”</li>
+        <li>The “More” line shows the BIC and the reference all the time. The debit account must be at Bank of Cyprus, so the BIC is always BCYPCY2NXXX. The field has no use.</li>
+        <li>The date shows in the browser format: 12.10.2026 here, 10/12/2026 in US English. There is no weekday.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#1f6f4a;">The fix</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>The rule goes in the label: “Debit account (Bank of Cyprus IBAN)”. No hints. A limit shows only when the text is too long.</li>
+        <li>Under the date, the date in words: “Monday 12 October 2026”. A Saturday or a Sunday shows in amber.</li>
+        <li>Remove the BIC field. The page keeps the BIC from an opened file.</li>
+        <li>The reference moves to one quiet line: “File reference K7QP9F · Change”.</li>
+      </ul>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1c1d1a;color:#fff;">Before</span><span style="font-size:13.5px;color:#5f6058;">“Pay from” with “More” open</span></div>
+  <div style="border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;background:#fff;margin-bottom:28px;"><img src="review/shots/d-more.png" alt="Pay from with three hints and the More panel with BIC and batch reference" style="display:block;width:100%;height:auto;"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1f6f4a;color:#fff;">After</span><span style="font-size:13.5px;color:#5f6058;">“Pay from” with data</span></div>
+  <div style="border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;background:#f5f2ea;margin-bottom:12px;">
+    <div data-fit="1240" style="width:1240px;padding:26px 24px 22px;background:#f5f2ea;font:15px/1.5 system-ui,-apple-system,'Segoe UI','Helvetica Neue',sans-serif;color:#2b2c28;">
+      <h2 style="margin:0 0 14px;font:600 24px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Pay from</h2>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) 220px;gap:16px 20px;padding:18px 20px;background:#fffdf8;border:1px solid #ddd7c9;border-radius:3px;">
+        <div style="display:grid;gap:5px;align-content:start;"><span style="font-weight:600;font-size:13px;color:#1c1d1a;">Company name</span><span style="display:flex;align-items:center;min-height:42px;padding:8px 11px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;color:#1c1d1a;">DEMO COMPANY LTD</span></div>
+        <div style="display:grid;gap:5px;align-content:start;"><span style="font-weight:600;font-size:13px;color:#1c1d1a;">Debit account <span style="font-weight:400;color:#5f6058;">(Bank of Cyprus IBAN)</span></span><span style="display:flex;align-items:center;min-height:42px;padding:8px 11px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;color:#1c1d1a;font:14px/1.3 ui-monospace,'SF Mono',Menlo,Consolas,monospace;">CY09002001000000112233445566</span><span style="font-size:13px;color:#17573a;"><strong>✓ Bank of Cyprus</strong></span></div>
+        <div style="display:grid;gap:5px;align-content:start;"><span style="font-weight:600;font-size:13px;color:#1c1d1a;">Execution date</span><span style="display:flex;align-items:center;justify-content:space-between;min-height:42px;padding:8px 11px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;color:#1c1d1a;">12.10.2026<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="5.5" width="16" height="14" rx="1.5"></rect><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"></path></svg></span><span style="font-size:13px;color:#5f6058;">Monday 12 October 2026</span></div>
+      </div>
+      <p style="margin:8px 2px 0;font-size:13px;color:#5f6058;">File reference K7QP9F · <u style="color:#17573a;">Change</u></p>
+    </div>
+  </div>
+  <p style="margin:0 0 8px;font-size:13.5px;color:#5f6058;max-width:760px;">“Change” opens one small field for the reference, with the rule under it: letters, digits and hyphens, 11 maximum.</p>
+</section>
+
+<section id="f8" style="max-width:1100px;margin:0 auto;padding:56px 32px 24px;border-top:1px solid #b8b1a1;">
+  <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:10px;"><span style="font:600 44px/1 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1f6f4a;">8</span><h2 style="margin:0;font:600 30px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;text-wrap:balance;">Help and privacy: a new layout</h2></div>
+  <p style="margin:0 0 26px;font-size:13.5px;color:#5f6058;">Gain medium · Effort M · H8 minimalist design · H10 help · your open question</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px 48px;margin-bottom:28px;">
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#b3261e;">What users see</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>Two long columns of grey text. Every item has the same weight, so nothing stands out.</li>
+        <li>The 1bank steps are one sentence in “How to send”.</li>
+        <li>The privacy claims are true, but a user cannot test them in one minute.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#1f6f4a;">The fix</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px;text-wrap:pretty;">
+        <li>Three directions, in a separate file. All three have the 1bank steps with screenshots, shorter text, and a privacy test that takes one minute.</li>
+        <li>The test: “Turn off Wi-Fi. The page still works.” Users can see that nothing goes to a server.</li>
+      </ul>
+      <p style="margin:16px 0 0;"><a href="Info Section Directions.dc.html" style="display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 16px;border-radius:3px;background:#1f6f4a;color:#fff;font-weight:600;font-size:14.5px;text-decoration:none;">Open the three directions →</a></p>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 8px;"><span style="font:600 11.5px/1 system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:5px 9px;border-radius:3px;background:#1c1d1a;color:#fff;">Before</span><span style="font-size:13.5px;color:#5f6058;">Privacy and Help, under the editor</span></div>
+  <div style="border:1px solid #b8b1a1;border-radius:4px;overflow:hidden;background:#fff;margin-bottom:12px;"><img src="review/shots/d-info.png" alt="Privacy and Help: two columns of label and text pairs" style="display:block;width:100%;height:auto;"></div>
+</section>
+
+<section id="more" style="max-width:1100px;margin:0 auto;padding:56px 32px 24px;border-top:1px solid #b8b1a1;">
+  <h2 style="margin:0 0 6px;font:600 30px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Smaller findings</h2>
+  <p style="margin:0 0 22px;color:#5f6058;">No mockups. Each one is a small change.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:28px 48px;">
+    <div>
+      <h3 style="margin:0 0 6px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5f6058;">First visit and trust</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:8px;text-wrap:pretty;">
+        <li>The page asks for IBANs, but the top does not say who made it. The disclaimer is in the footer. <strong>Fix:</strong> also put “Not made by Bank of Cyprus” in small text in the header. <span style="color:#5f6058;">H2</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 6px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5f6058;">Typing</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:8px;text-wrap:pretty;">
+        <li>The empty first row has no placeholders. On desktop, cells look like plain lines until hover. <strong>Fix:</strong> placeholders in the empty row: “Name as on the account”, “IBAN”, “0.00”, “What the payment is for”. <span style="color:#5f6058;">H6</span></li>
+        <li>After Delete, the focus goes to the Delete button of the next row. A second Enter deletes that row too. <strong>Fix:</strong> put the focus on the first cell of the next row. <span style="color:#5f6058;">H5</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 6px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5f6058;">Paste and files</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:8px;text-wrap:pretty;">
+        <li>A paste of many cells into a “Pay from” field puts tabs into the field. <strong>Fix:</strong> show the paste preview from any field. <span style="color:#5f6058;">H5</span></li>
+        <li>A header that the page does not know, for example “Notes”, makes its column “Skip”. <strong>Fix:</strong> use the value test for unknown headers too. <span style="color:#5f6058;">H5</span></li>
+        <li>A CSV file has no “Pay from” data. After Open, the account fields are empty. <strong>Fix:</strong> say this in the export message. <span style="color:#5f6058;">H1</span></li>
+        <li>With errors, CSV is the only way to keep the work for later. <strong>Fix:</strong> when there are problems, the bar says “To continue later, export CSV”. <span style="color:#5f6058;">H3</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 6px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5f6058;">Errors and warnings</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:8px;text-wrap:pretty;">
+        <li>The duplicate warning (same IBAN and amount) shows each time, also when the payment is correct. <strong>Fix:</strong> add “This is correct” to hide it for this file. <span style="color:#5f6058;">H3</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 6px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5f6058;">Phone</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:8px;text-wrap:pretty;">
+        <li>Search, “Select all” and “Sort” fill the screen above the first payment. Change 2 removes them. <span style="color:#5f6058;">H8</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 6px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5f6058;">Accessibility</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:8px;text-wrap:pretty;">
+        <li>Controls that show on hover must also show on keyboard focus, and always on touch screens. <span style="color:#5f6058;">H4</span></li>
+        <li>Some text is 11 to 11.5 px (type label, column names). <strong>Fix:</strong> 12.5 px minimum.</li>
+        <li>“+ More” and “− More” use plus and minus characters in CSS. Some screen readers read them. <strong>Fix:</strong> use an icon and aria-expanded only.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin:0 0 6px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5f6058;">Not yet done from round 2</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:8px;text-wrap:pretty;">
+        <li>The footer has no SHA-256 fingerprints yet, and the script and style tags have no SRI.</li>
+        <li>Before the page says “open source”, add a LICENSE file to the repo, for example MIT.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="next" style="max-width:1100px;margin:0 auto;padding:48px 32px 80px;border-top:1px solid #b8b1a1;">
+  <h2 style="margin:0 0 10px;font:600 30px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Next step</h2>
+  <p style="max-width:760px;margin:0;font-size:17px;text-wrap:pretty;">Pick the changes in the form in the chat, and one direction for change 8. Then I change index.html, style.css and app.js. The 1bank screenshots stay placeholders until you send them.</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() {
+    // Scale fixed-width mockups to fit their frame. Skip frames that have no width yet.
+    this.fit = () => document.querySelectorAll('[data-fit]').forEach(el => {
+      const avail = el.parentElement ? el.parentElement.clientWidth : 0;
+      if (avail <= 0) return;
+      const z = Math.min(1, avail / Number(el.dataset.fit));
+      if (z > 0) el.style.zoom = String(z);
+    });
+    this.ro = new ResizeObserver(() => this.fit());
+    this.observed = new Set();
+    this.watch = () => document.querySelectorAll('[data-fit]').forEach(el => {
+      const p = el.parentElement;
+      if (p && !this.observed.has(p)) { this.observed.add(p); this.ro.observe(p); }
+    });
+    this.watch();
+    this.ro.observe(document.body);
+    this.onLoad = () => this.fit();
+    window.addEventListener('load', this.onLoad);
+    requestAnimationFrame(() => { this.watch(); this.fit(); });
+    this.timer = setTimeout(() => { this.watch(); this.fit(); }, 400);
+  }
+  componentDidUpdate() { if (this.fit) { this.watch(); this.fit(); } }
+  componentWillUnmount() {
+    if (this.ro) this.ro.disconnect();
+    window.removeEventListener('load', this.onLoad);
+    clearTimeout(this.timer);
+  }
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

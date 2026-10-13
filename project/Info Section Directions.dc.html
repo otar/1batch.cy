@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<title>1batch.cy · Help and privacy: directions</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#e4e0d6;font-family:system-ui,sans-serif}a{color:#17573a;text-underline-offset:2px}a:hover{color:#1c1d1a}.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#1a1a1a}.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(0,0,0,.55)}.dv-card{max-width:100%;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}.dv-opt:target .dv-oid{background:#2a78d6;color:#fff}.dv-next{margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)}</style>
+</helmet>
+<section class="dv-turn" id="t2">
+  <div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Round 4: upload guide (6 steps), privacy and FAQ. Three layouts.</span></div>
+  <p style="margin:0 0 24px;max-width:960px;font:13px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.6);">The FAQ replaces Help. Same text in all three. They differ in how much you see at once. <a class="dv-oid" href="#2a">2a</a> shows one section at a time. <a class="dv-oid" href="#2b">2b</a> shows everything in full-width bands. <a class="dv-oid" href="#2c">2c</a> puts the guide and the questions side by side. The tabs, steps, filters and questions work: click them. Screenshots are placeholders. Desktop, 1240 px wide.</p>
+  <div class="dv-opts">
+    <div class="dv-opt" id="2a">
+      <div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Tabs: one panel, three tabs. The guide is a click-through with one big screenshot. Short page.</div>
+      <div class="dv-card" style="width:1240px;">
+        <div style="background:#f5f2ea;font:15px/1.55 system-ui,-apple-system,'Segoe UI','Helvetica Neue',sans-serif;color:#2b2c28;">
+          <div style="padding:48px 24px 56px;border-top:1px solid #b8b1a1;">
+            <div role="tablist" style="display:flex;gap:32px;border-bottom:1px solid #b8b1a1;margin-bottom:32px;">
+              <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+                <button type="button" onClick="{{ t.pick }}" style="padding:0 0 12px;border:0;border-bottom:3px solid {{ t.line }};margin-bottom:-2px;background:none;font:600 22px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:{{ t.fg }};cursor:pointer;">{{ t.label }}</button>
+              </sc-for>
+            </div>
+            <sc-if value="{{ isUpload }}" hint-placeholder-val="{{ true }}">
+              <div style="display:grid;grid-template-columns:360px minmax(0,1fr);gap:36px;align-items:start;">
+                <div>
+                  <p style="margin:0 0 14px;color:#5f6058;">After “Download XML”, do these six steps in 1bank. You need your Digipass two times.</p>
+                  <ol style="list-style:none;margin:0;padding:0;display:grid;gap:4px;">
+                    <sc-for list="{{ stepsA }}" as="st" hint-placeholder-count="6">
+                      <li><button type="button" onClick="{{ st.pick }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border:1px solid {{ st.bd }};border-radius:3px;background:{{ st.bg }};text-align:left;font:{{ st.fw }} 15px/1.35 system-ui,sans-serif;color:{{ st.fg }};cursor:pointer;"><span style="flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1.5px solid {{ st.nbd }};background:{{ st.nbg }};color:{{ st.nfg }};font:600 14px/1 'Iowan Old Style',Palatino,Georgia,serif;">{{ st.n }}</span>{{ st.short }}</button></li>
+                    </sc-for>
+                  </ol>
+                </div>
+                <div style="display:grid;gap:14px;">
+                  <img src="{{ curImgA }}" alt="1bank screenshot" style="display:block;width:100%;aspect-ratio:16/10;object-fit:cover;border:1px solid #ddd7c9;border-radius:3px;background:#f1ede3;">
+                  <p style="margin:0;font-size:17px;color:#1c1d1a;">{{ curA.a }}<strong>{{ curA.b }}</strong>{{ curA.c }}</p>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                    <span style="font-size:14px;color:#5f6058;">{{ stepLabelA }}</span>
+                    <span style="display:flex;gap:8px;"><button type="button" onClick="{{ prevA }}" style="min-height:38px;padding:0 14px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;font:600 14px system-ui,sans-serif;color:#1c1d1a;cursor:pointer;">‹ Back</button><button type="button" onClick="{{ nextA }}" style="min-height:38px;padding:0 16px;border:0;border-radius:3px;background:#1f6f4a;font:600 14px system-ui,sans-serif;color:#fff;cursor:pointer;">Next step ›</button></span>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ isPrivacy }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;">
+                <div>
+                  <h3 style="margin:0 0 12px;font:600 36px/1.15 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Your data stays on this computer.</h3>
+                  <p style="margin:0 0 22px;font-size:17px;">A payment file has names, IBANs and amounts. This page cannot send them anywhere, and it keeps nothing after you close the tab.</p>
+                  <div style="padding:18px 20px;background:#e5eee7;border:1px solid #c9dccf;border-radius:3px;color:#17573a;"><strong style="display:block;margin-bottom:6px;font:600 18px 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">Check it yourself, in one minute</strong>Open this page. Turn off Wi-Fi. Make a file and download it. It works, because the page does not use the network.</div>
+                </div>
+                <dl style="margin:0;display:grid;gap:18px;align-content:start;">
+                  <div style="padding-top:12px;border-top:1px solid #1c1d1a;"><dt style="font-weight:600;color:#17573a;">No connections</dt><dd style="margin:0;">The security policy of the page blocks all connections to servers.</dd></div>
+                  <div style="padding-top:12px;border-top:1px solid #1c1d1a;"><dt style="font-weight:600;color:#17573a;">No storage</dt><dd style="margin:0;">No cookies, no local storage, no accounts.</dd></div>
+                  <div style="padding-top:12px;border-top:1px solid #1c1d1a;"><dt style="font-weight:600;color:#17573a;">No third parties</dt><dd style="margin:0;">No analytics, ads, fonts or scripts from other sites.</dd></div>
+                  <div style="padding-top:12px;border-top:1px solid #1c1d1a;"><dt style="font-weight:600;color:#17573a;">Open code</dt><dd style="margin:0;">Three files, not minified. <u style="color:#17573a;">Read the code on GitHub</u>.</dd></div>
+                </dl>
+              </div>
+            </sc-if>
+            <sc-if value="{{ isFaq }}" hint-placeholder-val="{{ false }}">
+              <div style="max-width:840px;display:grid;gap:28px;">
+                <sc-for list="{{ faqGroupsA }}" as="g" hint-placeholder-count="4">
+                  <div>
+                    <p style="margin:0 0 6px;font-size:12.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5f6058;">{{ g.name }}</p>
+                    <div style="border-top:1px solid #1c1d1a;">
+                      <sc-for list="{{ g.items }}" as="f" hint-placeholder-count="3">
+                        <div style="border-bottom:1px solid #ddd7c9;">
+                          <button type="button" onClick="{{ f.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;padding:14px 0;border:0;background:none;text-align:left;font:600 17px/1.35 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;cursor:pointer;">{{ f.q }}<span style="flex:none;font:400 22px/1 system-ui,sans-serif;color:#1f6f4a;">{{ f.sign }}</span></button>
+                          <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}"><p style="margin:0 0 16px;max-width:720px;">{{ f.a }}</p></sc-if>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <footer style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;padding:18px 24px 26px;border-top:1px solid #ddd7c9;font-size:13px;color:#5f6058;">
+            <p style="margin:0;"><span style="margin-right:8px;font:700 14px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">1batch.cy</span>For Bank of Cyprus business customers. Not made by, or connected to, Bank of Cyprus.</p>
+            <p style="margin:0;"><u style="color:#17573a;">Source code on GitHub</u> · No cookies. No tracking.</p>
+          </footer>
+        </div>
+      </div>
+    </div>
+    <div class="dv-opt" id="2b">
+      <div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Bands: everything visible. A 6-step strip, a dark privacy band, the FAQ in two columns. Bold and editorial.</div>
+      <div class="dv-card" style="width:1240px;">
+        <div style="background:#f5f2ea;font:15px/1.55 system-ui,-apple-system,'Segoe UI','Helvetica Neue',sans-serif;color:#2b2c28;">
+          <section style="padding:52px 24px 52px;border-top:1px solid #b8b1a1;">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-bottom:22px;"><h2 style="margin:0;font:600 34px/1.15 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Upload the file in 1bank</h2><span style="font-size:14px;color:#5f6058;">Six steps. You need your Digipass two times.</span></div>
+            <ol style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;">
+              <sc-for list="{{ stepsB }}" as="st" hint-placeholder-count="6">
+                <li style="display:grid;gap:10px;align-content:start;">
+                  <span style="position:relative;display:block;"><img src="{{ st.img }}" alt="1bank screenshot" style="display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border:1px solid #ddd7c9;border-radius:3px;background:#f1ede3;"><span style="position:absolute;left:8px;top:8px;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#1c1d1a;color:#fff;font:600 14px/1 'Iowan Old Style',Palatino,Georgia,serif;">{{ st.n }}</span></span>
+                  <strong style="font-size:14.5px;color:#1c1d1a;">{{ st.short }}</strong>
+                  <span style="font-size:13.5px;line-height:1.45;">{{ st.a }}<strong style="color:#1c1d1a;">{{ st.b }}</strong>{{ st.c }}</span>
+                </li>
+              </sc-for>
+            </ol>
+          </section>
+          <section style="padding:56px 24px 52px;background:#1c1d1a;color:#f3f0e8;">
+            <div style="display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:56px;">
+              <div>
+                <p style="margin:0 0 12px;font-size:12.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#6fcf97;">Privacy</p>
+                <h2 style="margin:0 0 16px;font:600 44px/1.1 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#fff;">Your data stays on this computer.</h2>
+                <p style="margin:0;max-width:500px;font-size:17px;color:#d8d3c6;">This page cannot send your payment data anywhere. It keeps nothing after you close the tab.</p>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 28px;align-content:start;">
+                <div style="padding-top:12px;border-top:1px solid rgba(255,255,255,.22);"><strong style="display:block;color:#fff;">No connections</strong><span style="color:#d8d3c6;">The security policy blocks all connections to servers.</span></div>
+                <div style="padding-top:12px;border-top:1px solid rgba(255,255,255,.22);"><strong style="display:block;color:#fff;">No storage</strong><span style="color:#d8d3c6;">No cookies, no local storage, no accounts.</span></div>
+                <div style="padding-top:12px;border-top:1px solid rgba(255,255,255,.22);"><strong style="display:block;color:#fff;">No third parties</strong><span style="color:#d8d3c6;">No analytics, ads, fonts or scripts from other sites.</span></div>
+                <div style="padding-top:12px;border-top:1px solid rgba(255,255,255,.22);"><strong style="display:block;color:#fff;">Open code</strong><span style="color:#d8d3c6;">Three files, not minified. Read them on GitHub.</span></div>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 28px;margin-top:40px;padding-top:24px;border-top:1px solid rgba(255,255,255,.22);">
+              <strong style="font:600 20px/1.2 'Iowan Old Style',Palatino,Georgia,serif;color:#fff;">Check it yourself</strong>
+              <span style="color:#d8d3c6;"><span style="color:#6fcf97;font-weight:700;">1</span> Open this page. <span style="color:#6fcf97;font-weight:700;margin-left:10px;">2</span> Turn off Wi-Fi. <span style="color:#6fcf97;font-weight:700;margin-left:10px;">3</span> Make a file and download it. It works.</span>
+            </div>
+          </section>
+          <section style="padding:52px 24px 48px;">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-bottom:18px;"><h2 style="margin:0;font:600 34px/1.15 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Questions</h2><span style="font-size:14px;color:#5f6058;">Click a question to open the answer.</span></div>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 44px;align-items:start;">
+              <div style="display:grid;gap:22px;">
+                <sc-for list="{{ faqColB1 }}" as="g" hint-placeholder-count="2">
+                  <div><p style="margin:0 0 6px;font-size:12.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5f6058;">{{ g.name }}</p>
+                    <div style="border-top:1px solid #1c1d1a;"><sc-for list="{{ g.items }}" as="f" hint-placeholder-count="3"><div style="border-bottom:1px solid #ddd7c9;"><button type="button" onClick="{{ f.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;padding:13px 0;border:0;background:none;text-align:left;font:600 15.5px/1.35 system-ui,sans-serif;color:#1c1d1a;cursor:pointer;">{{ f.q }}<span style="flex:none;font:400 20px/1 system-ui,sans-serif;color:#1f6f4a;">{{ f.sign }}</span></button><sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}"><p style="margin:0 0 14px;">{{ f.a }}</p></sc-if></div></sc-for></div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:grid;gap:22px;">
+                <sc-for list="{{ faqColB2 }}" as="g" hint-placeholder-count="2">
+                  <div><p style="margin:0 0 6px;font-size:12.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5f6058;">{{ g.name }}</p>
+                    <div style="border-top:1px solid #1c1d1a;"><sc-for list="{{ g.items }}" as="f" hint-placeholder-count="3"><div style="border-bottom:1px solid #ddd7c9;"><button type="button" onClick="{{ f.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;padding:13px 0;border:0;background:none;text-align:left;font:600 15.5px/1.35 system-ui,sans-serif;color:#1c1d1a;cursor:pointer;">{{ f.q }}<span style="flex:none;font:400 20px/1 system-ui,sans-serif;color:#1f6f4a;">{{ f.sign }}</span></button><sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}"><p style="margin:0 0 14px;">{{ f.a }}</p></sc-if></div></sc-for></div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </section>
+          <footer style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;padding:18px 24px 26px;border-top:1px solid #ddd7c9;font-size:13px;color:#5f6058;">
+            <p style="margin:0;"><span style="margin-right:8px;font:700 14px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">1batch.cy</span>For Bank of Cyprus business customers. Not made by, or connected to, Bank of Cyprus.</p>
+            <p style="margin:0;"><u style="color:#17573a;">Source code on GitHub</u> · No cookies. No tracking.</p>
+          </footer>
+        </div>
+      </div>
+    </div>
+    <div class="dv-opt" id="2c">
+      <div class="dv-olabel"><a class="dv-oid" href="#2c">2c</a>Side by side: a step-by-step checklist on the left, questions with filters on the right. Like a tool, not a document.</div>
+      <div class="dv-card" style="width:1240px;">
+        <div style="background:#f5f2ea;font:15px/1.55 system-ui,-apple-system,'Segoe UI','Helvetica Neue',sans-serif;color:#2b2c28;">
+          <div style="display:grid;grid-template-columns:520px minmax(0,1fr);gap:40px;align-items:start;padding:48px 24px 56px;border-top:1px solid #b8b1a1;">
+            <section style="background:#fffdf8;border:1px solid #ddd7c9;border-top:3px solid #1c1d1a;border-radius:3px;">
+              <div style="padding:20px 22px 14px;border-bottom:1px solid #ddd7c9;">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;"><h2 style="margin:0;font:600 24px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Upload in 1bank</h2><span style="font:13px ui-monospace,Menlo,monospace;color:#5f6058;">{{ progressC }}</span></div>
+                <div style="height:4px;margin-top:12px;border-radius:2px;background:#ece7db;overflow:hidden;"><div style="width:{{ progressW }};height:100%;background:#1f6f4a;"></div></div>
+              </div>
+              <ol style="list-style:none;margin:0;padding:8px 0;">
+                <sc-for list="{{ stepsC }}" as="st" hint-placeholder-count="6">
+                  <li style="padding:0 22px;">
+                    <button type="button" onClick="{{ st.pick }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:10px 0;border:0;background:none;text-align:left;font:600 15px/1.35 system-ui,sans-serif;color:{{ st.fg }};cursor:pointer;"><span style="flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1.5px solid {{ st.nbd }};background:{{ st.nbg }};color:{{ st.nfg }};font:600 13px/1 system-ui,sans-serif;">{{ st.mark }}</span>{{ st.short }}</button>
+                    <sc-if value="{{ st.open }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:grid;gap:10px;margin:0 0 12px 40px;">
+                        <p style="margin:0;">{{ st.a }}<strong style="color:#1c1d1a;">{{ st.b }}</strong>{{ st.c }}</p>
+                        <img src="{{ st.img }}" alt="1bank screenshot" style="display:block;width:100%;aspect-ratio:16/10;object-fit:cover;border:1px solid #ddd7c9;border-radius:3px;background:#f1ede3;">
+                        <sc-if value="{{ st.hasNext }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ st.next }}" style="justify-self:start;min-height:36px;padding:0 14px;border:0;border-radius:3px;background:#1f6f4a;font:600 14px system-ui,sans-serif;color:#fff;cursor:pointer;">Done, next step</button></sc-if>
+                      </div>
+                    </sc-if>
+                  </li>
+                </sc-for>
+              </ol>
+            </section>
+            <div style="display:grid;gap:28px;">
+              <div style="display:flex;gap:14px;padding:18px 20px;background:#e5eee7;border:1px solid #c9dccf;border-radius:3px;color:#17573a;">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><rect x="5" y="11" width="14" height="10" rx="1.5"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+                <div><strong style="display:block;font:600 19px/1.25 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">Your data stays on this computer.</strong>The page cannot send it anywhere, and it keeps nothing. Check it: turn off Wi-Fi, then make a file. It still works. <u style="font-weight:600;">Source code</u></div>
+              </div>
+              <section>
+                <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;">
+                  <h2 style="margin:0;font:600 24px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Questions</h2>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    <sc-for list="{{ catsC }}" as="c" hint-placeholder-count="5">
+                      <button type="button" onClick="{{ c.pick }}" style="min-height:32px;padding:0 12px;border:1px solid {{ c.bd }};border-radius:16px;background:{{ c.bg }};font:600 13px system-ui,sans-serif;color:{{ c.fg }};cursor:pointer;">{{ c.name }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="border-top:1px solid #1c1d1a;">
+                  <sc-for list="{{ faqC }}" as="f" hint-placeholder-count="8">
+                    <div style="border-bottom:1px solid #ddd7c9;">
+                      <button type="button" onClick="{{ f.toggle }}" style="display:flex;align-items:center;gap:14px;width:100%;padding:13px 0;border:0;background:none;text-align:left;cursor:pointer;"><span style="flex:none;width:68px;font:600 11.5px/1.2 system-ui,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#5f6058;">{{ f.cat }}</span><span style="flex:1;font:600 15.5px/1.35 system-ui,sans-serif;color:#1c1d1a;">{{ f.q }}</span><span style="flex:none;font:400 20px/1 system-ui,sans-serif;color:#1f6f4a;">{{ f.sign }}</span></button>
+                      <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}"><p style="margin:0 0 14px 82px;">{{ f.a }}</p></sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </section>
+            </div>
+          </div>
+          <footer style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;padding:18px 24px 26px;border-top:1px solid #ddd7c9;font-size:13px;color:#5f6058;">
+            <p style="margin:0;"><span style="margin-right:8px;font:700 14px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">1batch.cy</span>For Bank of Cyprus business customers. Not made by, or connected to, Bank of Cyprus.</p>
+            <p style="margin:0;"><u style="color:#17573a;">Source code on GitHub</u> · No cookies. No tracking.</p>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "<a class="dv-oid" href="#2a">2a</a>, but the FAQ always visible below the tabs" · "<a class="dv-oid" href="#2c">2c</a> with the dark privacy band of <a class="dv-oid" href="#2b">2b</a>" · "show the pick on a phone"</p>
+</section>
+<section class="dv-turn" id="t1">
+  <div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Help, privacy and the 1bank guide, under the editor: three directions</span></div>
+  <p style="margin:0 0 24px;max-width:900px;font:13px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.6);">Same text in all three. They differ in layout and weight. <a class="dv-oid" href="#1a">1a</a> reads like a printed manual. <a class="dv-oid" href="#1b">1b</a> is visual, with a dark privacy band. <a class="dv-oid" href="#1c">1c</a> hides the answers until you ask. Screenshots are placeholders. Desktop, 1240 px wide.</p>
+  <div class="dv-opts">
+    <div class="dv-opt">
+      <div class="dv-olabel"><span class="dv-oid" style="background:#1c1d1a;color:#fff;">Now</span>The current section, for reference</div>
+      <div class="dv-card" style="width:640px;"><img src="review/shots/d-info.png" alt="The current Privacy and Help section" style="display:block;width:100%;height:auto;"></div>
+    </div>
+
+    <div class="dv-opt" id="1a">
+      <div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Manual: a side index, numbered sections, ruled rows. Calm and typographic.</div>
+      <div class="dv-card" style="width:1240px;">
+        <div style="background:#f5f2ea;font:15px/1.55 system-ui,-apple-system,'Segoe UI','Helvetica Neue',sans-serif;color:#2b2c28;">
+          <div style="display:grid;grid-template-columns:200px minmax(0,1fr);gap:56px;padding:52px 24px 60px;border-top:1px solid #b8b1a1;">
+            <nav style="align-self:start;display:grid;gap:4px;font-size:14px;">
+              <span style="margin-bottom:8px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5f6058;">On this page</span>
+              <a href="#1a" style="display:flex;gap:10px;padding:6px 0;border-top:1px solid #ddd7c9;color:#1c1d1a;text-decoration:none;"><span style="font-family:'Iowan Old Style',Palatino,Georgia,serif;color:#1f6f4a;">1</span>Upload in 1bank</a>
+              <a href="#1a" style="display:flex;gap:10px;padding:6px 0;border-top:1px solid #ddd7c9;color:#1c1d1a;text-decoration:none;"><span style="font-family:'Iowan Old Style',Palatino,Georgia,serif;color:#1f6f4a;">2</span>Privacy</a>
+              <a href="#1a" style="display:flex;gap:10px;padding:6px 0;border-top:1px solid #ddd7c9;border-bottom:1px solid #ddd7c9;color:#1c1d1a;text-decoration:none;"><span style="font-family:'Iowan Old Style',Palatino,Georgia,serif;color:#1f6f4a;">3</span>Help</a>
+            </nav>
+            <div style="display:grid;gap:60px;">
+              <section>
+                <p style="margin:0 0 4px;font:600 14px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1f6f4a;">1</p>
+                <h2 style="margin:0 0 8px;font:600 30px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Upload the file in 1bank</h2>
+                <p style="margin:0 0 18px;max-width:640px;">After “Download XML”, do these five steps in 1bank.</p>
+                <ol style="list-style:none;margin:0;padding:0;border-bottom:1px solid #ddd7c9;">
+                  <li style="display:grid;grid-template-columns:40px minmax(0,1fr) 240px;gap:24px;align-items:center;padding:16px 0;border-top:1px solid #ddd7c9;"><span style="font:600 26px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">1</span><span>Log in to 1bank. Go to <strong style="color:#1c1d1a;">Transfers &amp; Payments › Mass Payments › Multiple Payments</strong>.</span><span style="display:grid;place-items:center;aspect-ratio:16/10;border:1px solid #ddd7c9;border-radius:2px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 1</span></li>
+                  <li style="display:grid;grid-template-columns:40px minmax(0,1fr) 240px;gap:24px;align-items:center;padding:16px 0;border-top:1px solid #ddd7c9;"><span style="font:600 26px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">2</span><span>Click <strong style="color:#1c1d1a;">Select file</strong> and select the XML file. Then click <strong style="color:#1c1d1a;">Upload</strong>.</span><span style="display:grid;place-items:center;aspect-ratio:16/10;border:1px solid #ddd7c9;border-radius:2px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 2</span></li>
+                  <li style="display:grid;grid-template-columns:40px minmax(0,1fr) 240px;gap:24px;align-items:center;padding:16px 0;border-top:1px solid #ddd7c9;"><span style="font:600 26px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">3</span><span>Make sure that 1bank shows the same number of payments and the same total as this page.</span><span style="display:grid;place-items:center;aspect-ratio:16/10;border:1px solid #ddd7c9;border-radius:2px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 3</span></li>
+                  <li style="display:grid;grid-template-columns:40px minmax(0,1fr) 240px;gap:24px;align-items:center;padding:16px 0;border-top:1px solid #ddd7c9;"><span style="font:600 26px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">4</span><span>Enter the Digipass code. Then click <strong style="color:#1c1d1a;">Confirm</strong>.</span><span style="display:grid;place-items:center;aspect-ratio:16/10;border:1px solid #ddd7c9;border-radius:2px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 4</span></li>
+                  <li style="display:grid;grid-template-columns:40px minmax(0,1fr) 240px;gap:24px;align-items:center;padding:16px 0;border-top:1px solid #ddd7c9;"><span style="font:600 26px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">5</span><span>Read the result in 1bank <strong style="color:#1c1d1a;">Messages</strong>. If 1bank rejects a payment, make a new file with only that payment.</span><span style="display:grid;place-items:center;aspect-ratio:16/10;border:1px solid #ddd7c9;border-radius:2px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 5</span></li>
+                </ol>
+              </section>
+              <section>
+                <p style="margin:0 0 4px;font:600 14px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1f6f4a;">2</p>
+                <h2 style="margin:0 0 8px;font:600 30px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Privacy</h2>
+                <p style="margin:0 0 20px;max-width:640px;">A payment file has names, IBANs and amounts. This page cannot send them anywhere.</p>
+                <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 40px;margin-bottom:24px;">
+                  <div style="padding-top:12px;border-top:1px solid #1c1d1a;"><strong style="display:block;color:#17573a;">No connections</strong>The security policy of the page blocks all connections to servers.</div>
+                  <div style="padding-top:12px;border-top:1px solid #1c1d1a;"><strong style="display:block;color:#17573a;">No storage</strong>No cookies, no local storage, no accounts. Close the tab and the data is gone.</div>
+                  <div style="padding-top:12px;border-top:1px solid #1c1d1a;"><strong style="display:block;color:#17573a;">No third parties</strong>No analytics, ads, fonts or scripts from other sites.</div>
+                  <div style="padding-top:12px;border-top:1px solid #1c1d1a;"><strong style="display:block;color:#17573a;">Open code</strong>Three files, not minified. Read them with View Source or on GitHub.</div>
+                </div>
+                <div style="display:grid;grid-template-columns:200px minmax(0,1fr);gap:24px;padding:20px 22px;background:#fffdf8;border:1px solid #b8b1a1;border-radius:3px;margin-bottom:20px;">
+                  <div><strong style="display:block;font:600 19px/1.25 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">Check it yourself</strong><span style="font-size:13.5px;color:#5f6058;">One minute</span></div>
+                  <ol style="margin:0;padding-left:20px;display:grid;gap:4px;">
+                    <li>Open this page.</li>
+                    <li>Turn off Wi-Fi, or remove the network cable.</li>
+                    <li>Make a file and download it. It works, because the page does not use the network.</li>
+                  </ol>
+                </div>
+                <a href="#1a" style="display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;color:#1c1d1a;font:600 14px/1.2 system-ui,sans-serif;text-decoration:none;">Read the code on GitHub ↗</a>
+              </section>
+              <section>
+                <p style="margin:0 0 4px;font:600 14px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1f6f4a;">3</p>
+                <h2 style="margin:0 0 14px;font:600 30px/1.2 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Help</h2>
+                <dl style="margin:0;border-bottom:1px solid #ddd7c9;">
+                  <div style="display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;padding:16px 0;border-top:1px solid #ddd7c9;"><dt style="font:600 17px/1.35 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">SEPA or TBOC?</dt><dd style="margin:0;">TBOC is a transfer to a Bank of Cyprus account. SEPA is a euro transfer to a bank in the SEPA zone. The page sets the type from the IBAN. To change it, open “⋯” on the row.</dd></div>
+                  <div style="display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;padding:16px 0;border-top:1px solid #ddd7c9;"><dt style="font:600 17px/1.35 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">Which characters can I use?</dt><dd style="margin:0;">A–Z, a–z, 0–9, space and <span style="font-family:ui-monospace,Menlo,monospace;">/ - ? : ( ) . , ' +</span>. No accents, no Greek letters, no &amp;. Names: 35 characters maximum. Descriptions: 140.</dd></div>
+                  <div style="display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;padding:16px 0;border-top:1px solid #ddd7c9;"><dt style="font:600 17px/1.35 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">What does the page check?</dt><dd style="margin:0;">The same rules as the command-line tool. If one check fails, the page does not make the file. The bank name comes from a short list in the page. It does not prove that the account exists.</dd></div>
+                  <div style="display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;padding:16px 0;border-top:1px solid #ddd7c9;"><dt style="font:600 17px/1.35 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">How do I continue later?</dt><dd style="margin:0;">The page keeps nothing. Download the XML or CSV file and open it next time. A past execution date moves to the next business day.</dd></div>
+                  <div style="display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;padding:16px 0;border-top:1px solid #ddd7c9;"><dt style="font:600 17px/1.35 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">Same payments next month?</dt><dd style="margin:0;">Open last month's XML file. Change the amounts and the month in the descriptions. Then download a new file.</dd></div>
+                </dl>
+              </section>
+            </div>
+          </div>
+          <footer style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;padding:18px 24px 26px;border-top:1px solid #ddd7c9;font-size:13px;color:#5f6058;">
+            <p style="margin:0;"><span style="margin-right:8px;font:700 14px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">1batch.cy</span>Not made by, or connected to, Bank of Cyprus.</p>
+            <p style="margin:0;font:12px/1.5 ui-monospace,Menlo,monospace;">app.js sha256-… · style.css sha256-…</p>
+            <p style="margin:0;"><u style="color:#17573a;">Source code on GitHub</u> · No cookies. No tracking.</p>
+          </footer>
+        </div>
+      </div>
+    </div>
+
+    <div class="dv-opt" id="1b">
+      <div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Ink band: a step strip with big screenshots, a dark privacy band, help as an accordion. Bold and visual.</div>
+      <div class="dv-card" style="width:1240px;">
+        <div style="background:#f5f2ea;font:15px/1.55 system-ui,-apple-system,'Segoe UI','Helvetica Neue',sans-serif;color:#2b2c28;">
+          <section style="padding:52px 24px 52px;border-top:1px solid #b8b1a1;">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-bottom:22px;"><h2 style="margin:0;font:600 34px/1.15 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Upload the file in 1bank</h2><span style="font-size:14px;color:#5f6058;">Five steps, after “Download XML”</span></div>
+            <ol style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;">
+              <li style="display:grid;gap:12px;align-content:start;"><span style="position:relative;display:grid;place-items:center;aspect-ratio:4/3;border:1px solid #ddd7c9;border-radius:3px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 1<span style="position:absolute;left:10px;top:10px;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#1c1d1a;color:#fff;font:600 15px/1 'Iowan Old Style',Palatino,Georgia,serif;">1</span></span><span style="font-size:14.5px;">Log in to 1bank. Go to <strong style="color:#1c1d1a;">Transfers &amp; Payments › Mass Payments › Multiple Payments</strong>.</span></li>
+              <li style="display:grid;gap:12px;align-content:start;"><span style="position:relative;display:grid;place-items:center;aspect-ratio:4/3;border:1px solid #ddd7c9;border-radius:3px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 2<span style="position:absolute;left:10px;top:10px;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#1c1d1a;color:#fff;font:600 15px/1 'Iowan Old Style',Palatino,Georgia,serif;">2</span></span><span style="font-size:14.5px;">Click <strong style="color:#1c1d1a;">Select file</strong> and select the XML file. Then click <strong style="color:#1c1d1a;">Upload</strong>.</span></li>
+              <li style="display:grid;gap:12px;align-content:start;"><span style="position:relative;display:grid;place-items:center;aspect-ratio:4/3;border:1px solid #ddd7c9;border-radius:3px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 3<span style="position:absolute;left:10px;top:10px;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#1c1d1a;color:#fff;font:600 15px/1 'Iowan Old Style',Palatino,Georgia,serif;">3</span></span><span style="font-size:14.5px;">Make sure that 1bank shows the same number of payments and the same total.</span></li>
+              <li style="display:grid;gap:12px;align-content:start;"><span style="position:relative;display:grid;place-items:center;aspect-ratio:4/3;border:1px solid #ddd7c9;border-radius:3px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 4<span style="position:absolute;left:10px;top:10px;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#1c1d1a;color:#fff;font:600 15px/1 'Iowan Old Style',Palatino,Georgia,serif;">4</span></span><span style="font-size:14.5px;">Enter the Digipass code. Then click <strong style="color:#1c1d1a;">Confirm</strong>.</span></li>
+              <li style="display:grid;gap:12px;align-content:start;"><span style="position:relative;display:grid;place-items:center;aspect-ratio:4/3;border:1px solid #ddd7c9;border-radius:3px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:11px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 5<span style="position:absolute;left:10px;top:10px;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#1c1d1a;color:#fff;font:600 15px/1 'Iowan Old Style',Palatino,Georgia,serif;">5</span></span><span style="font-size:14.5px;">Read the result in 1bank <strong style="color:#1c1d1a;">Messages</strong>. If 1bank rejects a payment, make a new file with only that payment.</span></li>
+            </ol>
+          </section>
+          <section style="padding:56px 24px 52px;background:#1c1d1a;color:#f3f0e8;">
+            <div style="display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:56px;">
+              <div>
+                <p style="margin:0 0 12px;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#6fcf97;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="1.5"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>Privacy</p>
+                <h2 style="margin:0 0 16px;font:600 44px/1.1 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#fff;text-wrap:balance;">Your data stays on this computer.</h2>
+                <p style="margin:0 0 24px;max-width:500px;font-size:17px;color:#d8d3c6;">A payment file has names, IBANs and amounts. This page cannot send them anywhere. It keeps nothing after you close the tab.</p>
+                <a href="#1b" style="display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 16px;border-radius:3px;background:#fffdf8;color:#1c1d1a;font:600 14px/1.2 system-ui,sans-serif;text-decoration:none;">Read the code on GitHub ↗</a>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 28px;align-content:start;">
+                <div style="padding-top:12px;border-top:1px solid rgba(255,255,255,.22);"><strong style="display:block;color:#fff;">No connections</strong><span style="color:#d8d3c6;">The security policy of the page blocks all connections to servers.</span></div>
+                <div style="padding-top:12px;border-top:1px solid rgba(255,255,255,.22);"><strong style="display:block;color:#fff;">No storage</strong><span style="color:#d8d3c6;">No cookies, no local storage, no accounts. Close the tab and the data is gone.</span></div>
+                <div style="padding-top:12px;border-top:1px solid rgba(255,255,255,.22);"><strong style="display:block;color:#fff;">No third parties</strong><span style="color:#d8d3c6;">No analytics, ads, fonts or scripts from other sites.</span></div>
+                <div style="padding-top:12px;border-top:1px solid rgba(255,255,255,.22);"><strong style="display:block;color:#fff;">Open code</strong><span style="color:#d8d3c6;">Three files, not minified. Read them with View Source or on GitHub.</span></div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:220px repeat(3,minmax(0,1fr));gap:28px;margin-top:44px;padding-top:28px;border-top:1px solid rgba(255,255,255,.22);">
+              <div><strong style="display:block;font:600 22px/1.2 'Iowan Old Style',Palatino,Georgia,serif;color:#fff;">Check it yourself</strong><span style="color:#b9b4a7;font-size:14px;">One minute</span></div>
+              <div style="display:flex;gap:14px;"><span style="font:600 40px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#6fcf97;">1</span><span style="color:#d8d3c6;">Open this page.</span></div>
+              <div style="display:flex;gap:14px;"><span style="font:600 40px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#6fcf97;">2</span><span style="color:#d8d3c6;">Turn off Wi-Fi, or remove the network cable.</span></div>
+              <div style="display:flex;gap:14px;"><span style="font:600 40px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#6fcf97;">3</span><span style="color:#d8d3c6;">Make a file and download it. It works, because the page does not use the network.</span></div>
+            </div>
+          </section>
+          <section style="padding:52px 24px 48px;">
+            <h2 style="margin:0 0 18px;font:600 34px/1.15 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Help</h2>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 40px;align-items:start;">
+              <div style="border-bottom:1px solid #ddd7c9;">
+                <div style="border-top:1px solid #ddd7c9;"><div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 0 8px;font-weight:600;font-size:16px;color:#1c1d1a;">SEPA or TBOC?<span style="font-size:20px;line-height:1;color:#1f6f4a;">−</span></div><p style="margin:0 0 16px;max-width:520px;">TBOC is a transfer to a Bank of Cyprus account. SEPA is a euro transfer to a bank in the SEPA zone. The page sets the type from the IBAN. To change it, open “⋯” on the row.</p></div>
+                <div style="border-top:1px solid #ddd7c9;"><div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 0;font-weight:600;font-size:16px;color:#1c1d1a;">Which characters can I use?<span style="font-size:20px;line-height:1;color:#1f6f4a;">+</span></div></div>
+                <div style="border-top:1px solid #ddd7c9;"><div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 0;font-weight:600;font-size:16px;color:#1c1d1a;">What does the page check?<span style="font-size:20px;line-height:1;color:#1f6f4a;">+</span></div></div>
+              </div>
+              <div style="border-bottom:1px solid #ddd7c9;">
+                <div style="border-top:1px solid #ddd7c9;"><div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 0;font-weight:600;font-size:16px;color:#1c1d1a;">How do I continue later?<span style="font-size:20px;line-height:1;color:#1f6f4a;">+</span></div></div>
+                <div style="border-top:1px solid #ddd7c9;"><div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 0;font-weight:600;font-size:16px;color:#1c1d1a;">Same payments next month?<span style="font-size:20px;line-height:1;color:#1f6f4a;">+</span></div></div>
+              </div>
+            </div>
+          </section>
+          <footer style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;padding:18px 24px 26px;border-top:1px solid #ddd7c9;font-size:13px;color:#5f6058;">
+            <p style="margin:0;"><span style="margin-right:8px;font:700 14px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">1batch.cy</span>Not made by, or connected to, Bank of Cyprus.</p>
+            <p style="margin:0;font:12px/1.5 ui-monospace,Menlo,monospace;">app.js sha256-… · style.css sha256-…</p>
+            <p style="margin:0;"><u style="color:#17573a;">Source code on GitHub</u> · No cookies. No tracking.</p>
+          </footer>
+        </div>
+      </div>
+    </div>
+    <div class="dv-opt" id="1c">
+      <div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Questions: one narrow list. Answers open on click. A step viewer with one big screenshot. Least scrolling.</div>
+      <div class="dv-card" style="width:1240px;">
+        <div style="background:#f5f2ea;font:15px/1.55 system-ui,-apple-system,'Segoe UI','Helvetica Neue',sans-serif;color:#2b2c28;">
+          <div style="max-width:888px;margin:0 auto;padding:52px 24px 56px;">
+            <h2 style="margin:0 0 4px;font:600 34px/1.15 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Questions</h2>
+            <p style="margin:0 0 20px;color:#5f6058;">Click a question to open the answer.</p>
+            <div style="border-top:1px solid #1c1d1a;border-bottom:1px solid #ddd7c9;">
+              <div style="padding-bottom:22px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0 14px;font:600 20px/1.3 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">How do I upload the file in 1bank?<span style="font:400 22px/1 system-ui,sans-serif;color:#1f6f4a;">−</span></div>
+                <div style="display:grid;grid-template-columns:300px minmax(0,1fr);gap:22px;">
+                  <ol style="list-style:none;margin:0;padding:0;display:grid;gap:2px;font-size:14.5px;">
+                    <li style="display:flex;gap:12px;padding:10px 12px;border-radius:3px;color:#5f6058;"><span style="flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1.5px solid #b8b1a1;font:600 13px/1 'Iowan Old Style',Palatino,Georgia,serif;">1</span>Log in. Go to Transfers &amp; Payments › Mass Payments › Multiple Payments.</li>
+                    <li style="display:flex;gap:12px;padding:10px 12px;border-radius:3px;background:#fffdf8;border:1px solid #ddd7c9;color:#1c1d1a;font-weight:600;"><span style="flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#1c1d1a;color:#fff;font:600 13px/1 'Iowan Old Style',Palatino,Georgia,serif;">2</span>Click Select file and select the XML file. Then click Upload.</li>
+                    <li style="display:flex;gap:12px;padding:10px 12px;border-radius:3px;color:#5f6058;"><span style="flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1.5px solid #b8b1a1;font:600 13px/1 'Iowan Old Style',Palatino,Georgia,serif;">3</span>Make sure that the count and the total are the same as here.</li>
+                    <li style="display:flex;gap:12px;padding:10px 12px;border-radius:3px;color:#5f6058;"><span style="flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1.5px solid #b8b1a1;font:600 13px/1 'Iowan Old Style',Palatino,Georgia,serif;">4</span>Enter the Digipass code. Then click Confirm.</li>
+                    <li style="display:flex;gap:12px;padding:10px 12px;border-radius:3px;color:#5f6058;"><span style="flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1.5px solid #b8b1a1;font:600 13px/1 'Iowan Old Style',Palatino,Georgia,serif;">5</span>Read the result in Messages. If 1bank rejects a payment, make a new file with only that payment.</li>
+                  </ol>
+                  <div style="display:grid;gap:10px;align-content:start;">
+                    <span style="display:grid;place-items:center;aspect-ratio:16/10;border:1px solid #ddd7c9;border-radius:3px;background:repeating-linear-gradient(135deg,#f1ede3 0 8px,#e9e4d7 8px 16px);font:12px/1.3 ui-monospace,Menlo,monospace;color:#5f6058;">1bank screenshot 2: Select file, Upload</span>
+                    <div style="display:flex;align-items:center;justify-content:space-between;font-size:13.5px;color:#5f6058;">Step 2 of 5<span style="display:flex;gap:6px;"><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;color:#1c1d1a;font-weight:600;">‹ Back</span><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border:1px solid #b8b1a1;border-radius:3px;background:#fffdf8;color:#1c1d1a;font-weight:600;">Next ›</span></span></div>
+                  </div>
+                </div>
+              </div>
+              <div style="padding-bottom:22px;border-top:1px solid #ddd7c9;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0 10px;font:600 20px/1.3 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;"><span style="display:flex;align-items:center;gap:10px;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#1f6f4a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="1.5"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>Where does my data go?</span><span style="font:400 22px/1 system-ui,sans-serif;color:#1f6f4a;">−</span></div>
+                <p style="margin:0 0 14px;font-size:16px;color:#1c1d1a;"><strong>Nowhere.</strong> The page cannot send data to a server, and it keeps nothing after you close the tab.</p>
+                <ul style="list-style:none;margin:0 0 16px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 28px;">
+                  <li style="display:flex;gap:10px;"><span style="color:#1f6f4a;font-weight:700;">✓</span><span><strong style="color:#1c1d1a;">No connections.</strong> The security policy blocks all connections to servers.</span></li>
+                  <li style="display:flex;gap:10px;"><span style="color:#1f6f4a;font-weight:700;">✓</span><span><strong style="color:#1c1d1a;">No storage.</strong> No cookies, no local storage, no accounts.</span></li>
+                  <li style="display:flex;gap:10px;"><span style="color:#1f6f4a;font-weight:700;">✓</span><span><strong style="color:#1c1d1a;">No third parties.</strong> No analytics, ads, fonts or scripts from other sites.</span></li>
+                  <li style="display:flex;gap:10px;"><span style="color:#1f6f4a;font-weight:700;">✓</span><span><strong style="color:#1c1d1a;">Open code.</strong> Three files, not minified.</span></li>
+                </ul>
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:12px 14px;background:#e5eee7;border:1px solid #c9dccf;border-radius:3px;color:#17573a;"><span><strong style="color:#1c1d1a;">Check it yourself:</strong> open this page, turn off Wi-Fi, then make a file. It still works.</span><a href="#1c" style="margin-left:auto;font-weight:600;">Read the code on GitHub ↗</a></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-top:1px solid #ddd7c9;font:600 20px/1.3 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">SEPA or TBOC: which one?<span style="font:400 22px/1 system-ui,sans-serif;color:#1f6f4a;">+</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-top:1px solid #ddd7c9;font:600 20px/1.3 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">Which characters can I use?<span style="font:400 22px/1 system-ui,sans-serif;color:#1f6f4a;">+</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-top:1px solid #ddd7c9;font:600 20px/1.3 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">What does the page check?<span style="font:400 22px/1 system-ui,sans-serif;color:#1f6f4a;">+</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-top:1px solid #ddd7c9;font:600 20px/1.3 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;color:#1c1d1a;">How do I continue later, or next month?<span style="font:400 22px/1 system-ui,sans-serif;color:#1f6f4a;">+</span></div>
+            </div>
+          </div>
+          <footer style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;padding:18px 24px 26px;border-top:1px solid #ddd7c9;font-size:13px;color:#5f6058;">
+            <p style="margin:0;"><span style="margin-right:8px;font:700 14px/1 'Iowan Old Style',Palatino,Georgia,serif;color:#1c1d1a;">1batch.cy</span>Not made by, or connected to, Bank of Cyprus.</p>
+            <p style="margin:0;font:12px/1.5 ui-monospace,Menlo,monospace;">app.js sha256-… · style.css sha256-…</p>
+            <p style="margin:0;"><u style="color:#17573a;">Source code on GitHub</u> · No cookies. No tracking.</p>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="dv-next">Try next: "<a class="dv-oid" href="#1b">1b</a> with the questions of <a class="dv-oid" href="#1c">1c</a>" · "make <a class="dv-oid" href="#1a">1a</a> shorter" · "show the pick on a phone"</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  static STEPS = [
+    { n: 1, short: 'Open Multiple Payments', a: 'Log in to 1bank. Go to ', b: 'Transfers & Payments › Mass Payments › Multiple Payments', c: '.' },
+    { n: 2, short: 'Upload the file', a: 'Click ', b: 'Select file', c: ' and select the XML file. Then click Upload.' },
+    { n: 3, short: 'Compare the totals', a: 'Make sure that 1bank shows ', b: 'the same number of payments and the same total', c: ' as this page.' },
+    { n: 4, short: 'Confirm the upload', a: 'Enter the Digipass code to confirm the upload. Then click ', b: 'Confirm', c: '.' },
+    { n: 5, short: 'Read the result', a: 'Read the result in 1bank ', b: 'Messages', c: '. Now 1bank makes a pending payment for each payment in the file.' },
+    { n: 6, short: 'Confirm the pending payments', a: 'Go to ', b: '[Pending Payments]', c: '. Confirm the payments with a second Digipass code. Then the bank sends them.' },
+  ];
+  static CATS = ['Start', 'Privacy', 'Rules', 'In 1bank'];
+  static FAQ = [
+    { cat: 'Start', q: 'Who can use this page?', a: 'Bank of Cyprus business customers who use 1bank for business and have Multiple Payments. The debit account must be a Bank of Cyprus account in euro. If you do not see Multiple Payments in 1bank, ask your relationship manager.' },
+    { cat: 'Start', q: 'Is it free? Who made it?', a: 'Yes, it is free and open source (MIT licence). An independent developer made it. It is not made by, or connected to, Bank of Cyprus. The code is on GitHub.' },
+    { cat: 'Start', q: 'Can I use it on a phone?', a: 'Yes. On a phone, each payment shows as a card. For a large batch, a computer is faster: you can paste from Excel and use the keyboard.' },
+    { cat: 'Start', q: 'Is there a command-line tool?', a: 'Yes: boc_payments_xml on GitHub. It uses the same rules and makes the same XML. It reads CSV files in the same format as Export CSV.' },
+    { cat: 'Privacy', q: 'Where does my data go?', a: 'Nowhere. The page runs only in your browser. Its security policy blocks all connections to servers. It uses no cookies and no storage, so the data is gone when you close the tab.' },
+    { cat: 'Privacy', q: 'How can I check this?', a: 'Open the page, then turn off Wi-Fi or remove the network cable. Make a file and download it. It works, because the page does not use the network. You can also read the three code files with View Source.' },
+    { cat: 'Rules', q: 'SEPA or TBOC: which one?', a: 'TBOC is a transfer to a Bank of Cyprus account. SEPA is a euro transfer to a bank in the SEPA zone. The page sets the type from the IBAN. To change it, click “⋯” on the row.' },
+    { cat: 'Rules', q: 'Which characters can I use?', a: "A–Z, a–z, 0–9, space and / - ? : ( ) . , ' +. The bank does not accept accents, Greek letters or &. Names: 35 characters maximum. Descriptions: 140. For many errors, the page shows a button with a correction." },
+    { cat: 'Rules', q: 'Which execution date can I use?', a: 'Today or a later business day. If you open an old file with a past date, the page moves it to the next business day. The bank has cut-off times for each payment type. For the times, see the Bank of Cyprus website or ask your relationship manager.' },
+    { cat: 'Rules', q: 'How many payments can one file have?', a: 'The page has no limit. 1bank can have a limit for each file. Ask your relationship manager. With 1000 or more payments, the file reference must be shorter. The page tells you.' },
+    { cat: 'Rules', q: 'What does the page check?', a: 'The same rules as the command-line tool: names, IBANs, BICs, amounts, descriptions and the date. If one check fails, the page does not make the file. The bank name comes from a short list in the page. It does not prove that the account exists.' },
+    { cat: 'Rules', q: 'Which CSV format can I open?', a: 'The format of the command-line tool. The first line is type,name,iban,bic,amount,description. Then one line for each payment. Use Export CSV to get a correct example. A CSV file has no “Pay from” data.' },
+    { cat: 'In 1bank', q: '1bank does not accept the file. What now?', a: 'Read the message in 1bank. Make the correction here, then download a new file and upload it. If the message is not clear, ask your relationship manager.' },
+    { cat: 'In 1bank', q: '1bank rejected one payment. What now?', a: 'Make a new file with only that payment. Do not upload the full file again: the other payments would go two times.' },
+    { cat: 'In 1bank', q: 'What are the bank fees?', a: 'The page does not add fees. For the bank fees, see the Bank of Cyprus price list or ask your relationship manager. In the file, SEPA payments use shared charges (SLEV).' },
+    { cat: 'In 1bank', q: 'How do I use an old XML file again?', a: 'Click Open and select the old XML file. The page fills in all the fields and offers to change the month in the descriptions. Change the amounts, then download a new file.' },
+  ];
+
+  state = { tabA: 'upload', stepA: 2, openA: { 0: true }, openB: { 0: true }, stepC: 3, openC: {}, catC: 'All' };
+
+  faq(key, list) {
+    const open = this.state[key];
+    return list.map(f => {
+      const i = Component.FAQ.indexOf(f);
+      return { ...f, open: !!open[i], sign: open[i] ? '−' : '+', toggle: () => this.setState(s => ({ [key]: { ...s[key], [i]: !s[key][i] } })) };
+    });
+  }
+
+  groups(key, list) {
+    return Component.CATS.map(name => ({ name, items: this.faq(key, list.filter(f => f.cat === name)) })).filter(g => g.items.length);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const S = Component.STEPS;
+    const F = Component.FAQ;
+    const ink = '#1c1d1a', muted = '#5f6058';
+    const tabs = [['upload', 'Upload in 1bank'], ['privacy', 'Privacy'], ['faq', `Questions (${F.length})`]].map(([id, label]) => ({
+      label, pick: () => this.setState({ tabA: id }),
+      fg: s.tabA === id ? ink : muted, line: s.tabA === id ? ink : 'transparent',
+    }));
+    const stepsA = S.map(st => ({
+      ...st, pick: () => this.setState({ stepA: st.n }),
+      bg: s.stepA === st.n ? '#fffdf8' : 'transparent', bd: s.stepA === st.n ? '#ddd7c9' : 'transparent',
+      fg: s.stepA === st.n ? ink : muted, nbg: s.stepA === st.n ? ink : 'transparent', nfg: s.stepA === st.n ? '#fff' : muted,
+      nbd: s.stepA === st.n ? ink : '#b8b1a1', fw: s.stepA === st.n ? '600' : '400',
+    }));
+    const curA = S[s.stepA - 1];
+    const stepsC = S.map(st => ({
+      ...st, open: s.stepC === st.n, pick: () => this.setState({ stepC: st.n }),
+      next: () => this.setState({ stepC: Math.min(6, st.n + 1) }), hasNext: st.n < 6,
+      nbg: st.n < s.stepC ? '#1f6f4a' : st.n === s.stepC ? ink : '#fffdf8',
+      nfg: st.n <= s.stepC ? '#fff' : muted, nbd: st.n < s.stepC ? '#1f6f4a' : st.n === s.stepC ? ink : '#b8b1a1',
+      mark: st.n < s.stepC ? '✓' : String(st.n), fg: st.n === s.stepC ? ink : muted,
+    }));
+    const catsC = ['All', ...Component.CATS].map(name => ({
+      name, pick: () => this.setState({ catC: name }),
+      bg: s.catC === name ? ink : '#fffdf8', fg: s.catC === name ? '#fff' : ink, bd: s.catC === name ? ink : '#b8b1a1',
+    }));
+    return {
+      tabs, isUpload: s.tabA === 'upload', isPrivacy: s.tabA === 'privacy', isFaq: s.tabA === 'faq',
+      stepsA, curA, curImgA: `img/1bank-step-${curA.n}.png`, stepLabelA: `Step ${curA.n} of 6`,
+      prevA: () => this.setState(st => ({ stepA: Math.max(1, st.stepA - 1) })),
+      nextA: () => this.setState(st => ({ stepA: Math.min(6, st.stepA + 1) })),
+      faqGroupsA: this.groups('openA', F),
+      stepsB: S.map(st => ({ ...st, img: `img/1bank-step-${st.n}.png` })),
+      faqColB1: this.groups('openB', F.slice(0, 8)), faqColB2: this.groups('openB', F.slice(8)),
+      stepsC: stepsC.map(st => ({ ...st, img: `img/1bank-step-${st.n}.png` })), progressC: `${s.stepC} of 6`,
+      progressW: `${(s.stepC / 6) * 100}%`,
+      catsC, faqC: this.faq('openC', s.catC === 'All' ? F : F.filter(f => f.cat === s.catC)),
+      faqCount: String(F.length),
+    };
+  }
+}
+</script>
+</body>
+</html>
