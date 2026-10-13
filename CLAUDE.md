@@ -58,5 +58,9 @@
 - Sample rows have row.sample=true until edited; hasUserData() ignores them (undo, beforeunload).
 - No SRI, no footer hashes, no SHA256SUMS any more. Edits to app.js/style.css need no hash update.
 
+## Repo layout
+- The site files are at the repo root: index.html, style.css, app.js, img/, _headers, LICENSE. Cloudflare Pages serves the root.
+- The Claude Design handoff (chats, .dc.html review files, review/shots, uploads, support.js) is only in git history, in commit 18779ab.
+
 ## Preview tip
 - The CSP meta blocks the preview tools. Test with a temporary copy without the CSP meta, then delete the copy.
