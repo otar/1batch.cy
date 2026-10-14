@@ -59,8 +59,34 @@
 - No SRI, no footer hashes, no SHA256SUMS any more. Edits to app.js/style.css need no hash update.
 
 ## Repo layout
-- The site files are at the repo root: index.html, style.css, app.js, img/, _headers, LICENSE. Cloudflare Pages serves the root.
+- site/ has the files that the website publishes: index.html, style.css, app.js, img/, _headers. Cloudflare Pages publishes only site/.
+- CLAUDE.md and LICENSE are at the repo root. They are not on the website.
 - The Claude Design handoff (chats, .dc.html review files, review/shots, uploads, support.js) is only in git history, in commit 18779ab.
+
+## Deploy: Cloudflare Pages (decisions 2026-10-14)
+- Cloudflare Git integration: each push to main goes live. Other branches get preview addresses. (A Git project cannot change to Direct Upload later.)
+- Pages project: name `1batch`, repo otar/1batch.cy, production branch main, framework none, build command empty, build output directory `site`.
+- Main address: https://www.1batch.cy. Pages custom domain, DNS CNAME www → the project's pages.dev name, proxied.
+- https://1batch.cy and https://1batch.pages.dev redirect (301) to https://www.1batch.cy, with path and query. One Bulk Redirects list with two entries. "Include subdomains" is off, so preview addresses (<hash>.1batch.pages.dev) do not redirect. The apex needs a proxied placeholder record (AAAA 100::).
+- If the name `1batch` is taken on pages.dev, Cloudflare adds characters. Use the real pages.dev name from the API for the CNAME and the redirect.
+- Zone 1batch.cy: Always Use HTTPS on. Nothing may add scripts or change the HTML: Rocket Loader off, Email Obfuscation off, Web Analytics off, no Bot Fight Mode JavaScript detections.
+- Before you change or delete a DNS record that exists, show it to the user and ask.
+
+### Setup by the user (before the deploy session)
+- [ ] Environment network: allow api.cloudflare.com. For the checks, also www.1batch.cy, 1batch.cy and 1batch.pages.dev.
+- [ ] Scoped Cloudflare API token in the environment: network secret, or env var CLOUDFLARE_API_TOKEN. Delete the token after the setup.
+- [ ] Cloudflare dashboard: connect GitHub (Cloudflare Pages GitHub app, only the repo otar/1batch.cy). Do not create the project.
+
+### Steps for Claude (API base https://api.cloudflare.com/client/v4)
+1. Verify the token (GET /user/tokens/verify). Get the zone (GET /zones?name=1batch.cy). The status must be active. Get the account ID from the zone.
+2. List the DNS records for 1batch.cy and www.1batch.cy. Show the user the records that exist.
+3. Create the Pages project with the GitHub source (POST /accounts/{account_id}/pages/projects). If the API cannot connect the repo, the user finishes "Connect to Git" in the dashboard with the settings above.
+4. Wait until the first production deployment is successful.
+5. Add the custom domain www.1batch.cy (POST /accounts/{account_id}/pages/projects/{project}/domains). Create the CNAME if it is not there. Wait until the domain is active.
+6. Create the apex placeholder record, the Bulk Redirects list and the account-level redirect rule.
+7. Set the zone settings above.
+8. Check: the live index.html, style.css and app.js are the same bytes as site/. The headers match site/_headers. http goes to https. The two redirects work. A preview address does not redirect.
+9. Tell the user to delete the API token.
 
 ## Preview tip
 - The CSP meta blocks the preview tools. Test with a temporary copy without the CSP meta, then delete the copy.

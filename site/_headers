@@ -1,4 +1,4 @@
-# Cloudflare Pages: HTTP headers for all files on 1batch.cy.
+# Cloudflare Pages: HTTP headers for all files on www.1batch.cy.
 # The same privacy rules as the meta tag in index.html. A header can also block framing.
 
 /*
