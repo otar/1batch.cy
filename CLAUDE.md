@@ -63,32 +63,32 @@
 - CLAUDE.md and LICENSE are at the repo root. They are not on the website.
 - The Claude Design handoff (chats, .dc.html review files, review/shots, uploads, support.js) is only in git history, in commit 18779ab.
 
-## Deploy: Cloudflare Pages (decisions 2026-10-14)
+## Deploy: Cloudflare Pages (live since 2026-10-14)
 - Cloudflare Git integration: each push to main goes live. Other branches get preview addresses. (A Git project cannot change to Direct Upload later.)
-- Pages project: name `1batch`, repo otar/1batch.cy, production branch main, framework none, build command empty, build output directory `site`.
-- Main address: https://www.1batch.cy. Pages custom domain, DNS CNAME www → the project's pages.dev name, proxied.
-- https://1batch.cy and https://1batch.pages.dev redirect (301) to https://www.1batch.cy, with path and query. One Bulk Redirects list with two entries. "Include subdomains" is off, so preview addresses (<hash>.1batch.pages.dev) do not redirect. The apex needs a proxied placeholder record (AAAA 100::).
-- If the name `1batch` is taken on pages.dev, Cloudflare adds characters. Use the real pages.dev name from the API for the CNAME and the redirect.
-- Zone 1batch.cy: Always Use HTTPS on. Nothing may add scripts or change the HTML: Rocket Loader off, Email Obfuscation off, Web Analytics off, no Bot Fight Mode JavaScript detections.
+- Pages project: name `1batch` (1batch.pages.dev), repo otar/1batch.cy, production branch main, framework none, build command empty, build output directory `site`.
+- Main address: https://www.1batch.cy. Pages custom domain, DNS CNAME www → 1batch.pages.dev, proxied.
+- https://1batch.cy and https://1batch.pages.dev redirect (301) to https://www.1batch.cy, with path and query. Account Bulk Redirects list `redirects_1batch` with two entries, and one rule in the account phase http_request_redirect. "Include subdomains" is off, so preview addresses (<hash>.1batch.pages.dev) do not redirect. The apex has a proxied placeholder record (AAAA 100::).
+- Zone 1batch.cy: Always Use HTTPS on, minimum TLS 1.2, HSTS on (max-age 31536000, includeSubDomains, no preload), Browser Cache TTL "Respect Existing Headers", Network Error Logging off.
+- Nothing may add scripts or change the HTML: Rocket Loader off, Email Obfuscation off, Automatic HTTPS Rewrites off, Web Analytics off, no Bot Fight Mode JavaScript detections.
+- Web Analytics: Cloudflare turns it on by default. Turn it off in the dashboard: Web Analytics → Manage site → Disable. The zone setting "rum" says off also when the script is on. The API token cannot read it.
+- Pages adds NEL and Report-To headers on www and on *.pages.dev. "! NEL" in _headers does not remove them (test on 2026-10-14). Only a zone Response Header Transform Rule can remove them on www.
+- Pages sends index.html for each unknown path (there is no 404.html). Thus index.html must use root-relative URLs (/style.css, /app.js, /img/...).
 - Before you change or delete a DNS record that exists, show it to the user and ask.
 
-### Setup by the user (before the deploy session)
-- [ ] Cloud environment "1batch deploy" (claude.ai/code → environment selector → Cloud → add). Network access: Custom. Allowed domains: api.cloudflare.com, 1batch.cy, www.1batch.cy, 1batch.pages.dev. Tick "Also include default list of common package managers". (The Claude Design handoff session ran in an environment that the user cannot edit.)
-- [ ] Cloudflare API token in "1batch deploy": a network secret for api.cloudflare.com, or the env var CLOUDFLARE_API_TOKEN. Permissions: Account › Cloudflare Pages › Edit, Account › Account Filter Lists › Edit, Account › Bulk URL Redirects › Edit, Zone › Zone › Read, Zone › DNS › Edit, Zone › Zone Settings › Edit. Zone resources: only 1batch.cy. Delete the token after the setup.
-- [ ] Cloudflare dashboard: connect GitHub (Cloudflare Pages GitHub app, only the repo otar/1batch.cy). Do not create the project.
+### Check the live site after a deploy
+1. Make sure that the HTML that a browser gets is the same bytes as site/index.html: `curl -s -H 'Accept: text/html' https://www.1batch.cy/ | sha256sum`. Without "Accept: text/html", Cloudflare does not add the Web Analytics script, and the check is not correct.
+2. Make sure that style.css, app.js and the images are the same bytes as site/.
+3. Make sure that the headers match site/_headers.
+4. Make sure that http goes to https, that the two redirects work, and that a preview address does not redirect.
 
-### Steps for Claude (API base https://api.cloudflare.com/client/v4)
-1. Verify the token (GET /user/tokens/verify). Get the zone (GET /zones?name=1batch.cy). The status must be active. Get the account ID from the zone.
-2. List the DNS records for 1batch.cy and www.1batch.cy. Show the user the records that exist.
-3. Create the Pages project with the GitHub source (POST /accounts/{account_id}/pages/projects). If the API cannot connect the repo, the user finishes "Connect to Git" in the dashboard with the settings above.
-4. Wait until the first production deployment is successful.
-5. Add the custom domain www.1batch.cy (POST /accounts/{account_id}/pages/projects/{project}/domains). Create the CNAME if it is not there. Wait until the domain is active.
-6. Create the apex placeholder record, the Bulk Redirects list and the account-level redirect rule.
-7. Set the zone settings above.
-8. Check: the live index.html, style.css and app.js are the same bytes as site/. The headers match site/_headers. http goes to https. The two redirects work. A preview address does not redirect.
-9. Tell the user to delete the API token.
+### Cloudflare work later
+- After the setup, the user deletes the API token. Then the start-up hook says that the token is "none found" or "NOT VALID". This is normal.
+- The cloud environment "1batch deploy" has network access Custom, with these allowed domains: api.cloudflare.com, 1batch.cy, www.1batch.cy, 1batch.pages.dev, and the default list of common package managers.
+- For new Cloudflare work, the user makes a new token in "1batch deploy" (env var CLOUDFLARE_API_TOKEN or a network secret for api.cloudflare.com). Permissions: Account › Cloudflare Pages › Edit, Account › Account Filter Lists › Edit, Account › Bulk URL Redirects › Edit, Zone › Zone › Read, Zone › DNS › Edit, Zone › Zone Settings › Edit. Zone resources: only 1batch.cy.
+- This token cannot read Web Analytics, Bot Management, Zaraz or zone rules. The user checks them in the dashboard.
+- If a push to main does not start a build, start it with the API: POST /accounts/{account_id}/pages/projects/1batch/deployments with the form field branch=main.
 
 ## Cloud sessions
-- .claude/hooks/session-start.sh runs at the start of each cloud session. It shows if the site test can run, and the state of the Cloudflare API, token, zone and Pages project. If a line says BLOCKED, none found, NOT VALID or not found, tell the user the fix from "Setup by the user".
+- .claude/hooks/session-start.sh runs at the start of each cloud session. It shows if the site test can run, and the state of the Cloudflare API, token, zone and Pages project. If a line says BLOCKED or not found, tell the user. A missing token is normal (see "Cloudflare work later").
 - Site test: node tests/smoke.js (Playwright, about 5 s). It serves site/ with the headers from site/_headers. Run it after each change to site/.
 - Syntax check of the script: node --check site/app.js

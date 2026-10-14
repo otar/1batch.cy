@@ -18,7 +18,7 @@ fi
 API=https://api.cloudflare.com/client/v4
 ZONE=1batch.cy
 PROJECT=1batch
-SETUP_HELP="See \"Setup by the user\" in CLAUDE.md."
+SETUP_HELP="See \"Cloudflare work later\" in CLAUDE.md."
 
 echo "1batch.cy start-up check:"
 
