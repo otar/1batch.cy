@@ -54,7 +54,7 @@ const TYPES = {
 
 /* ---------- Web server ---------- */
 
-/** Reads site/_headers. The format is the Cloudflare Pages format: a path, then indented "Name: value" lines. */
+/** Reads site/_headers. The format is the Cloudflare Pages format: a path, then indented "Name: value" lines. A "! Name" line removes a header. */
 function readHeaderRules() {
   const rules = [];
   let rule = null;
@@ -63,6 +63,8 @@ function readHeaderRules() {
     if (!/^\s/.test(line)) {
       rule = { pattern: line.trim(), headers: [] };
       rules.push(rule);
+    } else if (rule && line.trim().startsWith('!')) {
+      rule.headers.push([line.trim().slice(1).trim(), null]);
     } else if (rule) {
       const at = line.indexOf(':');
       rule.headers.push([line.slice(0, at).trim(), line.slice(at + 1).trim()]);
@@ -97,7 +99,10 @@ function startServer() {
     }
     for (const rule of rules) {
       if (!pathMatches(rule.pattern, urlPath)) continue;
-      for (const [name, value] of rule.headers) response.setHeader(name, value);
+      for (const [name, value] of rule.headers) {
+        if (value === null) response.removeHeader(name);
+        else response.setHeader(name, value);
+      }
     }
     response.setHeader('Content-Type', TYPES[path.extname(file)] || 'application/octet-stream');
     response.end(fs.readFileSync(file));
