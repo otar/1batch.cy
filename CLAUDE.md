@@ -73,8 +73,8 @@
 - Before you change or delete a DNS record that exists, show it to the user and ask.
 
 ### Setup by the user (before the deploy session)
-- [ ] Environment network: allow api.cloudflare.com. For the checks, also www.1batch.cy, 1batch.cy and 1batch.pages.dev.
-- [ ] Scoped Cloudflare API token in the environment: network secret, or env var CLOUDFLARE_API_TOKEN. Delete the token after the setup.
+- [ ] Cloud environment "1batch deploy" (claude.ai/code → environment selector → Cloud → add). Network access: Custom. Allowed domains: api.cloudflare.com, 1batch.cy, www.1batch.cy, 1batch.pages.dev. Tick "Also include default list of common package managers". (The Claude Design handoff session ran in an environment that the user cannot edit.)
+- [ ] Cloudflare API token in "1batch deploy": a network secret for api.cloudflare.com, or the env var CLOUDFLARE_API_TOKEN. Permissions: Account › Cloudflare Pages › Edit, Account › Account Filter Lists › Edit, Account › Bulk URL Redirects › Edit, Zone › Zone › Read, Zone › DNS › Edit, Zone › Zone Settings › Edit. Zone resources: only 1batch.cy. Delete the token after the setup.
 - [ ] Cloudflare dashboard: connect GitHub (Cloudflare Pages GitHub app, only the repo otar/1batch.cy). Do not create the project.
 
 ### Steps for Claude (API base https://api.cloudflare.com/client/v4)
@@ -88,5 +88,7 @@
 8. Check: the live index.html, style.css and app.js are the same bytes as site/. The headers match site/_headers. http goes to https. The two redirects work. A preview address does not redirect.
 9. Tell the user to delete the API token.
 
-## Preview tip
-- The CSP meta blocks the preview tools. Test with a temporary copy without the CSP meta, then delete the copy.
+## Cloud sessions
+- .claude/hooks/session-start.sh runs at the start of each cloud session. It shows if the site test can run, and the state of the Cloudflare API, token, zone and Pages project. If a line says BLOCKED, none found, NOT VALID or not found, tell the user the fix from "Setup by the user".
+- Site test: node tests/smoke.js (Playwright, about 5 s). It serves site/ with the headers from site/_headers. Run it after each change to site/.
+- Syntax check of the script: node --check site/app.js
