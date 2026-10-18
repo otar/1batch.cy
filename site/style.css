@@ -25,18 +25,17 @@
   --on-ink-muted: #b5bbc9;
   --on-ink-line: rgba(255, 255, 255, .3);
 
-  /* Lime is for fills only, with navy text. Green is for text, links and icons on white. */
+  /* On white and light grey, lime is only a fill, with navy text. Green is for text, links and icons there.
+     On the navy areas, lime is also for text and focus outlines. */
   --accent: #c2e558;
   --accent-hover: #b3d84a;
   --accent-ink: #3d7612;
   --accent-tint: #eef7d4;
   --accent-line: #d9ebab;
+  --note-text: #3a5a10;
   --ring: rgba(165, 205, 50, .5);
 
   --red: #c0312b;
-  --red-hover: #9c2721;
-  --red-tint: #fdecea;
-  --red-ring: rgba(192, 49, 43, .22);
   --amber: #c98b0b;
   --amber-ink: #7a4f00;
   --amber-tint: #fdf3d9;
@@ -60,7 +59,12 @@
 
 [hidden] { display: none !important; }
 
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+/* The bottom bar is fixed. The scroll padding keeps the element with the focus above it. */
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-bottom: calc(var(--bar-h) + 16px + env(safe-area-inset-bottom));
+}
 
 body {
   margin: 0;
@@ -149,13 +153,14 @@ p, dd, li { text-wrap: pretty; }
 .btn-quiet { background: var(--sheet); color: var(--ink); border-color: var(--rule-strong); }
 .btn-quiet:hover { border-color: var(--ink); color: var(--ink); }
 
-.btn-danger { background: var(--red); color: #fff; }
-.btn-danger:hover { background: var(--red-hover); }
-
+/* The bottom bar uses it on the navy background */
 .btn-light { background: var(--sheet); color: var(--ink); }
-.btn-light:hover { background: var(--hover); }
+.btn-light:hover { background: var(--accent-tint); }
 
 .btn:disabled { opacity: .45; cursor: default; }
+
+/* "Open XML or CSV": the flex gap replaces the space before "XML". This gives a normal word space. */
+.btn > .lbl-long { margin-left: calc(.25em - 8px); }
 
 .link {
   padding: 0;
@@ -203,9 +208,9 @@ p, dd, li { text-wrap: pretty; }
 .input:hover { border-color: var(--field-hover); }
 .input:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px var(--ring); }
 .input[aria-invalid="true"] { border-color: var(--red); box-shadow: 0 0 0 1px var(--red); }
-.input[aria-invalid="true"]:focus { box-shadow: 0 0 0 1px var(--red), 0 0 0 4px var(--red-ring); }
 .input.has-warning { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber); }
-.input.has-warning:focus { box-shadow: 0 0 0 1px var(--amber), 0 0 0 4px rgba(201, 139, 11, .25); }
+.input[aria-invalid="true"]:focus,
+.input.has-warning:focus { border-color: var(--ink); box-shadow: 0 0 0 3px var(--ring); }
 .input.mono { font-family: var(--mono); font-size: 14px; }
 .input.caps { text-transform: uppercase; }
 .input.caps::placeholder { text-transform: none; }
@@ -247,10 +252,10 @@ input[type="checkbox"] {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px 20px;
+  gap: 12px 28px;
   max-width: var(--wrap);
   margin: 0 auto;
-  padding: 16px 24px;
+  padding: 18px 24px;
 }
 .brand {
   font: 700 25px/1 var(--sans);
@@ -260,10 +265,11 @@ input[type="checkbox"] {
 }
 .brand span { color: var(--accent); }
 .brand:hover { color: var(--on-ink); }
-.tagline { min-width: 0; }
+/* The tagline text wraps, so that the file buttons stay on the first row */
+.tagline { flex: 1 1 420px; min-width: 0; }
 .tagline p { margin: 0; }
-.tag-main { font-size: 14.5px; color: var(--on-ink); }
-.tag-sub { font-size: 12.5px; color: var(--on-ink-muted); }
+.tag-main { font-size: 15px; color: var(--on-ink); }
+.tag-sub { font-size: 13px; color: var(--on-ink-muted); }
 .top-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
 .top .btn-quiet { background: transparent; color: var(--on-ink); border-color: var(--on-ink-line); }
 .top .btn-quiet:hover { border-color: var(--on-ink); color: var(--on-ink); }
@@ -278,7 +284,7 @@ input[type="checkbox"] {
   padding: 10px 24px;
   background: var(--accent-tint);
   border-bottom: 1px solid var(--accent-line);
-  color: var(--accent-ink);
+  color: var(--note-text);
   font-size: 14px;
 }
 .privacy-bar .icon { margin-top: 1px; }
@@ -641,6 +647,7 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
     letter-spacing: .07em;
     text-transform: uppercase;
   }
+  .sheet-head > span { white-space: nowrap; }
   .sheet-head .c-num { padding-left: 30px; font: inherit; color: var(--on-ink-muted); }
   .sheet-head .c-name,
   .sheet-head .c-iban,
@@ -652,6 +659,13 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
   .payment + .payment { border-top: 0; }
   .payment:nth-child(even) { background: var(--stripe); }
   .payment:hover { background: var(--hover); }
+
+  /* While you drag, the rows move but keep their place in the list. Thus all rows are white until you drop. */
+  .payments.is-reordering .payment:not(.is-dragging) { background: var(--sheet); }
+
+  /* The hover background of the row buttons must show on a row with the hover colour */
+  .payment .icon-btn:hover,
+  .payment .grip:hover { background: var(--rule); }
 
   .c-num { grid-column: 1; grid-row: 1; height: 38px; }
   .c-name { grid-column: 2; grid-row: 1; }
@@ -681,8 +695,8 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
   .payment:focus-within .c-actions .icon-btn,
   .payment.is-open .c-actions .icon-btn { opacity: 1; }
 
-  /* The cells are boxed fields, a little smaller than the "Pay from" fields */
-  .payment .input { min-height: 38px; padding: 7px 11px; font-size: 14px; }
+  /* The fields in the rows and in the "⋯" panel are boxed fields. They are a little smaller than the "Pay from" fields. */
+  .payment .input { min-height: 38px; padding-top: 7px; padding-bottom: 7px; font-size: 14px; }
   .payment .input.mono { font-size: 13.5px; }
 
   /* Above the IBAN: a small note over the row before, so that the rows do not move
@@ -700,10 +714,17 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
     box-shadow: 0 6px 18px rgba(16, 24, 47, .12);
     white-space: nowrap;
   }
+  /* Row 1: a thinner note, so that it does not cover the column names */
+  .payment:first-child .iban-info { margin-bottom: 0; padding-top: 2px; padding-bottom: 2px; }
 
   /* Desktop has Copy and Delete in the row. The panel has only Move. */
   .rm-copy,
   .rm-delete { display: none; }
+}
+
+/* Narrow desktop: less letter spacing, so that "BENEFICIARY NAME" stays on one line */
+@media (min-width: 1000px) and (max-width: 1049.98px) {
+  .sheet-head .c-name { letter-spacing: .03em; }
 }
 
 /* Touch screens have no pointer to show the buttons. They always show. */
@@ -863,7 +884,6 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
   cursor: pointer;
 }
 .bar-arrow:hover { border-color: var(--on-ink); }
-.bar .btn-light:hover { background: var(--accent-tint); }
 .bar .btn-off { background: transparent; border-color: var(--on-ink-line); color: var(--on-ink-muted); }
 .bar .btn-off:hover { border-color: var(--on-ink-muted); color: var(--on-ink); }
 .bar :focus-visible { outline-color: var(--accent); }
@@ -963,7 +983,7 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
   background: var(--accent-tint);
   border: 1px solid var(--accent-line);
   border-radius: var(--radius);
-  color: var(--accent-ink);
+  color: var(--note-text);
   scroll-margin-top: 20px;
 }
 .privacy-note > .icon { width: 22px; height: 22px; margin-top: 2px; }
@@ -1072,7 +1092,7 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
   border: 1px solid var(--accent-line);
   border-radius: var(--radius);
   font-size: 14px;
-  color: var(--accent-ink);
+  color: var(--note-text);
 }
 .done-keep strong { color: var(--ink); }
 .dialog-done .dialog-actions {
@@ -1090,7 +1110,7 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
 .preview th .input { min-width: 130px; min-height: 34px; padding: 4px 28px 4px 8px; font-size: 13px; }
 .preview th .input.is-skip { color: var(--muted); }
 .preview td { max-width: 260px; padding: 6px 8px; overflow: hidden; border-top: 1px solid var(--rule); white-space: nowrap; text-overflow: ellipsis; }
-.preview td.is-skip { color: #8c909a; }
+.preview td.is-skip { color: var(--muted); }
 .preview-more { font-size: 13px; color: var(--muted); }
 .preview-fix {
   display: flex;
@@ -1160,7 +1180,7 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
   body { font-size: 16px; }
   :root { --bar-h: 68px; }
 
-  .top-in { padding: 12px 16px 14px; }
+  .top-in { gap: 8px 20px; padding: 12px 16px 14px; }
   .tagline { order: 2; flex-basis: 100%; }
   .top-actions { order: 3; flex-wrap: nowrap; width: 100%; margin-left: 0; }
   .top-actions .btn { flex: 1 1 0; min-width: 0; min-height: 44px; padding: 0 8px; font-size: 13.5px; }
