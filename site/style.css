@@ -955,28 +955,78 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
 .shot:hover { border-color: var(--ink); }
 .shot img { display: block; width: 100%; height: auto; }
 
-/* FAQ: an accordion */
+/* FAQ: numbered questions in a white card. A click on a question opens its answer. */
 .faq { width: 100%; max-width: 680px; margin: 0 auto; scroll-margin-top: 20px; }
-.faq .info-title { margin-bottom: 14px; }
-.faq-list { border-top: 2px solid var(--ink); }
-.faq-item { border-bottom: 1px solid var(--rule); }
+.faq-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 10px; margin-bottom: 14px; }
+.faq-count { margin: 0; font-size: 14px; color: var(--muted); }
+.faq-toggle { align-self: center; margin-left: auto; }
+.faq-toggle.is-open .icon { transform: rotate(180deg); }
+
+/* overflow: hidden cuts the background of the first and the last question at the round corners */
+.faq-list {
+  counter-reset: faq;
+  overflow: hidden;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--ink);
+  border-radius: var(--radius);
+}
+.faq-item { counter-increment: faq; }
+.faq-item + .faq-item { border-top: 1px solid var(--rule); }
+.faq-item[open] { background: var(--stripe); }
 .faq-item > summary {
-  display: flex;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 30px;
   align-items: center;
-  gap: 14px;
-  min-height: 48px;
-  padding: 10px 0;
+  gap: 12px;
+  padding: 14px 18px;
   list-style: none;
   cursor: pointer;
 }
 .faq-item > summary::-webkit-details-marker { display: none; }
-.faq-q { flex: 1; font-size: 15.5px; font-weight: 600; line-height: 1.35; color: var(--ink); }
+.faq-item > summary:hover { background: var(--hover); }
+/* The card hides an outline outside the question. Thus the focus outline is inside the question. */
+.faq-item > summary:focus-visible { outline-offset: -2px; }
+
+/* The number of the question comes from the counter: 01, 02 and more. An open question has a lime number. */
+.faq-n { justify-self: start; padding: 2px 6px; border-radius: 4px; font: 13px/1.4 var(--mono); color: var(--muted); }
+.faq-n::before { content: counter(faq, decimal-leading-zero); }
+.faq-item[open] .faq-n { background: var(--accent); color: var(--ink); font-weight: 700; }
+
+.faq-q { font-size: 15.5px; font-weight: 600; line-height: 1.35; color: var(--ink); }
 .faq-item > summary:hover .faq-q { color: var(--accent-ink); }
-.faq-plus { color: var(--accent-ink); }
-.faq-item[open] .faq-plus .v { display: none; }
-.faq-a { padding: 0 32px 14px 0; }
-.faq-a p { max-width: 760px; margin: 0; }
-.faq-a .mono { font-size: 14px; }
+
+/* The round + button. An open question has a navy − button. */
+.faq-btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  background: var(--sheet);
+  color: var(--accent-ink);
+}
+.faq-btn .icon { width: 16px; height: 16px; }
+.faq-item > summary:hover .faq-btn { border-color: var(--ink); }
+.faq-item[open] .faq-btn { background: var(--ink); border-color: var(--ink); color: var(--on-ink); }
+.faq-item[open] .faq-btn .v { display: none; }
+
+/* The answer has the same left edge as the question text */
+.faq-a { padding: 0 66px 20px 70px; }
+.faq-a p { max-width: 62ch; margin: 0; line-height: 1.6; }
+/* A long value, for example the CSV header, can go onto two lines on a phone. Then it stays in the card. */
+.faq-a .mono {
+  padding: 0 5px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--sheet);
+  color: var(--ink);
+  font-size: 13.5px;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
 
 /* Privacy */
 .privacy-note {
@@ -1211,7 +1261,8 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
   .info { gap: 32px; padding: 32px 12px 40px; }
   .guide-head { padding: 16px 14px 12px; }
   .guide { grid-template-columns: minmax(0, 1fr); padding: 16px 14px; gap: 24px; }
-  .faq-a { padding: 0 0 14px; }
+  .faq-item > summary { grid-template-columns: 34px minmax(0, 1fr) 30px; gap: 10px; padding: 14px; }
+  .faq-a { padding: 0 14px 20px 58px; }
   .footer { padding: 16px 16px 24px; }
 
   .bar-in { gap: 8px; padding: 8px 12px; }
