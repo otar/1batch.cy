@@ -26,6 +26,7 @@ const TYPES = {
   '.js': 'text/javascript; charset=utf-8',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
 };
 
 /** Reads site/_headers. The format is the Cloudflare Pages format: a path, then indented "Name: value" lines. */
