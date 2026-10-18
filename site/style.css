@@ -771,7 +771,7 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
   .c-num { grid-area: num; font: 600 14px/1 var(--sans); color: var(--ink); white-space: nowrap; }
   .c-num .num::before { content: "Payment "; }
   .grip { display: none; }
-  .c-actions { grid-area: actions; align-self: center; }
+  .c-actions { grid-area: actions; align-self: end; }
   .act-duplicate,
   .act-delete { display: none; }
   .c-name { grid-area: name; padding-right: 10px; }
