@@ -231,74 +231,82 @@
     </section>
 
     <section class="faq" id="faq" aria-labelledby="faq-title">
-      <h2 class="info-title" id="faq-title">FAQ</h2>
-      <div class="faq-list">
+      <div class="faq-head">
+        <h2 class="info-title" id="faq-title">FAQ</h2>
+        <p class="faq-count" id="faq-count">17 questions</p>
+        <!-- app.js changes the text to "Close all" when all the answers are open -->
+        <button type="button" class="btn btn-quiet btn-sm faq-toggle" id="faq-toggle" data-action="faq-toggle" aria-controls="faq-list">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9.5l5 5 5-5"/></svg><span id="faq-toggle-text">Open all</span>
+        </button>
+      </div>
+      <!-- The numbers 01, 02 and more in the questions come from style.css -->
+      <div class="faq-list" id="faq-list">
           <details class="faq-item">
-            <summary><span class="faq-q">Who can use this page?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Who can use this page?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>Bank of Cyprus business customers who use 1bank with Multiple Payments. The debit account must be a Bank of Cyprus account in euro. If you do not see Multiple Payments in 1bank, ask your relationship manager.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">Is it free? Who made it?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Is it free? Who made it?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>Yes, it is free and open source (MIT licence). An independent developer made it. It is not made by, or connected to, Bank of Cyprus. The code is on <a href="https://github.com/otar/1batch.cy" rel="noopener noreferrer">GitHub</a>.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">Can I stop and continue later?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Can I stop and continue later?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>The page keeps nothing. Before you close the tab, download the XML file. If there are problems, use Export CSV. Next time, open the file here.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">Can I use it on a phone?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Can I use it on a phone?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>Yes. On a phone, each payment shows as a card. For a large batch, a computer is faster: you can paste from Excel and use the keyboard.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">Is there a command-line tool?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Is there a command-line tool?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>Yes: <a href="https://github.com/otar/boc_payments_xml" rel="noopener noreferrer">boc_payments_xml</a> on GitHub. It uses the same rules and makes the same XML. It reads CSV files in the same format as Export CSV.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">Where does my data go?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Where does my data go?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>Nowhere. The page runs only in your browser. Its security policy blocks all connections to servers. It uses no cookies and no storage, so the data is gone when you close the tab. There are no analytics, ads, fonts or scripts from other sites.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">How can I check this?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">How can I check this?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>Open the page, then turn off Wi-Fi or remove the network cable. Make a file and download it. It works, because the page does not use the network. You can also read the three code files with View Source.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">SEPA or TBOC: which one?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">SEPA or TBOC: which one?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>TBOC is a transfer to a Bank of Cyprus account. SEPA is a euro transfer to a bank in the SEPA zone. The page sets the type from the IBAN. To change it, click “⋯” on the row.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">Which characters can I use?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Which characters can I use?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>A–Z, a–z, 0–9, space and <span class="mono">/ - ? : ( ) . , ' +</span> The bank does not accept accents, Greek letters or <span class="mono">&amp;</span>. Names: 35 characters maximum. Descriptions: 140. For many errors, the page shows a button with a correction.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">Which execution date can I use?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Which execution date can I use?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>Today or a later business day. If you open an old file with a past date, the page moves it to the next business day. The bank has cut-off times for each payment type. For the times, see the Bank of Cyprus website or ask your relationship manager.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">How many payments can one file have?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">How many payments can one file have?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>The page has no limit. 1bank can have a limit for each file: ask your relationship manager. With 1000 or more payments, the file reference must be shorter. The page tells you.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">What does the page check?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">What does the page check?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>The same rules as the command-line tool: names, IBANs, BICs, amounts, descriptions and the date. If one check fails, the page does not make the file. The bank name comes from a short list in the page. It does not prove that the account exists.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">Which CSV format can I open?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
-            <div class="faq-a"><p>The format of the command-line tool. The first line is <span class="mono">type,name,iban,bic,amount,description</span>. Then one line for each payment. Use Export CSV to get a correct example. A CSV file has no “Pay from” data.</p></div>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Which CSV format can I open?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
+            <div class="faq-a"><p>The format of the command-line tool. The first line is <span class="mono">type,<wbr>name,<wbr>iban,<wbr>bic,<wbr>amount,<wbr>description</span>. Then one line for each payment. Use Export CSV to get a correct example. A CSV file has no “Pay from” data.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">1bank does not accept the file. What now?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">1bank does not accept the file. What now?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>Read the message in 1bank. Make the correction here, then download a new file and upload it. If the message is not clear, ask your relationship manager.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">1bank rejected one payment. What now?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">1bank rejected one payment. What now?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>Make a new file with only that payment. Do not upload the full file again: the other payments would go two times.</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">What are the bank fees?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">What are the bank fees?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>The page does not add fees. For the bank fees, see the Bank of Cyprus price list or ask your relationship manager. In the file, SEPA payments use shared charges (SLEV).</p></div>
           </details>
           <details class="faq-item">
-            <summary><span class="faq-q">How do I use an old XML file again?</span><svg class="icon faq-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></summary>
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">How do I use an old XML file again?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>Click “Open XML or CSV” and select the old XML file. The page fills in all the fields and offers to change the month in the descriptions. Change the amounts, then download a new file.</p></div>
           </details>
       </div>

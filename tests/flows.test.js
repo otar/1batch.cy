@@ -2,7 +2,8 @@
  * 1batch.cy · tests/flows.test.js
  * ---------------------------------------------------------------------------
  * What a user does in the editor, at desktop width: the sample data, the
- * rows, the corrections, the warnings, "Download XML" and Undo.
+ * rows, the corrections, the warnings, "Download XML" and Undo. Also the
+ * "Open all" button of the FAQ below the editor.
  */
 
 'use strict';
@@ -305,4 +306,28 @@ test('the page asks before you close the tab, but only if the tab has your data'
   const dialog = await ask;
   assert.equal(dialog.type(), 'beforeunload');
   await dialog.dismiss();
+});
+
+test('"Open all" in the FAQ opens all the answers, and "Close all" closes them', async t => {
+  const page = await site.open(t);
+  const questions = await page.locator('#faq-list > details').count();
+  const openAnswers = () => page.locator('#faq-list > details[open]').count();
+  // The page changes the button text after the "toggle" events. Thus the test waits for the text.
+  const buttonSays = label => page.waitForFunction(value => document.getElementById('faq-toggle').textContent.trim() === value, label);
+  assert.equal(await h.text(page, '#faq-count'), `${questions} questions`, 'The number above the FAQ is not correct.');
+  assert.equal(await openAnswers(), 0);
+
+  await page.click('#faq-toggle');
+  assert.equal(await openAnswers(), questions);
+  await buttonSays('Close all');
+
+  // You close one answer. Then the button opens all the answers again.
+  await page.click('#faq-list > details:first-child > summary');
+  await buttonSays('Open all');
+  await page.click('#faq-toggle');
+  assert.equal(await openAnswers(), questions);
+
+  await page.click('#faq-toggle');
+  assert.equal(await openAnswers(), 0);
+  await buttonSays('Open all');
 });

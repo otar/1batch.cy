@@ -1401,6 +1401,15 @@ function fileName(ext) {
   return ext === 'xml' ? `payments-${date}-${batchRef(state.debtor)}.xml` : `payments-${date}.csv`;
 }
 
+/* ---------- FAQ ---------- */
+
+/** The FAQ button says "Close all" when all the answers are open. Else it says "Open all". */
+function renderFaqToggle() {
+  const allOpen = ui.faqItems.every(item => item.open);
+  ui.faqToggleText.textContent = allOpen ? 'Close all' : 'Open all';
+  ui.faqToggle.classList.toggle('is-open', allOpen);
+}
+
 /* ---------- Messages, dialogs, focus ---------- */
 
 let toastTimer = 0;
@@ -1651,6 +1660,13 @@ function toggleRef() {
 function closeOpened() {
   state.opened = null;
   renderListChrome();
+}
+
+/** "Open all" opens all the FAQ answers. When all the answers are open, the button closes them. */
+function toggleFaq() {
+  const open = !ui.faqItems.every(item => item.open);
+  ui.faqItems.forEach(item => { item.open = open; });
+  renderFaqToggle();
 }
 
 function exportCsv() {
@@ -2167,6 +2183,7 @@ const ACTIONS = {
   'next-warning': nextWarning,
   'edit-ref': toggleRef,
   'close-opened': closeOpened,
+  'faq-toggle': toggleFaq,
   'replace-month': replaceMonth,
   'done-close': () => ui.done.close(),
   'done-new': () => { ui.done.close(); newFile(); },
@@ -2439,6 +2456,9 @@ function init() {
     sampleNote: byId('sample-note'),
     clearAll: byId('clear-all'),
     guide: byId('guide'),
+    faqList: byId('faq-list'),
+    faqToggle: byId('faq-toggle'),
+    faqToggleText: byId('faq-toggle-text'),
     needsPayments: Array.from(document.querySelectorAll('[data-needs="payments"]')),
     needsData: Array.from(document.querySelectorAll('[data-needs="data"]')),
     bar: byId('bar'),
@@ -2465,6 +2485,7 @@ function init() {
     drop: byId('drop'),
     fileInput: byId('file-input'),
   });
+  ui.faqItems = Array.from(ui.faqList.querySelectorAll('.faq-item'));
 
   // The window after the download shows the same upload steps as the guide below the editor
   const doneGuide = el('ol', 'guide-sm');
@@ -2503,6 +2524,8 @@ function init() {
   ui.fileInput.addEventListener('change', onFilePicked);
   ui.toastUndo.addEventListener('click', undo);
   ui.toastClose.addEventListener('click', closeToast);
+  // A "toggle" event does not bubble. Thus the FAQ list gets it in the capture phase.
+  ui.faqList.addEventListener('toggle', renderFaqToggle, true);
   bindFileDrop();
 
   // The page saves nothing. Thus it warns you before you close the tab with data in it.
