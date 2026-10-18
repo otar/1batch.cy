@@ -47,6 +47,8 @@
   --radius: 6px;
   --wrap: 1240px;
   --bar-h: 76px;
+  /* The space that the page keeps free for the bottom bar. On phones the bar can be taller than --bar-h. */
+  --bar-room: var(--bar-h);
 
   /* Desktop sheet: number, name, IBAN, amount, description, row buttons.
      The IBAN column fits the longest IBAN (31 characters) and the check mark. */
@@ -63,12 +65,12 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-  scroll-padding-bottom: calc(var(--bar-h) + 16px + env(safe-area-inset-bottom));
+  scroll-padding-bottom: calc(var(--bar-room) + 16px + env(safe-area-inset-bottom));
 }
 
 body {
   margin: 0;
-  padding-bottom: calc(var(--bar-h) + env(safe-area-inset-bottom));
+  padding-bottom: calc(var(--bar-room) + env(safe-area-inset-bottom));
   font: 15px/1.5 var(--sans);
   color: var(--text);
   background: var(--page);
@@ -209,8 +211,9 @@ p, dd, li { text-wrap: pretty; }
 .input:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px var(--ring); }
 .input[aria-invalid="true"] { border-color: var(--red); box-shadow: 0 0 0 1px var(--red); }
 .input.has-warning { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber); }
+/* A field with a problem keeps its red or amber border. The lime ring shows the focus. */
 .input[aria-invalid="true"]:focus,
-.input.has-warning:focus { border-color: var(--ink); box-shadow: 0 0 0 3px var(--ring); }
+.input.has-warning:focus { box-shadow: 0 0 0 3px var(--ring); }
 .input.mono { font-family: var(--mono); font-size: 14px; }
 .input.caps { text-transform: uppercase; }
 .input.caps::placeholder { text-transform: none; }
@@ -265,8 +268,8 @@ input[type="checkbox"] {
 }
 .brand span { color: var(--accent); }
 .brand:hover { color: var(--on-ink); }
-/* The tagline text wraps, so that the file buttons stay on the first row */
-.tagline { flex: 1 1 420px; min-width: 0; }
+/* The tagline text wraps, so that the file buttons stay on the first row on desktop */
+.tagline { flex: 1 1 300px; min-width: 0; }
 .tagline p { margin: 0; }
 .tag-main { font-size: 15px; color: var(--on-ink); }
 .tag-sub { font-size: 13px; color: var(--on-ink-muted); }
@@ -664,7 +667,7 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
   .payments.is-reordering .payment:not(.is-dragging) { background: var(--sheet); }
 
   /* The hover background of the row buttons must show on a row with the hover colour */
-  .payment .icon-btn:hover,
+  .payment .icon-btn:not([aria-expanded="true"]):hover,
   .payment .grip:hover { background: var(--rule); }
 
   .c-num { grid-column: 1; grid-row: 1; height: 38px; }
@@ -714,8 +717,8 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
     box-shadow: 0 6px 18px rgba(16, 24, 47, .12);
     white-space: nowrap;
   }
-  /* Row 1: a thinner note, so that it does not cover the column names */
-  .payment:first-child .iban-info { margin-bottom: 0; padding-top: 2px; padding-bottom: 2px; }
+  /* Row 1: a thinner note, so that it does not cover the column names or the focus ring */
+  .payment:first-child .iban-info { padding-top: 1px; padding-bottom: 1px; line-height: 1.2; }
 
   /* Desktop has Copy and Delete in the row. The panel has only Move. */
   .rm-copy,
@@ -1107,7 +1110,7 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
 .preview-wrap { max-height: 46vh; margin: 0 0 10px; overflow: auto; border: 1px solid var(--rule); border-radius: var(--radius); }
 .preview { width: 100%; border-collapse: collapse; font-size: 13px; }
 .preview th { position: sticky; top: 0; padding: 8px 6px; background: var(--page); border-bottom: 1px solid var(--rule-strong); text-align: left; }
-.preview th .input { min-width: 130px; min-height: 34px; padding: 4px 28px 4px 8px; font-size: 13px; }
+.preview th .input { min-width: 140px; min-height: 34px; padding: 4px 28px 4px 8px; font-size: 13px; }
 .preview th .input.is-skip { color: var(--muted); }
 .preview td { max-width: 260px; padding: 6px 8px; overflow: hidden; border-top: 1px solid var(--rule); white-space: nowrap; text-overflow: ellipsis; }
 .preview td.is-skip { color: var(--muted); }
@@ -1131,7 +1134,7 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
 .toast {
   position: fixed;
   left: 50%;
-  bottom: calc(var(--bar-h) + 14px + env(safe-area-inset-bottom));
+  bottom: calc(var(--bar-room) + 14px + env(safe-area-inset-bottom));
   z-index: 40;
   display: flex;
   align-items: center;
@@ -1178,7 +1181,8 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
 
 @media (max-width: 640px) {
   body { font-size: 16px; }
-  :root { --bar-h: 68px; }
+  /* With the arrow buttons, the count and the total go on two lines. Then the bar is about 85px tall. */
+  :root { --bar-h: 68px; --bar-room: 86px; }
 
   .top-in { gap: 8px 20px; padding: 12px 16px 14px; }
   .tagline { order: 2; flex-basis: 100%; }
