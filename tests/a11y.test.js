@@ -132,7 +132,7 @@ test('when an action hides its button, the focus goes to a logical place (SC 2.4
   assert.equal(await focusName(page), 'Beneficiary name, payment 1');
 
   // "This is correct": the amount of the same payment
-  await h.row(page, 1).locator('.act-copy').click();
+  await h.row(page, 1).locator('.act-duplicate').click();
   await page.click('#bar-btn');                          // Shows all errors and warnings
   await h.row(page, 2).locator('.fix-btn', { hasText: 'This is correct' }).focus();
   await page.keyboard.press('Enter');
