@@ -35,7 +35,7 @@
       <p class="tag-main">One file for all your payments. Upload it once in 1bank. For Bank of Cyprus business customers.</p>
       <p class="tag-sub">Free and open source · Not made by Bank of Cyprus</p>
     </div>
-    <nav class="top-actions" aria-label="File">
+    <div class="top-actions" role="group" aria-label="File">
       <button type="button" class="btn btn-quiet" data-action="export-csv" data-needs="payments" hidden>
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/></svg>Export CSV
       </button>
@@ -45,15 +45,16 @@
       <button type="button" class="btn btn-quiet" data-action="open">
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7V5.5A1.5 1.5 0 0 1 5 4h4l2 2.5h8A1.5 1.5 0 0 1 20.5 8v1M3.5 7v11.5A1.5 1.5 0 0 0 5 20h13.2a1.5 1.5 0 0 0 1.45-1.1L22 10.9a1.5 1.5 0 0 0-1.45-1.9H7.6a1.5 1.5 0 0 0-1.45 1.1L3.5 19"/></svg>Open<span class="lbl-long"> XML or CSV</span>
       </button>
-    </nav>
+    </div>
   </div>
-</header>
 
-<p class="privacy-bar">
-  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-  <span><strong>Your data stays on this computer.</strong> The page cannot send it anywhere, and it keeps nothing.
-  <a href="#privacy-check">Check it yourself</a> · <a href="https://github.com/otar/1batch.cy" rel="noopener noreferrer">Source code</a></span>
-</p>
+  <!-- The privacy note is in the header, so that screen readers find it in a landmark -->
+  <p class="privacy-bar">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+    <span><strong>Your data stays on this computer.</strong> The page cannot send it anywhere, and it keeps nothing.
+    <a href="#privacy-check">Check it yourself</a> · <a href="https://github.com/otar/1batch.cy" rel="noopener noreferrer">Source code</a></span>
+  </p>
+</header>
 
 <!-- app.js removes this message when it starts -->
 <p class="noscript" id="no-js">This page needs JavaScript. The script runs only in your browser. Read app.js to see what it does.</p>
@@ -72,19 +73,23 @@
     <h1 class="sr-only">Make a payment file for 1bank</h1>
 
     <section class="block" id="debtor" aria-labelledby="debtor-title">
-      <h2 class="block-title" id="debtor-title">Pay from</h2>
+      <div class="block-head">
+        <h2 class="block-title" id="debtor-title">Pay from</h2>
+        <div class="block-tools"><p class="block-meta">All fields are necessary, except the BIC and the file reference.</p></div>
+      </div>
 
+      <!-- No example values in the fields: an example below a field stays when you type -->
       <div class="debtor-grid">
         <div class="field f-name">
           <label class="field-label" for="debtor-name">Company name</label>
-          <input class="input" id="debtor-name" data-debtor="name" type="text" placeholder="DEMO COMPANY LTD"
+          <input class="input" id="debtor-name" data-debtor="name" type="text" aria-required="true"
                  autocomplete="off" spellcheck="false" aria-describedby="debtor-name-msg">
           <div class="field-msg" id="debtor-name-msg" hidden></div>
         </div>
 
         <div class="field f-iban">
           <label class="field-label" for="debtor-iban">Debit account <span class="label-note">(Bank of Cyprus IBAN)</span></label>
-          <input class="input mono caps" id="debtor-iban" data-debtor="iban" type="text" placeholder="CY17002001280000001200527600"
+          <input class="input mono caps" id="debtor-iban" data-debtor="iban" type="text" aria-required="true"
                  autocomplete="off" spellcheck="false" autocapitalize="characters" aria-describedby="debtor-iban-msg debtor-iban-info">
           <div class="field-msg" id="debtor-iban-msg" hidden></div>
           <p class="field-info" id="debtor-iban-info"></p>
@@ -92,7 +97,7 @@
 
         <div class="field f-date">
           <label class="field-label" for="debtor-date">Execution date</label>
-          <input class="input" id="debtor-date" data-debtor="execDate" type="date"
+          <input class="input" id="debtor-date" data-debtor="execDate" type="date" aria-required="true"
                  autocomplete="off" aria-describedby="debtor-date-msg debtor-date-words">
           <div class="field-msg" id="debtor-date-msg" hidden></div>
           <p class="field-info" id="debtor-date-words"></p>
@@ -101,7 +106,7 @@
 
       <!-- The file reference is optional. One line. "Change" opens the field. -->
       <div class="ref">
-        <p class="ref-line"><span id="ref-text"></span><span aria-hidden="true">·</span><button type="button" class="link" id="ref-toggle" data-action="edit-ref" aria-expanded="false" aria-controls="ref-field">Change</button></p>
+        <p class="ref-line"><span id="ref-text"></span><span aria-hidden="true">·</span><button type="button" class="link" id="ref-toggle" data-action="edit-ref" aria-expanded="false" aria-controls="ref-field" aria-describedby="ref-text">Change</button></p>
         <div class="field ref-field" id="ref-field" hidden>
           <label class="field-label" for="debtor-ref">File reference</label>
           <input class="input mono" id="debtor-ref" data-debtor="batchRef" type="text"
@@ -133,15 +138,18 @@
       <div class="opened" id="opened" hidden>
         <div class="opened-head">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 3.5H7A1.5 1.5 0 0 0 5.5 5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8.5zM13.5 3.5v5h5"/></svg>
-          <p class="opened-text" id="opened-text"></p>
+          <!-- tabindex="-1": after you open a file, app.js puts the focus here, so that a screen reader reads the message -->
+          <p class="opened-text" id="opened-text" tabindex="-1"></p>
           <button type="button" class="icon-btn" data-action="close-opened" aria-label="Close this message"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
         </div>
         <div class="month" id="month" hidden>
           <strong>New month?</strong>
-          <label class="month-field"><span>Replace</span><input class="input mono" id="month-from" type="text" aria-label="Text to replace" autocomplete="off" spellcheck="false"></label>
-          <label class="month-field"><span>with</span><input class="input mono" id="month-to" type="text" aria-label="New text" autocomplete="off" spellcheck="false"></label>
+          <label class="month-field"><span>Replace</span><input class="input mono" id="month-from" type="text" autocomplete="off" spellcheck="false"></label>
+          <label class="month-field"><span>with</span><input class="input mono" id="month-to" type="text" aria-label="Replace with" autocomplete="off" spellcheck="false"></label>
           <span>in the descriptions.</span>
           <button type="button" class="btn btn-primary" id="month-btn" data-action="replace-month">Replace</button>
+          <!-- The description of each field that "Replace" will change -->
+          <span class="sr-only" id="will-change-note">“Replace” changes this description.</span>
         </div>
         <p class="opened-tip">To change the amounts fast: click the first amount and type the new amount. Then press Enter to go to the next amount.</p>
       </div>
@@ -191,6 +199,35 @@
     </section>
   </div>
 
+  <!-- Bottom bar: number of payments, total, and the main button. It comes directly after the editor
+       in the Tab order. style.css fixes it to the bottom of the window. -->
+  <section class="bar" id="bar" aria-label="Summary and download" translate="no">
+    <div class="bar-in">
+      <div class="bar-text">
+        <p class="bar-sum"><span id="bar-count">0 payments</span> <strong class="mono" id="bar-total">€0.00</strong></p>
+        <p class="bar-status" id="bar-status"></p>
+        <!-- Screen readers get the status from here, only when it changes -->
+        <p class="sr-only" id="bar-live" aria-live="polite"></p>
+      </div>
+      <div class="bar-nav" id="bar-nav" hidden>
+        <button type="button" class="bar-arrow" data-action="prev-problem" aria-label="Previous error"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"/></svg></button>
+        <button type="button" class="bar-arrow" data-action="next-problem" aria-label="Next error"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"/></svg></button>
+      </div>
+      <button type="button" class="btn btn-lg" id="bar-btn" data-action="download">Download XML</button>
+    </div>
+  </section>
+
+  <!-- A short message above the bottom bar. Screen readers get its text from #announcer. -->
+  <div class="toast" id="toast" hidden>
+    <div class="toast-text">
+      <p id="toast-text"></p>
+      <!-- After a new message, this line keeps the Undo of the last large change -->
+      <p class="toast-undo-text" id="toast-undo-text" hidden></p>
+    </div>
+    <button type="button" class="btn btn-quiet btn-sm" id="toast-undo" hidden>Undo <span class="key" id="toast-key">Ctrl+Z</span></button>
+    <button type="button" class="icon-btn" id="toast-close" aria-label="Close the message"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+
   <!-- Below the editor: three blocks, one under the other -->
   <div class="info">
     <section class="guide-card" id="upload" aria-labelledby="upload-title">
@@ -203,32 +240,32 @@
         <li class="guide-step" data-step="1">
           <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">1</span>Open Multiple Payments</h3>
           <p>Log in to 1bank. Go to <strong>Transfers &amp; Payments › Mass Payments › Multiple Payments</strong>.</p>
-          <a class="shot" href="/img/1bank-step-1.png" target="_blank" rel="noopener"><img src="/img/1bank-step-1.png" alt="1bank: the Multiple Payments page" width="1600" height="1000" loading="lazy"></a>
+          <a class="shot" href="/img/1bank-step-1.png" target="_blank" rel="noopener"><img src="/img/1bank-step-1.png" alt="1bank: the Multiple Payments page" width="1600" height="1000" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
         </li>
         <li class="guide-step" data-step="2">
           <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">2</span>Upload the file</h3>
           <p>Click <strong>Select file</strong> and select the XML file. Then click <strong>Upload</strong>.</p>
-          <a class="shot" href="/img/1bank-step-2.png" target="_blank" rel="noopener"><img src="/img/1bank-step-2.png" alt="1bank: Select file and Upload" width="1600" height="1000" loading="lazy"></a>
+          <a class="shot" href="/img/1bank-step-2.png" target="_blank" rel="noopener"><img src="/img/1bank-step-2.png" alt="1bank: Select file and Upload" width="1600" height="1000" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
         </li>
         <li class="guide-step" data-step="3">
           <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">3</span>Compare the totals</h3>
           <p>Make sure that 1bank shows the same number of payments and the same total as this page.</p>
-          <a class="shot" href="/img/1bank-step-3.png" target="_blank" rel="noopener"><img src="/img/1bank-step-3.png" alt="1bank: the number of payments and the total" width="1600" height="1000" loading="lazy"></a>
+          <a class="shot" href="/img/1bank-step-3.png" target="_blank" rel="noopener"><img src="/img/1bank-step-3.png" alt="1bank: the number of payments and the total" width="1600" height="1000" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
         </li>
         <li class="guide-step" data-step="4">
           <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">4</span>Confirm the upload</h3>
           <p>Enter the Digipass code. Then click <strong>Confirm</strong>.</p>
-          <a class="shot" href="/img/1bank-step-4.png" target="_blank" rel="noopener"><img src="/img/1bank-step-4.png" alt="1bank: the Digipass code and Confirm" width="1600" height="1000" loading="lazy"></a>
+          <a class="shot" href="/img/1bank-step-4.png" target="_blank" rel="noopener"><img src="/img/1bank-step-4.png" alt="1bank: the Digipass code and Confirm" width="1600" height="1000" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
         </li>
         <li class="guide-step" data-step="5">
           <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">5</span>Read the result</h3>
           <p>Read the result in 1bank <strong>Messages</strong>. Now 1bank makes a pending payment for each payment in the file. If 1bank rejects a payment, make a new file with only that payment.</p>
-          <a class="shot" href="/img/1bank-step-5.png" target="_blank" rel="noopener"><img src="/img/1bank-step-5.png" alt="1bank: the result in Messages" width="1600" height="1000" loading="lazy"></a>
+          <a class="shot" href="/img/1bank-step-5.png" target="_blank" rel="noopener"><img src="/img/1bank-step-5.png" alt="1bank: the result in Messages" width="1600" height="1000" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
         </li>
         <li class="guide-step" data-step="6">
           <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">6</span>Confirm the pending payments</h3>
           <p>Go to <strong>[Pending Payments]</strong>. Confirm the payments with a second Digipass code. Then the bank sends them.</p>
-          <a class="shot" href="/img/1bank-step-6.png" target="_blank" rel="noopener"><img src="/img/1bank-step-6.png" alt="1bank: the pending payments" width="1600" height="1000" loading="lazy"></a>
+          <a class="shot" href="/img/1bank-step-6.png" target="_blank" rel="noopener"><img src="/img/1bank-step-6.png" alt="1bank: the pending payments" width="1600" height="1000" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
         </li>
       </ol>
     </section>
@@ -274,7 +311,7 @@
           </details>
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">SEPA or TBOC: which one?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
-            <div class="faq-a"><p>TBOC is a transfer to a Bank of Cyprus account. SEPA is a euro transfer to a bank in the SEPA zone. The page sets the type from the IBAN. To change it, click “⋯” on the row.</p></div>
+            <div class="faq-a"><p>TBOC is a transfer to a Bank of Cyprus account. SEPA is a euro transfer to a bank in the SEPA zone. The page sets the type from the IBAN. To change it, use the “Type, BIC and more” button (⋯) on the row.</p></div>
           </details>
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Which characters can I use?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
@@ -341,23 +378,23 @@
     </div>
     <label class="c-name">
       <span class="c-label">Beneficiary name</span>
-      <input class="input" data-field="name" type="text" placeholder="Name as on the account" autocomplete="off" spellcheck="false">
+      <input class="input" data-field="name" type="text" placeholder="Name as on the account" aria-required="true" autocomplete="off" spellcheck="false">
     </label>
     <div class="c-iban">
       <label class="c-label iban-label">IBAN</label>
       <div class="iban-wrap">
-        <input class="input mono caps" data-field="iban" type="text" placeholder="IBAN" autocomplete="off" spellcheck="false" autocapitalize="characters">
+        <input class="input mono caps" data-field="iban" type="text" placeholder="IBAN" aria-required="true" autocomplete="off" spellcheck="false" autocapitalize="characters">
         <span class="iban-marks"><span class="type-tag" data-row-action="more" aria-hidden="true" hidden></span><span class="iban-ok" aria-hidden="true" hidden><svg class="icon" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span>
       </div>
       <p class="iban-info"></p>
     </div>
     <label class="c-amount">
       <span class="c-label">Amount, EUR</span>
-      <input class="input" data-field="amount" type="text" inputmode="decimal" placeholder="0.00" autocomplete="off" spellcheck="false">
+      <input class="input" data-field="amount" type="text" inputmode="decimal" placeholder="0.00" aria-required="true" autocomplete="off" spellcheck="false">
     </label>
     <label class="c-desc">
       <span class="c-label">Description</span>
-      <input class="input" data-field="desc" type="text" placeholder="What the payment is for" autocomplete="off" spellcheck="false">
+      <input class="input" data-field="desc" type="text" placeholder="What the payment is for" aria-required="true" autocomplete="off" spellcheck="false">
     </label>
     <!-- Row buttons: one Tab stop. The arrow keys move between them. -->
     <div class="c-actions" role="toolbar">
@@ -390,36 +427,22 @@
   </li>
 </template>
 
-<!-- Bottom bar: number of payments, total, and the main button -->
-<div class="bar" id="bar" translate="no">
-  <div class="bar-in">
-    <div class="bar-text">
-      <p class="bar-sum"><span id="bar-count">0 payments</span> <strong class="mono" id="bar-total">€0.00</strong></p>
-      <p class="bar-status" id="bar-status" aria-live="polite"></p>
-    </div>
-    <div class="bar-nav" id="bar-nav" hidden>
-      <button type="button" class="bar-arrow" data-action="prev-problem" aria-label="Previous problem"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"/></svg></button>
-      <button type="button" class="bar-arrow" data-action="next-problem" aria-label="Next problem"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"/></svg></button>
-    </div>
-    <button type="button" class="btn btn-lg" id="bar-btn" data-action="download">Download XML</button>
-  </div>
-</div>
-
 <!-- After the download: what to compare in 1bank, and the upload steps -->
-<dialog class="dialog dialog-done" id="done" aria-labelledby="done-title" translate="no">
+<!-- aria-describedby: screen readers read the file name and the three values with the title -->
+<dialog class="dialog dialog-done" id="done" aria-labelledby="done-title" aria-describedby="done-file done-nums done-note" translate="no">
   <div class="done-head">
     <span class="done-ok" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
     <div>
       <h2 class="dialog-title" id="done-title">The file is ready</h2>
-      <p class="done-file"><span class="mono" id="done-name"></span> is downloaded.</p>
+      <p class="done-file" id="done-file"><span class="mono" id="done-name"></span> is downloaded.</p>
     </div>
   </div>
-  <dl class="done-nums">
+  <dl class="done-nums" id="done-nums">
     <div><dt>Payments</dt><dd class="mono" id="done-count"></dd></div>
     <div><dt>Total</dt><dd class="mono" id="done-total"></dd></div>
     <div><dt>Execution date</dt><dd class="done-date" id="done-date"></dd></div>
   </dl>
-  <p class="done-note">1bank must show the same three values.</p>
+  <p class="done-note" id="done-note">1bank must show the same three values.</p>
   <h3 class="done-sub">Upload the file in 1bank</h3>
   <div id="done-guide"></div>
   <p class="done-keep"><strong>Keep this file.</strong> Next month, open it here. Then change only what is new.</p>
@@ -434,12 +457,6 @@
   <div class="dialog-body" id="dialog-body"></div>
   <div class="dialog-actions" id="dialog-actions"></div>
 </dialog>
-
-<div class="toast" id="toast" role="status" hidden>
-  <p id="toast-text"></p>
-  <button type="button" class="btn btn-quiet btn-sm" id="toast-undo" hidden>Undo</button>
-  <button type="button" class="icon-btn" id="toast-close" aria-label="Close the message"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
-</div>
 
 <p class="sr-only" id="announcer" aria-live="polite"></p>
 

@@ -78,22 +78,22 @@ test('after the download, the window shows the values to compare in 1bank', asyn
   assert.equal(await page.evaluate(() => document.getElementById('done').open), false);
 });
 
-test('"Download XML" with problems makes no file, and the arrows go to each problem', async t => {
+test('"Download XML" with errors makes no file, and the arrows go to each error', async t => {
   const page = await site.open(t);
   let downloads = 0;
   page.on('download', () => { downloads += 1; });
   await h.addPayments(page, [{ name: 'A & B' }]);
   await page.click('#bar-btn');
 
-  assert.equal(await h.text(page, '#toast-text'), 'Correct 6 problems first. To continue later, use Export CSV.');
-  assert.match(await h.text(page, '#bar-status'), /^6 problems to correct\.\s*Problem 1: Pay from, company name: missing$/);
+  assert.equal(await h.text(page, '#toast-text'), 'Correct 6 errors first. To continue later, use Export CSV.');
+  assert.match(await h.text(page, '#bar-status'), /^6 errors to correct\.\s*Error 1: Pay from, company name: missing$/);
   assert.equal(await page.evaluate(() => document.activeElement.id), 'debtor-name');
-  assert.equal(await h.payFromMessage(page, 'name'), 'Missing.');
+  assert.equal(await h.payFromMessage(page, 'name'), 'Missing. Enter the company name.');
   assert.deepEqual(await h.rowMessages(page, 1), [
-    'Name: the bank does not accept “&”. [Change to A AND B]',
-    'IBAN: missing.',
-    'Amount: missing.',
-    'Description: missing.',
+    'Name error: the bank does not accept “&”. [Change to A AND B]',
+    'IBAN error: missing.',
+    'Amount error: missing.',
+    'Description error: missing.',
   ]);
 
   await page.click('[data-action="next-problem"]');
@@ -115,10 +115,10 @@ test('a correction button changes only the value that it shows', async t => {
     name: 'MÜLLER & CO', iban: 'DE89-3704-0044-0532-0130-00', amount: '1.250,00', desc: 'INVOICE #17',
   }]);
   assert.deepEqual(await h.rowMessages(page, 1), [
-    'Name: the bank does not accept “Ü” and “&”. [Change to MULLER AND CO]',
-    'IBAN: must start with a 2-letter country code and 2 check digits. Then letters and digits. [Change to DE89370400440532013000]',
-    'Amount: use a dot for decimals and no thousands separator, for example 1250.50. [Change to 1250.00]',
-    'Description: the bank does not accept “#”. [Change to INVOICE 17]',
+    'Name error: the bank does not accept “Ü” and “&”. [Change to MULLER AND CO]',
+    'IBAN error: must start with a 2-letter country code and 2 check digits. Then letters and digits. [Change to DE89370400440532013000]',
+    'Amount error: use a dot for decimals and no thousands separator, for example 1250.50. [Change to 1250.00]',
+    'Description error: the bank does not accept “#”. [Change to INVOICE 17]',
   ]);
 
   for (let i = 0; i < 4; i++) await h.row(page, 1).locator('.fix-btn').first().click();
@@ -128,14 +128,14 @@ test('a correction button changes only the value that it shows', async t => {
   assert.deepEqual(await h.rowMessages(page, 1), []);
 });
 
-test('"Change all" corrects the same problem in all rows, with Undo', async t => {
+test('"Change all" corrects the same error in all rows, with Undo', async t => {
   const page = await site.open(t);
   await h.addPayments(page, [
     { ...PAYMENT, amount: '1,250.00' },
     { ...PAYMENT, iban: h.IBAN.de, amount: '2,500.50' },
   ]);
   assert.deepEqual(await h.rowMessages(page, 1), [
-    'Amount: use a dot for decimals and no thousands separator, for example 1250.50. [Change to 1250.00] [Change all 2 amounts]',
+    'Amount error: use a dot for decimals and no thousands separator, for example 1250.50. [Change to 1250.00] [Change all 2 amounts]',
   ]);
 
   await h.row(page, 1).locator('.fix-all').click();
@@ -154,10 +154,10 @@ test('two payments with the same IBAN and amount show a warning, until you mark 
   await h.row(page, 1).locator('.act-duplicate').click();
   assert.equal((await h.rows(page)).length, 2);
   assert.deepEqual(await h.rowMessages(page, 1), [
-    'Amount: the IBAN and the amount are the same as in payment 2. Make sure that this is correct. [This is correct]',
+    'Amount warning: the IBAN and the amount are the same as in payment 2. Make sure that this is correct. [This is correct]',
   ]);
   assert.deepEqual(await h.rowMessages(page, 2), [
-    'Amount: the IBAN and the amount are the same as in payment 1. Make sure that this is correct. [This is correct]',
+    'Amount warning: the IBAN and the amount are the same as in payment 1. Make sure that this is correct. [This is correct]',
   ]);
   assert.match(await h.text(page, '#bar-status'), /^All 2 payments pass the checks\.\s*2 warnings$/);
 
@@ -180,7 +180,7 @@ test('the type comes from the IBAN, and you can change it in "⋯"', async t => 
   assert.equal(await h.text(page, '#payments-meta'), '1 SEPA · 0 TBOC');
   assert.equal(await li.locator('.type-tag').textContent(), 'SEPA');
   assert.deepEqual(await h.rowMessages(page, 1), [
-    'IBAN: this is a Bank of Cyprus account. Usually, the correct type is TBOC. [Change to TBOC]',
+    'IBAN warning: this is a Bank of Cyprus account. Usually, the correct type is TBOC. [Change to TBOC]',
   ]);
 
   await li.locator('.fix-btn').click();

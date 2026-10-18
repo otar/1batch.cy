@@ -49,7 +49,7 @@ test('"New month?" replaces the month in the descriptions, with Undo', async t =
   await page.locator('#month').waitFor();
   assert.equal(await page.inputValue('#month-from'), 'SEPTEMBER');
   assert.equal(await page.inputValue('#month-to'), 'OCTOBER');
-  assert.equal(await h.text(page, '#month-btn'), 'Replace in 3 descriptions');
+  assert.equal(await h.text(page, '#month-btn'), 'Replace in payments 1, 2 and 3');
 
   await page.click('#month-btn');
   assert.deepEqual(await h.rowField(page, 'desc'),
