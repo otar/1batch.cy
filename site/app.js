@@ -105,7 +105,8 @@ const FIELDS = ['type', 'name', 'iban', 'bic', 'amount', 'desc'];
 const CSV_HEADER = ['type', 'name', 'iban', 'bic', 'amount', 'description'];
 
 const FIELD_LABELS = { type: 'Type', name: 'Name', iban: 'IBAN', bic: 'BIC', amount: 'Amount', desc: 'Description' };
-const FIELD_NAMES = { type: 'Type', name: 'Beneficiary name', iban: 'IBAN', bic: 'BIC', amount: 'Amount in EUR', desc: 'Description' };
+// The names of the fields for screen readers. Each name starts with the visible label, for speech input.
+const FIELD_NAMES = { type: 'Type', name: 'Beneficiary name', iban: 'IBAN', bic: 'Beneficiary BIC', amount: 'Amount, EUR', desc: 'Description' };
 
 // For "Change all": the plural noun of each field
 const GROUP_NOUNS = { name: 'names', iban: 'IBANs', bic: 'BICs', amount: 'amounts', desc: 'descriptions' };
@@ -137,6 +138,8 @@ const EXAMPLE = {
     { name: 'BRUXELLES TRADING', iban: 'BE68539007547034', amount: '199.99', desc: 'ORDER 88213' },
   ],
 };
+// The example below the empty "Debit account" field
+const EXAMPLE_DEBTOR_IBAN = 'CY17 0020 0128 0000 0012 0052 7600';
 
 /* ==========================================================================
    2. Small helpers
@@ -310,6 +313,18 @@ function el(tag, className, text) {
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
+}
+
+/** Sets aria-describedby to the ids. With no ids, the attribute goes away. */
+function setDescribedBy(node, ids) {
+  if (ids.length) node.setAttribute('aria-describedby', ids.join(' '));
+  else node.removeAttribute('aria-describedby');
+}
+
+/** Adds one id to aria-describedby, or removes it. */
+function toggleDescribedBy(node, id, on) {
+  const ids = (node.getAttribute('aria-describedby') || '').split(' ').filter(item => item && item !== id);
+  setDescribedBy(node, on ? [...ids, id] : ids);
 }
 
 /* ==========================================================================
@@ -974,7 +989,10 @@ const state = {
   randomRef: randomRef(BATCH_REF_LEN),
   errorKey: '',             // the problem that the page showed last
   warnKey: '',              // the warning that the page showed last
-  undo: null,               // a copy of the data from before the last large change, for 10 seconds
+  undo: null,               // a copy of the data from before the last large change, until the next change
+  undoText: '',             // the message of that change: "Payment 3 deleted."
+  undoFocus: null,          // where the focus goes after Undo: { rowId, field }, { id } or { selector }
+  liveText: null,           // the status that screen readers got last
 };
 
 let nextRowId = 1;
@@ -1120,14 +1138,14 @@ function renderDebtor() {
     const items = isShown(`debtor.${field}`) ? report.errors[field] || [] : [];
     input.setAttribute('aria-invalid', items.length ? 'true' : 'false');
     const msg = document.getElementById(`${id}-msg`);
-    msg.replaceChildren(...items.flatMap(item => problemParts('', item, { scope: 'debtor' })));
+    msg.replaceChildren(...items.flatMap(item => problemParts('', debtorMessage(field, item), { scope: 'debtor' })));
     msg.hidden = items.length === 0;
   }
 
-  // Below the IBAN: a check mark for a valid Bank of Cyprus IBAN
+  // Below the IBAN: a check mark for a valid Bank of Cyprus IBAN. Until then, an example.
   const iban = normalizeIban(state.debtor.iban);
   const valid = iban !== '' && isBocIban(iban) && ibanInfo(iban).valid;
-  ui.debtorIbanInfo.replaceChildren(...(valid ? [el('span', 'ok', '✓ Bank of Cyprus')] : []));
+  ui.debtorIbanInfo.replaceChildren(valid ? el('span', 'ok', '✓ Bank of Cyprus') : `For example: ${EXAMPLE_DEBTOR_IBAN}`);
 
   // Below the date: the date in words. Saturday and Sunday are not business days.
   const date = state.debtor.execDate;
@@ -1146,6 +1164,11 @@ function renderDebtor() {
   ui.refToggle.setAttribute('aria-expanded', state.refOpen ? 'true' : 'false');
 }
 
+/** In "Pay from", "Missing." also tells what to enter: "Missing. Enter the company name." */
+function debtorMessage(field, item) {
+  return item.short === 'missing' ? { ...item, text: `missing. Enter the ${DEBTOR_LABELS[field].toLowerCase()}.` } : item;
+}
+
 /* ---------- Payments ---------- */
 
 /** The <li> of a row. The page makes it one time from the template and uses it again. */
@@ -1154,14 +1177,10 @@ function rowElement(row) {
   if (!li) {
     li = ui.rowTemplate.content.firstElementChild.cloneNode(true);
     li.dataset.id = String(row.id);
-    const msgsId = `row-${row.id}-msgs`;
-    const infoId = `row-${row.id}-info`;
-    li.querySelector('.row-msgs').id = msgsId;
-    li.querySelector('.iban-info').id = infoId;
-    li.querySelectorAll('[data-field]').forEach(input => input.setAttribute('aria-describedby', msgsId));
+    // The descriptions of the fields come from updateRowChecks()
+    li.querySelector('.iban-info').id = `row-${row.id}-info`;
     const iban = li.querySelector('[data-field="iban"]');
     iban.id = `row-${row.id}-iban`;
-    iban.setAttribute('aria-describedby', `${msgsId} ${infoId}`);
     li.querySelector('.iban-label').htmlFor = iban.id;
     rowEls.set(row.id, li);
   }
@@ -1267,6 +1286,8 @@ function updateRowChecks(li, row, report, groups) {
   li.querySelector('option[value="auto"]').textContent = iban ? `Auto (${detectType(row.iban).toUpperCase()})` : 'Auto';
   li.querySelector('[data-field="bic"]').placeholder = type === 'tboc' ? 'Not used' : 'Optional';
 
+  // Each message says in words if it is an error or a warning: "IBAN error: …", "Amount warning: …".
+  // The description of each field has only the messages of that field.
   const items = [];
   const target = { scope: 'row', rowId: row.id };
   for (const field of FIELDS) {
@@ -1276,17 +1297,19 @@ function updateRowChecks(li, row, report, groups) {
     const warnings = shown ? report.warnings[field] || [] : [];
     input.setAttribute('aria-invalid', errors.length ? 'true' : 'false');
     input.classList.toggle('has-warning', errors.length === 0 && warnings.length > 0);
-    errors.forEach(item => {
-      const group = item.fix && item.fix.group ? groups.get(`${field}:${item.fix.group}`) : null;
-      const node = el('li', 'is-error');
-      node.append(...problemParts(FIELD_LABELS[field], item, target, group));
+    const ids = [];
+    const addMessage = (kind, item, group) => {
+      const node = el('li', `is-${kind}`);
+      node.id = `row-${row.id}-msg-${items.length + 1}`;
+      node.append(...problemParts(`${FIELD_LABELS[field]} ${kind}`, item, target, group));
+      ids.push(node.id);
       items.push(node);
-    });
-    warnings.forEach(item => {
-      const node = el('li', 'is-warning');
-      node.append(...problemParts(FIELD_LABELS[field], item, target, null));
-      items.push(node);
-    });
+    };
+    errors.forEach(item => addMessage('error', item, item.fix && item.fix.group ? groups.get(`${field}:${item.fix.group}`) : null));
+    warnings.forEach(item => addMessage('warning', item, null));
+    if (field === 'iban') ids.push(`row-${row.id}-info`);
+    if (input.classList.contains('will-change')) ids.push('will-change-note');
+    setDescribedBy(input, ids);
   }
   li.querySelector('.row-msgs').replaceChildren(...items);
 
@@ -1332,22 +1355,38 @@ function wordRegex(word, flags = 'i') {
   return new RegExp(`(^|[^A-Za-z0-9])${escapeRegex(word)}(?=$|[^A-Za-z0-9])`, flags);
 }
 
-/** "New month?": the button text, and a mark on each description that will change. */
+/**
+ * "New month?": the button text, and a mark on each description that will change.
+ * The mark is not only a color: the field has a dashed border and a description for screen readers.
+ */
 function renderMonth() {
   const on = Boolean(state.opened && state.opened.monthOffer);
   ui.month.hidden = !on;
   const from = ui.monthFrom.value.trim();
   const to = ui.monthTo.value.trim();
   const test = on && from ? wordRegex(from) : null;
-  let count = 0;
-  state.rows.forEach(row => {
+  const numbers = [];
+  state.rows.forEach((row, index) => {
     const hit = Boolean(test && test.test(row.desc));
-    if (hit) count++;
+    if (hit) numbers.push(index + 1);
     const li = rowEls.get(row.id);
-    if (li) li.querySelector('[data-field="desc"]').classList.toggle('will-change', hit);
+    if (!li) return;
+    const input = li.querySelector('[data-field="desc"]');
+    input.classList.toggle('will-change', hit);
+    toggleDescribedBy(input, 'will-change-note', hit);
   });
-  ui.monthBtn.textContent = count ? `Replace in ${plural(count, 'description')}` : 'Replace';
-  ui.monthBtn.disabled = !count || !to || from.toLowerCase() === to.toLowerCase();
+  ui.monthBtn.textContent = replaceLabel(numbers);
+  ui.monthBtn.disabled = !numbers.length || !to || from.toLowerCase() === to.toLowerCase();
+}
+
+/** "Replace in payments 1, 4 and 6". For all payments or many payments: "Replace in all 8 descriptions". */
+function replaceLabel(numbers) {
+  const filled = state.rows.filter(row => !isEmptyPayment(row)).length;
+  if (!numbers.length) return 'Replace';
+  if (numbers.length > 1 && numbers.length === filled) return `Replace in all ${filled} descriptions`;
+  if (numbers.length === 1) return `Replace in payment ${numbers[0]}`;
+  if (numbers.length <= 6) return `Replace in payments ${numbers.slice(0, -1).join(', ')} and ${numbers[numbers.length - 1]}`;
+  return `Replace in ${plural(numbers.length, 'description')}`;
 }
 
 /* ---------- Bottom bar ---------- */
@@ -1377,10 +1416,10 @@ function renderSummary() {
     parts.push(el('span', '', 'Add payments to start.'));
   } else if (status === 'errors') {
     const at = Math.max(0, errors.findIndex(item => problemKey(item) === state.errorKey));
-    const where = el('button', 'bar-link', `${errors.length > 1 ? `Problem ${at + 1}: ` : ''}${problemLabel(errors[at])}`);
+    const where = el('button', 'bar-link', `${errors.length > 1 ? `Error ${at + 1}: ` : ''}${problemLabel(errors[at])}`);
     where.type = 'button';
     where.dataset.action = 'current-problem';
-    parts.push(el('strong', '', `${plural(errors.length, 'problem')} to correct.`), where);
+    parts.push(el('strong', '', `${plural(errors.length, 'error')} to correct.`), where);
   } else {
     parts.push(el('span', '', count === 1 ? 'The payment passes the checks.' : `All ${count} payments pass the checks.`));
     if (warnings.length) {
@@ -1391,6 +1430,14 @@ function renderSummary() {
     }
   }
   ui.barStatus.replaceChildren(...parts);
+
+  // Screen readers get the status only when it changes, not at each key press.
+  // They do not get the first status, so the page is quiet when it opens.
+  const live = status === 'errors' ? parts[0].textContent
+    : `${parts[0].textContent}${status === 'ready' && warnings.length ? ` ${capitalize(plural(warnings.length, 'warning'))}.` : ''}`;
+  if (state.liveText !== null && live !== state.liveText) ui.barLive.textContent = live;
+  state.liveText = live;
+
   ui.barNav.hidden = status !== 'errors' || errors.length < 2;
   ui.barBtn.className = `btn btn-lg ${status === 'ready' ? 'btn-primary' : status === 'errors' ? 'btn-light' : 'btn-off'}`;
   ui.barBtn.setAttribute('aria-disabled', status === 'empty' ? 'true' : 'false');
@@ -1412,30 +1459,109 @@ function renderFaqToggle() {
 
 /* ---------- Messages, dialogs, focus ---------- */
 
-let toastTimer = 0;
+let barRoom = 0;                          // the height of the fixed bottom bar, or 0 if the bar is not fixed
+let toastRoom = 0;                        // the room for the message above the bar, or 0
+let lastFocus = null;                     // the last element with the focus outside the message
+let undoKey = { shown: 'Ctrl+Z', spoken: 'Control+Z', aria: 'Control+Z' };
 
-/** A short message above the bottom bar. With an undo copy, it shows "Undo" for 10 seconds. */
-function toast(text, undoCopy = null) {
-  state.undo = undoCopy;
+/**
+ * A short message above the bottom bar. undoCopy: a copy of the data for "Undo".
+ * There is no timer. The message stays until the next change of data, Escape or "×".
+ * A new message replaces the text. If Undo is still possible, a second line keeps it.
+ * undoFocus: where the focus goes after Undo (see focusTarget).
+ */
+function toast(text, undoCopy = null, undoFocus = null) {
+  if (undoCopy) {
+    state.undo = undoCopy;
+    state.undoText = text;
+    state.undoFocus = undoFocus;
+  }
   ui.toastText.textContent = text;
-  ui.toastUndo.hidden = !undoCopy;
+  ui.toastUndoText.textContent = state.undo && !undoCopy ? state.undoText : '';
+  ui.toastUndoText.hidden = !ui.toastUndoText.textContent;
+  ui.toastUndo.hidden = !state.undo;
   ui.toast.hidden = false;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(closeToast, undoCopy ? 10000 : 6000);
+  updateToastRoom();
+  keepFocusAboveToast();
+  announce(undoCopy ? `${text} To undo, press ${undoKey.spoken}.` : text);
 }
 
-function closeToast() {
-  clearTimeout(toastTimer);
+/** Hides the message and ends its Undo. If the message has the focus, the focus goes back to where it was. */
+function closeToast(moveFocus = true) {
+  const hadFocus = ui.toast.contains(document.activeElement);
   ui.toast.hidden = true;
   state.undo = null;
+  state.undoText = '';
+  state.undoFocus = null;
+  updateToastRoom();
+  if (hadFocus && moveFocus) returnFocus();
+}
+
+/** A change of data ends the message and its Undo: Undo can only go back to the data before the last change. */
+function beginChange() {
+  if (!ui.toast.hidden) closeToast();
 }
 
 function undo() {
   if (!state.undo) return;
+  const focus = state.undoFocus;
   restore(state.undo);
-  closeToast();
+  closeToast(false);
   renderAll();
   toast('The change is undone.');
+  focusTarget(focus);
+}
+
+/** While the message shows, the page keeps room for it. Thus Tab does not put the focus under the message. */
+function updateToastRoom() {
+  toastRoom = ui.toast.hidden ? 0 : ui.toast.offsetHeight + 14;
+  document.documentElement.style.setProperty('--toast-room', `${toastRoom}px`);
+}
+
+/** If a new message covers the element with the focus, the page scrolls the element up. */
+function keepFocusAboveToast() {
+  const node = document.activeElement;
+  if (!node || node === document.body || ui.toast.contains(node) || node.closest('dialog')) return;
+  if (barRoom > 0 && ui.bar.contains(node)) return;
+  const rect = node.getBoundingClientRect();
+  const message = ui.toast.getBoundingClientRect();
+  const covered = rect.bottom > message.top && rect.top < message.bottom && rect.right > message.left && rect.left < message.right;
+  if (covered) scrollToY(window.scrollY + rect.bottom - message.top + 16);
+}
+
+/** The page keeps room for the fixed bottom bar. On a phone, the bar is taller when it shows an error. */
+function updateBarRoom() {
+  barRoom = getComputedStyle(ui.bar).position === 'fixed' ? ui.bar.firstElementChild.offsetHeight : 0;
+  document.documentElement.style.setProperty('--bar-room', `${barRoom}px`);
+}
+
+/** The focus goes back to the element that had it before the message. If it is gone, to the first field. */
+function returnFocus() {
+  const node = lastFocus;
+  if (node && node.isConnected && node.getClientRects().length && !node.disabled) revealAndFocus(node);
+  else focusFirstField();
+}
+
+/** The name of the first payment, or "Add the first payment" if the list is empty. */
+function focusFirstField() {
+  if (state.rows.length) focusCell(state.rows[0].id, 'name');
+  else if (!ui.start.hidden) revealAndFocus(ui.startAdd);
+  else revealAndFocus(ui.debtorName);
+}
+
+/** Puts the focus on { rowId, field }, { id } or { selector }. If that element is not on the page, on the first field. */
+function focusTarget(target) {
+  let node = null;
+  if (target && target.rowId) {
+    const li = rowEls.get(target.rowId);
+    node = li ? li.querySelector(`[data-field="${target.field || 'name'}"]`) : null;
+  } else if (target && target.id) {
+    node = document.getElementById(target.id);
+  } else if (target && target.selector) {
+    node = document.querySelector(target.selector);
+  }
+  if (node && node.getClientRects().length && !node.disabled) revealAndFocus(node);
+  else focusFirstField();
 }
 
 /** Tells screen reader users what changed. */
@@ -1462,6 +1588,10 @@ function ask({ title, body, buttons, wide = false }) {
       }
       return el('p', '', part);
     }));
+    // The first paragraph describes the dialog. Screen readers read it after the title.
+    const first = ui.dialogBody.querySelector('p');
+    if (first) first.id = 'dialog-desc';
+    setDescribedBy(ui.dialog, first ? ['dialog-desc'] : []);
     const nodes = buttons.map(spec => {
       const button = el('button', `btn ${spec.kind || 'btn-quiet'}`, spec.label);
       button.type = 'button';
@@ -1493,11 +1623,12 @@ function scrollToElement(node, offset = 12) {
   scrollToY(node.getBoundingClientRect().top + window.scrollY - offset);
 }
 
-/** Scrolls to a field if it is not on the screen, and puts the focus on it. */
+/** Scrolls to a field if it is not on the screen, or under the bar or the message. Then puts the focus on it. */
 function revealAndFocus(input) {
   const rect = input.getBoundingClientRect();
-  const bottom = window.innerHeight - ui.bar.offsetHeight - 60;
-  if (rect.top < 70 || rect.bottom > bottom) {
+  const bottom = window.innerHeight - barRoom - toastRoom - 16;
+  const inFixedBar = barRoom > 0 && ui.bar.contains(input);
+  if (!inFixedBar && (rect.top < 70 || rect.bottom > bottom)) {
     scrollToY(window.scrollY + rect.top - Math.round(window.innerHeight / 3));
   }
   input.focus({ preventScroll: true });
@@ -1535,10 +1666,11 @@ function newFile() {
     revealAndFocus(ui.debtorName);
     return;
   }
+  beginChange();
   const copy = snapshot();
   clearEverything();
   revealAndFocus(ui.debtorName);
-  toast('New file. The page is empty.', copy);
+  toast('New file. The page is empty.', copy, { selector: '.top-actions [data-action="new"]' });
 }
 
 function clearEverything() {
@@ -1558,7 +1690,9 @@ function sampleRows() {
 
 /** Puts the sample payments in the table. "Pay from" does not change. */
 function loadExample() {
+  beginChange();
   const copy = hasUserPayments() ? snapshot() : null;
+  const hadFocus = ui.start.contains(document.activeElement);
   state.rows = sampleRows();
   state.dupOk = new Set();
   state.opened = null;
@@ -1567,10 +1701,13 @@ function loadExample() {
   renderAll();
   scrollToElement(ui.paymentsBlock);
   toast('Sample data is in the table. The names and accounts are not real.', copy);
+  // The button was in the start cards, and they are now hidden. The focus goes to the first sample payment.
+  if (hadFocus) rowEls.get(state.rows[0].id).querySelector('[data-field="name"]').focus({ preventScroll: true });
 }
 
 /** "Clear all" and "Clear and start": removes all payments. "Pay from" does not change. */
 function clearPayments() {
+  beginChange();
   const copy = hasUserPayments() ? snapshot() : null;
   state.rows = [];
   state.dupOk = new Set();
@@ -1580,7 +1717,7 @@ function clearPayments() {
   renderAll();
   scrollToElement(ui.paymentsBlock);
   ui.startAdd.focus({ preventScroll: true });
-  if (copy) toast('All payments are cleared.', copy);
+  if (copy) toast('All payments are cleared.', copy, { id: 'clear-all' });
   else announce('The sample data is cleared.');
 }
 
@@ -1598,6 +1735,7 @@ function addPayment(field = 'name') {
 function duplicateRow(id) {
   const index = state.rows.findIndex(row => row.id === id);
   if (index < 0) return;
+  beginChange();
   const { type, name, iban, bic, amount, desc } = state.rows[index];
   const copy = newPayment({ type, name, iban, bic, amount, desc });
   state.rows.splice(index + 1, 0, copy);
@@ -1614,6 +1752,7 @@ function deleteRow(id) {
   const index = state.rows.findIndex(row => row.id === id);
   const row = state.rows[index];
   if (!row) return;
+  beginChange();
   const copy = isEmptyPayment(row) ? null : snapshot();
   state.rows.splice(index, 1);
   state.openMore.delete(id);
@@ -1621,7 +1760,7 @@ function deleteRow(id) {
   const next = state.rows[Math.min(index, state.rows.length - 1)];
   if (next) focusCell(next.id, 'name');
   else ui.startAdd.focus({ preventScroll: true });
-  if (copy) toast(`Payment ${index + 1} deleted.`, copy);
+  if (copy) toast(`Payment ${index + 1} deleted.`, copy, { rowId: id, field: 'name' });
   else announce('Empty row deleted.');
 }
 
@@ -1635,6 +1774,7 @@ function moveBy(id, delta) {
   const from = state.rows.findIndex(row => row.id === id);
   const to = from + delta;
   if (from < 0 || to < 0 || to >= state.rows.length) return;
+  beginChange();
   moveRow(from, to);
   renderRows();
   const li = rowEls.get(id);
@@ -1658,8 +1798,11 @@ function toggleRef() {
 }
 
 function closeOpened() {
+  const hadFocus = ui.opened.contains(document.activeElement);
   state.opened = null;
   renderListChrome();
+  // The button is gone. The focus goes to the first payment, which is now in the place of the message.
+  if (hadFocus) focusFirstField();
 }
 
 /** "Open all" opens all the FAQ answers. When all the answers are open, the button closes them. */
@@ -1694,7 +1837,7 @@ async function download() {
     state.errorKey = problemKey(result.errors[0]);
     renderAll();
     goTo(result.errors[0]);
-    toast(`Correct ${plural(result.errors.length, 'problem')} first. To continue later, use Export CSV.`);
+    toast(`Correct ${plural(result.errors.length, 'error')} first. To continue later, use Export CSV.`);
     return;
   }
   if (hasSample()) {
@@ -1751,6 +1894,7 @@ function nextWarning() {
 function applyFix(button) {
   const data = fixTargets.get(button);
   if (!data) return;
+  beginChange();
 
   if (data.scope === 'all') {
     const copy = snapshot();
@@ -1759,7 +1903,7 @@ function applyFix(button) {
       if (row) Object.assign(row, set, { sample: false });
     });
     renderAll();
-    toast(`${data.items.length} ${GROUP_NOUNS[data.field]} changed.`, copy);
+    toast(`${data.items.length} ${GROUP_NOUNS[data.field]} changed.`, copy, { rowId: data.items[0].rowId, field: data.field });
     afterFix({ scope: 'row', rowId: data.items[0].rowId }, data.field);
     return;
   }
@@ -1768,6 +1912,8 @@ function applyFix(button) {
   if (fix.dupOk) {
     state.dupOk.add(fix.dupOk);
     renderAll();
+    // The button is gone. The focus goes to the amount of the same payment.
+    focusCell(data.rowId, 'amount');
     announce('The page does not show this warning again for these payments.');
     return;
   }
@@ -1903,6 +2049,7 @@ function replaceMonth() {
   const from = ui.monthFrom.value.trim();
   const to = ui.monthTo.value.trim();
   if (!from || !to || !state.opened) return;
+  beginChange();
   const pattern = wordRegex(from, 'gi');
   const copy = snapshot();
   let count = 0;
@@ -1917,7 +2064,7 @@ function replaceMonth() {
   state.opened.monthOffer = false;
   renderAll();
   if (state.rows.length) focusCell(state.rows[0].id, 'amount');
-  toast(`“${from}” changed to “${to}” in ${plural(count, 'description')}.`, copy);
+  toast(`“${from}” changed to “${to}” in ${plural(count, 'description')}.`, copy, { id: 'month-btn' });
 }
 
 /* ---------- Opening files ---------- */
@@ -1948,6 +2095,7 @@ async function loadXml(text, name) {
     await notice('The page cannot open this file', [error.message]);
     return;
   }
+  beginChange();
   const copy = hasUserData() ? snapshot() : null;
 
   const today = cyprusNow().date;
@@ -1976,8 +2124,8 @@ async function loadXml(text, name) {
   state.rows.forEach(touchRow);
   showOpened(name, note);
   renderAll();
-  scrollToElement(ui.editor);
-  if (copy) toast('The file replaced the data on the page.', copy);
+  showFileOpened();
+  if (copy) toast('The file replaced the data on the page.', copy, { selector: '.top-actions [data-action="open"]' });
 }
 
 /** A CSV file has only payments. It replaces the payments. Your "Pay from" data stays. */
@@ -1994,6 +2142,7 @@ async function loadCsv(text, name) {
     return;
   }
 
+  beginChange();
   const copy = hasUserPayments() ? snapshot() : null;
   const keptTouched = [...state.touched].filter(key => key.startsWith('debtor.'));
   const hadDebtor = state.debtor.name.trim() !== '' || state.debtor.iban.trim() !== '';
@@ -2006,12 +2155,27 @@ async function loadCsv(text, name) {
     ? 'A CSV file has no “Pay from” data. The “Pay from” fields did not change.'
     : 'A CSV file has no “Pay from” data. Fill in “Pay from” above.');
   renderAll();
-  scrollToElement(ui.editor);
+  showFileOpened();
 
   if (data.notes.length) {
     await notice(`${plural(state.rows.length, 'payment')} loaded`, ['Look at these lines:', data.notes]);
   }
-  if (copy) toast('The file replaced the payments on the page.', copy);
+  if (copy) toast('The file replaced the payments on the page.', copy, { selector: '.top-actions [data-action="open"]' });
+}
+
+/**
+ * After you open a file: the page shows the top of the editor. The focus goes to the message
+ * about the file, so that a screen reader reads it, also "The date moved from …".
+ */
+function showFileOpened() {
+  const top = ui.editor.getBoundingClientRect().top + window.scrollY - 12;
+  const bottom = ui.openedText.getBoundingClientRect().bottom + window.scrollY;
+  if (bottom - top <= window.innerHeight - barRoom - 16) {
+    scrollToY(top);
+    ui.openedText.focus({ preventScroll: true });
+  } else {
+    revealAndFocus(ui.openedText);
+  }
 }
 
 /* ---------- Smart paste from a spreadsheet ---------- */
@@ -2050,6 +2214,7 @@ async function smartPaste(text) {
   const picked = await pastePreview(lines, columns);
   if (!picked) return;
 
+  beginChange();
   const copy = snapshot();
   if (!hasUserPayments()) state.rows = [];                // the paste replaces the sample data
   let index = state.rows.length;                           // fill the empty rows at the end first
@@ -2215,11 +2380,28 @@ function onClick(event) {
   }
 }
 
+/** Escape closes the message. Ctrl+Z (⌘Z on a Mac) does the same as "Undo" while the message shows "Undo". */
+function onKeydown(event) {
+  if (event.defaultPrevented || ui.dialog.open || ui.done.open) return;
+  if (event.key === 'Escape' && !ui.toast.hidden) {
+    closeToast();
+    return;
+  }
+  // On a keyboard with other letters, for example Greek, the Z key gives event.code "KeyZ"
+  const letter = /^[a-z]$/i.test(event.key) ? event.key.toLowerCase() : event.code === 'KeyZ' ? 'z' : '';
+  const undoKeys = (event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && letter === 'z';
+  if (undoKeys && state.undo && !event.target.closest('#month')) {
+    event.preventDefault();
+    undo();
+  }
+}
+
 /* ---------- Pay from ---------- */
 
 function onDebtorInput(event) {
   const field = event.target.dataset.debtor;
   if (!field) return;
+  beginChange();
   state.debtor[field] = event.target.value;
   renderDebtor();
   renderListChrome();
@@ -2240,6 +2422,8 @@ function onDebtorChange(event) {
 function onListInput(event) {
   const input = event.target.closest('[data-field]');
   if (!input) return;
+  beginChange();
+  input.closest('.payment').classList.remove('note-off');
   const row = rowOf(input);
   row[input.dataset.field] = input.value;
   row.sample = false;
@@ -2268,8 +2452,19 @@ function onListChange(event) {
 
 const GRID_FIELDS = ['name', 'iban', 'amount', 'desc'];
 
-/** Enter goes down one row (Shift+Enter goes up), as in a spreadsheet. The arrow keys move between the row buttons. */
+/**
+ * Enter goes down one row (Shift+Enter goes up), as in a spreadsheet. The arrow keys move between the row buttons.
+ * Escape hides the bank note above the IBAN field. The next input in the field shows it again.
+ */
 function onListKeydown(event) {
+  if (event.key === 'Escape' && event.target.matches('input[data-field="iban"]')) {
+    const li = event.target.closest('.payment');
+    if (li.querySelector('.iban-info').textContent && !li.classList.contains('note-off')) {
+      li.classList.add('note-off');
+      event.preventDefault();
+      return;
+    }
+  }
   const toolbar = event.target.closest('.c-actions');
   if (toolbar && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
     const buttons = Array.from(toolbar.querySelectorAll('button')).filter(button => button.offsetParent !== null);
@@ -2293,6 +2488,7 @@ function onListKeydown(event) {
 
 /** The row buttons are one Tab stop: the button that you used last. */
 function onListFocusIn(event) {
+  if (event.target.matches('input[data-field="iban"]')) event.target.closest('.payment').classList.remove('note-off');
   const toolbar = event.target.closest('.c-actions');
   if (!toolbar || event.target.tagName !== 'BUTTON') return;
   toolbar.querySelectorAll('button').forEach(button => { button.tabIndex = button === event.target ? 0 : -1; });
@@ -2374,6 +2570,7 @@ function onListPointerDown(event) {
     li.classList.remove('is-dragging');
     items.forEach(item => { item.style.transform = ''; });
     if (to !== from) {
+      beginChange();
       moveRow(from, to);
       renderRows();
       announce(`Payment moved to position ${to + 1}.`);
@@ -2465,6 +2662,7 @@ function init() {
     barCount: byId('bar-count'),
     barTotal: byId('bar-total'),
     barStatus: byId('bar-status'),
+    barLive: byId('bar-live'),
     barNav: byId('bar-nav'),
     barBtn: byId('bar-btn'),
     dialog: byId('dialog'),
@@ -2479,7 +2677,9 @@ function init() {
     doneClose: byId('done-close'),
     toast: byId('toast'),
     toastText: byId('toast-text'),
+    toastUndoText: byId('toast-undo-text'),
     toastUndo: byId('toast-undo'),
+    toastKey: byId('toast-key'),
     toastClose: byId('toast-close'),
     announcer: byId('announcer'),
     drop: byId('drop'),
@@ -2506,10 +2706,19 @@ function init() {
     ? 'Tap here, then tap Paste'
     : `Click here, then press ${mac ? '⌘V' : 'Ctrl+V'}`;
 
+  // The keys for Undo, on the button and for screen readers
+  if (mac) undoKey = { shown: '⌘Z', spoken: 'Command+Z', aria: 'Meta+Z' };
+  ui.toastKey.textContent = undoKey.shown;
+  ui.toastUndo.setAttribute('aria-keyshortcuts', undoKey.aria);
+
   state.debtor = emptyDebtor();
   state.rows = sampleRows();
 
   document.addEventListener('click', onClick);
+  document.addEventListener('keydown', onKeydown);
+  document.addEventListener('focusin', event => {
+    if (!ui.toast.contains(event.target)) lastFocus = event.target;
+  });
   document.addEventListener('paste', onPaste);
   ui.debtorBlock.addEventListener('input', onDebtorInput);
   ui.debtorBlock.addEventListener('change', onDebtorChange);
@@ -2523,7 +2732,7 @@ function init() {
   ui.pasteBox.addEventListener('input', () => { ui.pasteBox.value = ''; });
   ui.fileInput.addEventListener('change', onFilePicked);
   ui.toastUndo.addEventListener('click', undo);
-  ui.toastClose.addEventListener('click', closeToast);
+  ui.toastClose.addEventListener('click', () => closeToast());
   // A "toggle" event does not bubble. Thus the FAQ list gets it in the capture phase.
   ui.faqList.addEventListener('toggle', renderFaqToggle, true);
   bindFileDrop();
@@ -2535,7 +2744,13 @@ function init() {
     event.returnValue = '';
   });
 
+  // The bar can change its height, for example when an error text goes onto two lines on a phone.
+  // On a short window, style.css makes the bar static. Then the page keeps no room for it.
+  new ResizeObserver(updateBarRoom).observe(ui.bar.firstElementChild);
+  window.addEventListener('resize', updateBarRoom);
+
   renderAll();
+  updateBarRoom();
 }
 
 init();

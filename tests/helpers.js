@@ -70,9 +70,12 @@ function useSite() {
    * size: 'desktop', 'tablet' or 'phone'. path: the address on the site.
    * consoleErrors, otherSites: true for a test that causes errors in the console,
    * or requests to other sites, on purpose. Then the test must examine them itself.
+   * forcedColors: 'active' for the colors of a Windows contrast theme.
    */
-  site.open = async (t, { size = 'desktop', path = '/', consoleErrors = false, otherSites = false } = {}) => {
-    const context = await site.browser.newContext({ viewport: SIZES[size], acceptDownloads: true });
+  site.open = async (t, { size = 'desktop', path = '/', consoleErrors = false, otherSites = false, forcedColors } = {}) => {
+    const context = await site.browser.newContext({
+      viewport: SIZES[size], acceptDownloads: true, ...(forcedColors ? { forcedColors } : {}),
+    });
     await context.clock.setFixedTime(NOW);
     const page = await context.newPage();
     page.setDefaultTimeout(5000);
