@@ -111,7 +111,7 @@ test('index.html loads only files from this site, with root-relative URLs', () =
     for (const name of ['src', 'href']) {
       const url = attribute(tag, name);
       if (url === null || url.startsWith('#') || url === 'data:,') continue;
-      if (/^<a\s/i.test(tag) && url.startsWith('https://github.com/otar/')) continue;
+      if (/^<a\s/i.test(tag) && (url.startsWith('https://github.com/otar/') || url === 'https://otar.me')) continue;
       if (!url.startsWith('/') || url.startsWith('//')) problems.push(`not root-relative: ${url}`);
       else if (!files.has(url)) problems.push(`no such file in site/: ${url}`);
     }
