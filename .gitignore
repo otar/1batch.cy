@@ -1,0 +1,2 @@
+# Playwright for the tests, if you install it in this folder: npm install --no-save playwright
+node_modules/
