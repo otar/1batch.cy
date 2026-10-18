@@ -720,8 +720,8 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
   /* Row 1: a thinner note, so that it does not cover the column names or the focus ring */
   .payment:first-child .iban-info { padding-top: 1px; padding-bottom: 1px; line-height: 1.2; }
 
-  /* Desktop has Copy and Delete in the row. The panel has only Move. */
-  .rm-copy,
+  /* Desktop has Duplicate and Delete in the row. The panel has only Move. */
+  .rm-duplicate,
   .rm-delete { display: none; }
 }
 
@@ -761,7 +761,7 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
   .c-num .num::before { content: "Payment "; }
   .grip { display: none; }
   .c-actions { grid-area: actions; align-self: center; }
-  .act-copy,
+  .act-duplicate,
   .act-delete { display: none; }
   .c-name { grid-area: name; padding-right: 10px; }
   .c-iban { grid-area: iban; padding-right: 10px; }

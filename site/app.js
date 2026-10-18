@@ -1202,7 +1202,7 @@ function updateRow(li, row, index) {
     button.setAttribute('aria-label', text);
     button.title = title;
   };
-  label('.act-copy', `Copy payment ${n}`, 'Copy');
+  label('.act-duplicate', `Duplicate payment ${n}`, 'Duplicate');
   label('.act-delete', `Delete payment ${n}`, 'Delete');
   label('.act-more', `Type, BIC and more for payment ${n}`, 'Type, BIC and more');
   li.querySelector('[data-row-action="up"]').disabled = index === 0;
@@ -1606,7 +1606,7 @@ function duplicateRow(id) {
   });
   renderRows();
   focusCell(copy.id, 'name');
-  announce(`Payment ${index + 1} is copied as payment ${index + 2}.`);
+  announce(`Payment ${index + 1} is duplicated as payment ${index + 2}.`);
 }
 
 /** Deletes one row, with Undo. The focus goes to the first cell of the next row. */
