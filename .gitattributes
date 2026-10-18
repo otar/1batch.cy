@@ -1,0 +1,2 @@
+# The tests compare these files byte for byte. Git must not change their line endings.
+tests/golden/* -text

@@ -89,6 +89,14 @@
 - If a push to main does not start a build, start it with the API: POST /accounts/{account_id}/pages/projects/1batch/deployments with the form field branch=main.
 
 ## Cloud sessions
-- .claude/hooks/session-start.sh runs at the start of each cloud session. It shows if the site test can run, and the state of the Cloudflare API, token, zone and Pages project. If a line says BLOCKED or not found, tell the user. A missing token is normal (see "Cloudflare work later").
-- Site test: node tests/smoke.js (Playwright, about 5 s). It serves site/ with the headers from site/_headers. Run it after each change to site/.
-- Syntax check of the script: node --check site/app.js
+- .claude/hooks/session-start.sh runs at the start of each cloud session. It shows if the site tests can run, and the state of the Cloudflare API, token, zone and Pages project. If a line says BLOCKED or not found, tell the user. A missing token is normal (see "Cloudflare work later").
+
+## Tests (decided 2026-10-18)
+- Tool: Node's own test runner (node:test) and Playwright. No packages, no package.json.
+- Run all: node --test tests/*.test.js (about 20 s). Run them after each change to site/. Syntax check of the script: node --check site/app.js
+- tests/server.js serves site/ as Cloudflare Pages does: headers from site/_headers, index.html for unknown paths.
+- tests/helpers.js: the page clock stops at Friday 16 October 2026, 11:30 in Cyprus. Each test fails on a script error, a console error or a request to a different site.
+- Test files: xml (golden XML and CSV), rules (checks and messages, in the page), flows (editor), files (open, new month, paste), privacy (privacy and site rules), layout (3 widths).
+- tests/golden/: the correct XML and CSV output. Made from this repo only (not from the CLI). After a change to the XML or CSV output on purpose: UPDATE_GOLDEN=1 node --test tests/xml.test.js, then read git diff tests/golden.
+- GitHub Actions (.github/workflows/test.yml) runs the tests for each push and pull request. Changes go to main only through a pull request, and the check "test" must pass (GitHub ruleset on main).
+- No check script for the live site.

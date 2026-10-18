@@ -2,7 +2,7 @@
 # 1batch.cy: start-up check for Claude Code cloud sessions.
 #
 # At the start of each cloud session, this check tells Claude and the user:
-#   - if the site test (node tests/smoke.js) can run
+#   - if the site tests (node --test tests/*.test.js) can run
 #   - if the session can use the Cloudflare API for the deploy, and what is missing
 #
 # The check changes nothing and never shows the token. It always stops with
@@ -25,11 +25,11 @@ echo "1batch.cy start-up check:"
 # ---------- Site test ----------
 
 if ! command -v node >/dev/null 2>&1; then
-  echo "- Site test: Node.js is not installed, so the test cannot run."
+  echo "- Site tests: Node.js is not installed, so the tests cannot run."
 elif node -e "require.resolve('playwright')" >/dev/null 2>&1; then
-  echo "- Site test: ready. Run: node tests/smoke.js"
+  echo "- Site tests: ready. Run: node --test tests/*.test.js"
 else
-  echo "- Site test: Playwright is not available, so the test cannot run."
+  echo "- Site tests: Playwright is not available, so the tests cannot run."
 fi
 
 # ---------- Cloudflare API ----------
