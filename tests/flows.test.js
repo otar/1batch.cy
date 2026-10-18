@@ -151,7 +151,7 @@ test('two payments with the same IBAN and amount show a warning, until you mark 
   const page = await site.open(t);
   await h.fillPayFrom(page);
   await h.addPayments(page, [PAYMENT]);
-  await h.row(page, 1).locator('.act-copy').click();
+  await h.row(page, 1).locator('.act-duplicate').click();
   assert.equal((await h.rows(page)).length, 2);
   assert.deepEqual(await h.rowMessages(page, 1), [
     'Amount warning: the IBAN and the amount are the same as in payment 2. Make sure that this is correct. [This is correct]',
@@ -192,9 +192,9 @@ test('the type comes from the IBAN, and you can change it in "⋯"', async t => 
   assert.equal(await li.locator('.iban-info').textContent(), 'Valid IBAN. Hellenic Bank · Cyprus · SEPA');
 });
 
-test('"Copy" puts a copy below the row', async t => {
+test('"Duplicate" puts a duplicate below the row', async t => {
   const page = await site.open(t);
-  await h.row(page, 2).locator('.act-copy').click();
+  await h.row(page, 2).locator('.act-duplicate').click();
   assert.deepEqual((await h.rowField(page, 'name')).slice(0, 4),
     ['ANDREAS GEORGIOU', 'ELENI CHRISTOU', 'ELENI CHRISTOU', 'MICHALIS IOANNOU']);
   assert.equal(await page.evaluate(() => document.activeElement.closest('li').querySelector('.num').textContent), '3');
