@@ -1439,8 +1439,8 @@ function renderSummary() {
   state.liveText = live;
 
   ui.barNav.hidden = status !== 'errors' || errors.length < 2;
+  // With no payments, the button looks quiet, but it is not disabled: it tells you to add payments first
   ui.barBtn.className = `btn btn-lg ${status === 'ready' ? 'btn-primary' : status === 'errors' ? 'btn-light' : 'btn-off'}`;
-  ui.barBtn.setAttribute('aria-disabled', status === 'empty' ? 'true' : 'false');
 }
 
 function fileName(ext) {

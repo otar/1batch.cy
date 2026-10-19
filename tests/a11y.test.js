@@ -394,3 +394,46 @@ test('links and buttons say what they do (SC 2.4.4, 2.4.6, 1.3.3)', async t => {
   assert.match(await page.textContent('#faq'), /use the “Type, BIC and more” button \(⋯\) on the row/);
   assert.doesNotMatch(await page.textContent('#faq'), /click “⋯”/);
 });
+
+/* ---------- The main button, the window after the download, and the FAQ ---------- */
+
+test('"Download XML" with an empty list is not marked as unavailable, and it tells what to do (SC 4.1.2)', async t => {
+  const page = await site.open(t);
+  await h.clearSample(page);
+  assert.equal(await page.getAttribute('#bar-btn', 'aria-disabled'), null,
+    'Screen readers say "unavailable", but the button works.');
+  await page.click('#bar-btn');
+  assert.equal(await h.text(page, '#toast-text'), 'Add payments first.');
+});
+
+test('"The file is ready": the buttons at the bottom never cover the element with the focus (SC 2.4.11, 2.4.12)', async t => {
+  const page = await site.open(t, { size: 'phone' });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await h.openFile(page, 'payments.xml', XML);
+  await page.locator('#opened').waitFor();
+  await h.download(page, () => page.click('#bar-btn'));
+  await page.waitForFunction(() => document.getElementById('done').open);
+  for (let i = 1; i <= 10; i++) {
+    await page.keyboard.press('Tab');
+    const covered = await page.evaluate(() => {
+      const node = document.activeElement;
+      const done = document.getElementById('done');
+      const actions = done.querySelector('.dialog-actions');
+      if (!done.contains(node) || node === done || actions.contains(node)) return 0;
+      const a = node.getBoundingClientRect();
+      const b = actions.getBoundingClientRect();
+      return Math.round(Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top)));
+    });
+    assert.equal(covered, 0, `Tab ${i}: the buttons cover ${covered} px of the element with the focus.`);
+  }
+});
+
+test('the FAQ tells how the page works with a keyboard and a screen reader, and where to report a problem', async t => {
+  const page = await site.open(t);
+  const item = page.locator('#faq-list > details', { hasText: 'screen reader' });
+  assert.equal(await item.count(), 1);
+  const answer = await item.locator('.faq-a').textContent();
+  assert.match(answer, /WCAG 2\.2, level AA/);
+  assert.match(answer, /autocomplete is off/);
+  assert.equal(await item.locator('.faq-a a').getAttribute('href'), 'https://github.com/otar/1batch.cy/issues');
+});

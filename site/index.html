@@ -273,7 +273,7 @@
     <section class="faq" id="faq" aria-labelledby="faq-title">
       <div class="faq-head">
         <h2 class="info-title" id="faq-title">FAQ</h2>
-        <p class="faq-count" id="faq-count">17 questions</p>
+        <p class="faq-count" id="faq-count">18 questions</p>
         <!-- app.js changes the text to "Close all" when all the answers are open -->
         <button type="button" class="btn btn-quiet btn-sm faq-toggle" id="faq-toggle" data-action="faq-toggle" aria-controls="faq-list">
           <svg class="icon icon-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9.5l5 5 5-5"/></svg><span id="faq-toggle-text">Open all</span>
@@ -296,6 +296,10 @@
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Can I use it on a phone?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
             <div class="faq-a"><p>Yes. On a phone, each payment shows as a card. For a large batch, a computer is faster: you can paste from Excel and use the keyboard.</p></div>
+          </details>
+          <details class="faq-item">
+            <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Can I use it with a screen reader or with only a keyboard?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
+            <div class="faq-a"><p>Yes. The target is WCAG 2.2, level AA. All functions work with the keyboard, and Ctrl+Z (⌘Z on a Mac) also does Undo. Automatic tests examine the keyboard, the focus, the contrast and the labels. Tests with screen readers are not complete yet. One exception: autocomplete is off for privacy, so your browser does not fill in the company name. If something does not work for you, <a href="https://github.com/otar/1batch.cy/issues" rel="noopener noreferrer">report it on GitHub</a>.</p></div>
           </details>
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Is there a command-line tool?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>

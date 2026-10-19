@@ -1102,12 +1102,14 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
 }
 
 /* After the download */
+/* The buttons at the bottom stay on the screen. The scroll padding keeps the element with the focus above them. */
 .dialog-done {
   width: min(820px, calc(100% - 32px));
   max-height: calc(100vh - 32px);
   overflow-x: hidden;
   overflow-y: auto;
   padding: 22px 28px 0;
+  scroll-padding-bottom: 90px;
 }
 .done-head { display: flex; align-items: flex-start; gap: 12px; }
 .done-ok {
