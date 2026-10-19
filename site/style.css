@@ -696,7 +696,7 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
     white-space: nowrap;
   }
 
-  /* The handle, "Copy" and "Delete" show when you point at the row or use the keyboard in it.
+  /* The handle, "Duplicate" and "Delete" show when you point at the row or use the keyboard in it.
      "⋯" always shows, so that you can find it. At rest it is a quiet grey with 3:1 contrast. */
   .grip,
   .c-actions .icon-btn { opacity: 0; transition: opacity .12s; }
