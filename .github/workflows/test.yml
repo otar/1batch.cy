@@ -3,9 +3,9 @@
 # Then a change goes to main, and to the live site, only after the tests pass.
 #
 # The job "test" runs the tests in Chromium, with the axe-core scan.
-# The jobs "test in firefox" and "test in webkit" run the same tests in the
-# other two browser engines. They are not necessary for main yet. When they
-# pass for some time, add them to the ruleset.
+# The jobs "test in firefox" and "test in webkit" run the same tests, also the
+# scan, in the other two browser engines. They are not necessary for main yet.
+# When they pass for some time, add them to the ruleset.
 
 name: Tests
 
@@ -56,9 +56,9 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Playwright and ${{ matrix.browser }}
+      - name: Install Playwright, ${{ matrix.browser }} and axe-core
         run: |
-          npm install --no-save --no-package-lock playwright@1.56.1
+          npm install --no-save --no-package-lock playwright@1.56.1 axe-core@4.11.4
           npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Run the tests

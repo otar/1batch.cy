@@ -12,6 +12,9 @@
  * site.open(t) opens the page in a new browser context, with these rules:
  *   - The clock of the page stops at NOW: Friday 16 October 2026, 11:30:00
  *     in Cyprus. Thus the dates and the IDs in the files do not change.
+ *   - The browser asks for reduced motion. Thus the page scrolls at once, not
+ *     smoothly. In Firefox and WebKit, a click during a smooth scroll can hit
+ *     a different element.
  *   - At the end of the test, the test fails if the page had a script error,
  *     an error in the console, or a request to a different site.
  *
@@ -39,6 +42,19 @@ if (!['chromium', 'firefox', 'webkit'].includes(BROWSER)) {
   throw new Error(`BROWSER must be chromium, firefox or webkit, not "${BROWSER}".`);
 }
 
+// Firefox without a screen has no mouse. Then the page gets "(hover: none)", as on a phone.
+// These settings give Firefox a mouse that can hover, as Chromium and WebKit have:
+// 6 = a fine pointer (2) that can hover (4).
+const LAUNCH = {
+  firefox: { firefoxUserPrefs: { 'ui.primaryPointerCapabilities': 6, 'ui.allPointerCapabilities': 6 } },
+};
+
+// With Cross-Origin-Opener-Policy, Firefox and WebKit change the process of the
+// tab when the page opens. Then Playwright sometimes does not see the end of
+// the page load, and the test stops. No test needs this header in the browser.
+// Thus the server does not send it to these two browsers.
+const OMIT = BROWSER === 'chromium' ? [] : ['Cross-Origin-Opener-Policy'];
+
 const NOW = new Date('2026-10-16T08:30:00Z');  // Friday 16 October 2026, 11:30:00 in Cyprus (UTC+3)
 const TODAY = '2026-10-16';
 const NEXT_BUSINESS_DAY = '2026-10-19';           // Monday
@@ -60,14 +76,14 @@ const IBAN = {
 
 const COMPANY = { name: 'TEST COMPANY LTD', iban: IBAN.company };
 
-/** Starts the web server and Chromium before the tests of a file, and stops them after the tests. */
+/** Starts the web server and the browser before the tests of a file, and stops them after the tests. */
 function useSite() {
   const site = { origin: '', server: null, browser: null };
 
   before(async () => {
-    site.server = await startServer();
+    site.server = await startServer({ omit: OMIT });
     site.origin = `http://127.0.0.1:${site.server.address().port}`;
-    site.browser = await playwright[BROWSER].launch();
+    site.browser = await playwright[BROWSER].launch(LAUNCH[BROWSER]);
   });
 
   after(async () => {
@@ -84,7 +100,7 @@ function useSite() {
    */
   site.open = async (t, { size = 'desktop', path = '/', consoleErrors = false, otherSites = false, forcedColors } = {}) => {
     const context = await site.browser.newContext({
-      viewport: SIZES[size], acceptDownloads: true, ...(forcedColors ? { forcedColors } : {}),
+      viewport: SIZES[size], acceptDownloads: true, reducedMotion: 'reduce', ...(forcedColors ? { forcedColors } : {}),
     });
     await context.clock.setFixedTime(NOW);
     const page = await context.newPage();
@@ -249,13 +265,16 @@ async function download(page, action) {
 /**
  * Dispatches a paste event with the text, as a paste from Excel does.
  * The test does not use the system clipboard, because it is not the same on each computer.
+ * Firefox does not use "clipboardData" in a new event. It uses "dataType" and "data" (not standard).
  */
 async function paste(page, selector, content) {
   await page.locator(selector).focus();
   await page.evaluate(value => {
     const data = new DataTransfer();
     data.setData('text/plain', value);
-    document.activeElement.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+    document.activeElement.dispatchEvent(new ClipboardEvent('paste', {
+      clipboardData: data, dataType: 'text/plain', data: value, bubbles: true, cancelable: true,
+    }));
   }, content);
 }
 

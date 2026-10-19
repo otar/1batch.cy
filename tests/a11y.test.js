@@ -83,7 +83,9 @@ test('screen readers get the text of each message from the announcer (SC 4.1.3)'
   assert.equal(await page.getAttribute('#toast', 'role'), null, 'The hidden toast must not be the live region.');
   await h.row(page, 1).locator('.act-delete').click();
   await page.waitForFunction(() => document.getElementById('announcer').textContent !== '');
-  assert.equal(await page.textContent('#announcer'), 'Payment 1 deleted. To undo, press Control+Z.');
+  // On a Mac, the page says Command+Z. WebKit in Playwright also says that it is a Mac.
+  const keys = await page.evaluate(() => /Mac|iPhone|iPad/.test(navigator.userAgent)) ? 'Command+Z' : 'Control+Z';
+  assert.equal(await page.textContent('#announcer'), `Payment 1 deleted. To undo, press ${keys}.`);
 });
 
 test('Escape closes the message, and the focus stays where it is (SC 2.4.11)', async t => {
@@ -98,8 +100,7 @@ test('Escape closes the message, and the focus stays where it is (SC 2.4.11)', a
 
 for (const size of ['desktop', 'phone']) {
   test(`${size}: Tab never puts the focus under the message or the bottom bar (SC 2.4.11)`, async t => {
-    const page = await site.open(t, { size });
-    await page.emulateMedia({ reducedMotion: 'reduce' });  // No smooth scroll, so the test can measure at once
+    const page = await site.open(t, { size });             // With reduced motion: the test can measure at once
     await page.click('#bar-btn');                          // The message shows, and the focus goes to "Company name"
     for (let i = 1; i <= 40; i++) {
       await page.keyboard.press('Tab');

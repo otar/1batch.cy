@@ -284,11 +284,16 @@ function formatDate(iso) {
   }).format(new Date(`${iso}T12:00:00Z`));
 }
 
-/** "Monday 12 October 2026" */
+/**
+ * "Monday 12 October 2026". Firefox puts a comma after the day name. Thus the
+ * function joins the parts itself, and all browsers show the same text.
+ */
 function formatDateLong(iso) {
-  return new Intl.DateTimeFormat('en-GB', {
+  const parts = {};
+  new Intl.DateTimeFormat('en-GB', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
-  }).format(new Date(`${iso}T12:00:00Z`));
+  }).formatToParts(new Date(`${iso}T12:00:00Z`)).forEach(part => { parts[part.type] = part.value; });
+  return `${parts.weekday} ${parts.day} ${parts.month} ${parts.year}`;
 }
 
 function isWeekend(iso) {
@@ -1462,6 +1467,7 @@ function renderFaqToggle() {
 let barRoom = 0;                          // the height of the fixed bottom bar, or 0 if the bar is not fixed
 let toastRoom = 0;                        // the room for the message above the bar, or 0
 let lastFocus = null;                     // the last element with the focus outside the message
+let tabbing = false;                      // true while the browser moves the focus after Tab
 let undoKey = { shown: 'Ctrl+Z', spoken: 'Control+Z', aria: 'Control+Z' };
 
 /**
@@ -1527,6 +1533,25 @@ function keepFocusAboveToast() {
   const message = ui.toast.getBoundingClientRect();
   const covered = rect.bottom > message.top && rect.top < message.bottom && rect.right > message.left && rect.left < message.right;
   if (covered) scrollToY(window.scrollY + rect.bottom - message.top + 16);
+}
+
+/**
+ * After Tab: if the bar, the message or the column names cover the element
+ * with the focus, the page scrolls at once. Chromium and Firefox do this with
+ * the scroll padding in style.css. Safari does not use the scroll padding when
+ * the focus moves. The page scrolls before the browser does. Thus the browser
+ * does not move the element back to the edge of the window.
+ */
+function keepFocusInView(node) {
+  if (node.closest('#toast, dialog') || (barRoom > 0 && ui.bar.contains(node))) return;
+  const style = getComputedStyle(document.documentElement);
+  const top = parseFloat(style.scrollPaddingTop) || 0;
+  const bottom = window.innerHeight - (parseFloat(style.scrollPaddingBottom) || 0);
+  const rect = node.getBoundingClientRect();
+  let by = 0;
+  if (rect.bottom > bottom) by = Math.min(rect.bottom - bottom, rect.top - top);
+  else if (rect.top < top) by = rect.top - top;
+  if (by) window.scrollTo({ top: window.scrollY + by, behavior: 'instant' });
 }
 
 /** The page keeps room for the fixed bottom bar. On a phone, the bar is taller when it shows an error. */
@@ -2380,9 +2405,17 @@ function onClick(event) {
   }
 }
 
-/** Escape closes the message. Ctrl+Z (⌘Z on a Mac) does the same as "Undo" while the message shows "Undo". */
+/**
+ * Escape closes the message. Ctrl+Z (⌘Z on a Mac) does the same as "Undo" while the message shows "Undo".
+ * Tab: the browser moves the focus after this event. Then the "focusin" event calls keepFocusInView().
+ */
 function onKeydown(event) {
   if (event.defaultPrevented || ui.dialog.open || ui.done.open) return;
+  if (event.key === 'Tab') {
+    tabbing = true;
+    setTimeout(() => { tabbing = false; });
+    return;
+  }
   if (event.key === 'Escape' && !ui.toast.hidden) {
     closeToast();
     return;
@@ -2541,7 +2574,8 @@ function onListPointerDown(event) {
     });
   }
 
-  // Scroll the page when the pointer is near the top or bottom edge
+  // Scroll the page when the pointer is near the top or bottom edge. The scroll is
+  // at once: a smooth scroll (style.css) starts again at each frame, and is very slow.
   function autoScroll() {
     const edge = 80;
     const bottom = window.innerHeight - ui.bar.offsetHeight;
@@ -2549,7 +2583,7 @@ function onListPointerDown(event) {
     if (pointerY < edge) speed = -Math.ceil((edge - pointerY) / 5);
     else if (pointerY > bottom - edge) speed = Math.ceil((pointerY - bottom + edge) / 5);
     if (speed) {
-      window.scrollBy(0, speed);
+      window.scrollBy({ top: speed, behavior: 'instant' });
       layout();
     }
     frame = requestAnimationFrame(autoScroll);
@@ -2718,6 +2752,7 @@ function init() {
   document.addEventListener('keydown', onKeydown);
   document.addEventListener('focusin', event => {
     if (!ui.toast.contains(event.target)) lastFocus = event.target;
+    if (tabbing) keepFocusInView(event.target);
   });
   document.addEventListener('paste', onPaste);
   ui.debtorBlock.addEventListener('input', onDebtorInput);

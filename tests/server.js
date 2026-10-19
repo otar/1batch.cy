@@ -4,7 +4,8 @@
  * A small web server for the site/ folder. Only the tests use it.
  *
  * The server does the same as Cloudflare Pages:
- *   - It sends the headers from site/_headers.
+ *   - It sends the headers from site/_headers. (For Firefox and WebKit,
+ *     helpers.js leaves out one header. See OMIT there.)
  *   - It does not publish the _headers file.
  *   - For an unknown path, it sends index.html (Pages has no 404.html).
  *
@@ -60,8 +61,11 @@ function fileFor(urlPath) {
   return found ? file : path.join(SITE, 'index.html');
 }
 
-/** Starts the server. Gives a promise of the http.Server. server.paths: the addresses that it received. */
-function startServer() {
+/**
+ * Starts the server. Gives a promise of the http.Server. server.paths: the addresses that it received.
+ * omit: the names of the headers from _headers that the server does not send.
+ */
+function startServer({ omit = [] } = {}) {
   const rules = readHeaderRules();
   const server = http.createServer((request, response) => {
     server.paths.push(request.url);
@@ -75,7 +79,9 @@ function startServer() {
     const file = fileFor(urlPath);
     for (const rule of rules) {
       if (!pathMatches(rule.pattern, urlPath)) continue;
-      for (const [name, value] of rule.headers) response.setHeader(name, value);
+      for (const [name, value] of rule.headers) {
+        if (!omit.includes(name)) response.setHeader(name, value);
+      }
     }
     response.setHeader('Content-Type', TYPES[path.extname(file)] || 'application/octet-stream');
     response.end(fs.readFileSync(file));

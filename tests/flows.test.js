@@ -214,7 +214,10 @@ test('"Move up" and "Move down" change the order', async t => {
 
 test('drag a row by its handle to a new position', async t => {
   const page = await site.open(t);
-  await h.row(page, 2).scrollIntoViewIfNeeded();
+  // The rows go near the top of the window. Near an edge, the page scrolls during the drag.
+  await page.evaluate(() => window.scrollTo({
+    top: document.getElementById('payments').getBoundingClientRect().top + window.scrollY - 120, behavior: 'instant',
+  }));
   await h.row(page, 1).hover();
   const grip = await h.row(page, 1).locator('.grip').boundingBox();
   const target = await h.row(page, 3).boundingBox();
@@ -224,6 +227,34 @@ test('drag a row by its handle to a new position', async t => {
   await page.mouse.up();
   assert.deepEqual((await h.rowField(page, 'name')).slice(0, 4),
     ['ELENI CHRISTOU', 'MICHALIS IOANNOU', 'ANDREAS GEORGIOU', 'LIMASSOL OFFICE RENT LTD']);
+});
+
+test('a drag near the bottom edge scrolls the page fast, also with smooth scroll', async t => {
+  const page = await site.open(t);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });   // Smooth scroll, as most people have it
+  await page.evaluate(() => window.scrollTo({
+    top: document.getElementById('payments').getBoundingClientRect().top + window.scrollY - 120, behavior: 'instant',
+  }));
+  await h.row(page, 1).hover();
+  const grip = await h.row(page, 1).locator('.grip').boundingBox();
+  // 30 px above the bottom of the zone, the page scrolls 10 px in each frame (app.js, autoScroll)
+  const y = await page.evaluate(() => window.innerHeight - document.getElementById('bar').offsetHeight - 30);
+  await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(grip.x + grip.width / 2, y, { steps: 5 });
+  // The test counts frames, not time. Thus a slow computer does not change the result.
+  const perFrame = await page.evaluate(() => new Promise(resolve => {
+    const start = window.scrollY;
+    let frames = 0;
+    const count = () => {
+      frames++;
+      if (frames < 20) requestAnimationFrame(count);
+      else resolve((window.scrollY - start) / frames);
+    };
+    requestAnimationFrame(count);
+  }));
+  await page.mouse.up();
+  assert.ok(perFrame >= 8, `The page scrolls only ${perFrame.toFixed(1)} px in each frame.`);
 });
 
 test('"Delete" removes a row, and Undo brings it back', async t => {
@@ -300,7 +331,8 @@ test('the page asks before you close the tab, but only if the tab has your data'
   assert.deepEqual(dialogs, [], 'Sample data is not your data.');
 
   const page = await site.open(t);
-  await h.fillPayFrom(page);
+  // Real key presses: Firefox asks only after a person clicked or typed in the page, not after fill().
+  await page.locator('#debtor-name').pressSequentially(h.COMPANY.name);
   const ask = page.waitForEvent('dialog');
   await page.close({ runBeforeUnload: true });
   const dialog = await ask;
