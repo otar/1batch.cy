@@ -280,7 +280,10 @@ test('fields: the placeholder, the border and the focus outline have enough cont
   assert.ok(contrast(outline.color, colors.row) >= 3, 'focus outline');
 });
 
-test('forced colors (Windows contrast themes): a field with the focus has an outline (SC 2.4.7)', async t => {
+// Windows contrast themes exist in Chromium browsers (Edge, Chrome) and in Firefox. WebKit has no forced colors.
+test('forced colors (Windows contrast themes): a field with the focus has an outline (SC 2.4.7)', {
+  skip: h.BROWSER === 'webkit' && 'WebKit has no forced colors.',
+}, async t => {
   const page = await site.open(t, { forcedColors: 'active' });
   for (const selector of ['#debtor-name', '#payments [data-field="iban"]']) {
     await page.locator(selector).first().focus();

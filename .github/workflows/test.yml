@@ -1,6 +1,11 @@
 # 1batch.cy: the site tests run for each push and each pull request.
 # Set the check "test" as necessary for main (GitHub: Settings › Rules › Rulesets).
 # Then a change goes to main, and to the live site, only after the tests pass.
+#
+# The job "test" runs the tests in Chromium, with the axe-core scan.
+# The jobs "test in firefox" and "test in webkit" run the same tests in the
+# other two browser engines. They are not necessary for main yet. When they
+# pass for some time, add them to the ruleset.
 
 name: Tests
 
@@ -23,10 +28,11 @@ jobs:
         with:
           node-version: 22
 
-      # The same Playwright version as in the Claude Code cloud sessions
-      - name: Install Playwright and Chromium
+      # The same Playwright version as in the Claude Code cloud sessions.
+      # axe-core is only for tests/axe.test.js. The site does not use it.
+      - name: Install Playwright, Chromium and axe-core
         run: |
-          npm install --no-save --no-package-lock playwright@1.56.1
+          npm install --no-save --no-package-lock playwright@1.56.1 axe-core@4.11.4
           npx playwright install --with-deps --only-shell chromium
 
       - name: Check the syntax of app.js
@@ -34,3 +40,28 @@ jobs:
 
       - name: Run the tests
         run: node --test tests/*.test.js
+
+  other-browsers:
+    name: test in ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [firefox, webkit]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install Playwright and ${{ matrix.browser }}
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run the tests
+        run: node --test tests/*.test.js
+        env:
+          BROWSER: ${{ matrix.browser }}

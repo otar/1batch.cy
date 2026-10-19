@@ -3,7 +3,12 @@
  * ---------------------------------------------------------------------------
  * The shared parts of the tests.
  *
- * useSite() starts the web server and Chromium one time for each test file.
+ * useSite() starts the web server and the browser one time for each test file.
+ * The browser is Chromium. To use a different browser engine, set BROWSER:
+ *   BROWSER=firefox node --test tests/*.test.js     (or BROWSER=webkit)
+ * CI runs the tests in all three engines. A test that needs one engine can
+ * skip the others with BROWSER.
+ *
  * site.open(t) opens the page in a new browser context, with these rules:
  *   - The clock of the page stops at NOW: Friday 16 October 2026, 11:30:00
  *     in Cyprus. Thus the dates and the IDs in the files do not change.
@@ -21,12 +26,17 @@ const fs = require('node:fs');
 const { before, after } = require('node:test');
 const { startServer } = require('./server');
 
-let chromium;
+let playwright;
 try {
-  ({ chromium } = require('playwright'));
+  playwright = require('playwright');
 } catch {
   throw new Error('Playwright is not available. Claude Code cloud sessions have it. '
     + 'On your computer, run "npm install --no-save playwright", then "npx playwright install chromium".');
+}
+
+const BROWSER = process.env.BROWSER || 'chromium';
+if (!['chromium', 'firefox', 'webkit'].includes(BROWSER)) {
+  throw new Error(`BROWSER must be chromium, firefox or webkit, not "${BROWSER}".`);
 }
 
 const NOW = new Date('2026-10-16T08:30:00Z');  // Friday 16 October 2026, 11:30:00 in Cyprus (UTC+3)
@@ -57,7 +67,7 @@ function useSite() {
   before(async () => {
     site.server = await startServer();
     site.origin = `http://127.0.0.1:${site.server.address().port}`;
-    site.browser = await chromium.launch();
+    site.browser = await playwright[BROWSER].launch();
   });
 
   after(async () => {
@@ -250,7 +260,7 @@ async function paste(page, selector, content) {
 }
 
 module.exports = {
-  NOW, TODAY, NEXT_BUSINESS_DAY, SIZES, IBAN, COMPANY,
+  BROWSER, NOW, TODAY, NEXT_BUSINESS_DAY, SIZES, IBAN, COMPANY,
   useSite, row, rows, rowField, fillRow, clearSample, addPayments, fillPayFrom,
   messages, rowMessages, payFromMessage, text, dialogBody, dialogButton,
   openFile, download, paste,
