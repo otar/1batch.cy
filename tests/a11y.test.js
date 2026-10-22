@@ -352,6 +352,7 @@ test('the names of the fields start with their visible labels (SC 2.5.3)', async
   const li = h.row(page, 1);
   await li.locator('.act-more').click();
   assert.equal(await li.locator('[data-field="bic"]').getAttribute('aria-label'), 'Beneficiary BIC, payment 1');
+  assert.equal(await li.locator('[data-field="date"]').getAttribute('aria-label'), 'Execution date, payment 1');
   assert.equal(await li.locator('[data-field="amount"]').getAttribute('aria-label'), 'Amount, EUR, payment 1');
   assert.equal(await page.getByRole('textbox', { name: 'Replace', exact: true, includeHidden: true }).count(), 1);
   assert.equal(await page.getByRole('textbox', { name: 'Replace with', exact: true, includeHidden: true }).count(), 1);
@@ -388,13 +389,42 @@ test('dialogs give their main text to screen readers (SC 4.1.2)', async t => {
     'Do not upload it to 1bank. The names and accounts in the sample data are not real.');
   const parts = await page.evaluate(() => document.getElementById('done').getAttribute('aria-describedby').split(' ')
     .map(id => (document.getElementById(id) ? id : `${id} is missing`)));
-  assert.deepEqual(parts, ['done-file', 'done-nums', 'done-note']);
+  assert.deepEqual(parts, ['done-file', 'done-nums', 'done-dates', 'done-note']);
+});
+
+test('an own date: screen readers get it from "⋯" and from the field, not from the tag (SC 1.3.1, 4.1.2)', async t => {
+  const page = await site.open(t);
+  const li = h.row(page, 2);
+  await h.fillRow(page, 2, { date: '2026-10-24' });
+  const description = selector => li.locator(selector).evaluate(node => node.getAttribute('aria-describedby').split(' ')
+    .map(id => document.getElementById(id).textContent).join(' | '));
+
+  assert.equal(await li.locator('.act-more').getAttribute('aria-label'), 'Type, BIC, date and more for payment 2');
+  assert.equal(await description('.act-more'), 'Own date: Saturday 24 October 2026.');
+  assert.equal(await description('[data-field="date"]'), 'Saturday 24 October 2026. Not a business day.');
+  assert.equal(await li.locator('.date-tag').getAttribute('aria-hidden'), 'true');
+
+  // A past date: the field gets its error message, and still the date in words
+  await h.fillRow(page, 2, { date: '2026-10-15' });
+  assert.match(await description('[data-field="date"]'),
+    /^Execution date error: is in the past\.\s*Use the date of “Pay from” \| Thursday 15 October 2026$/);
+  assert.equal(await li.locator('[data-field="date"]').getAttribute('aria-invalid'), 'true');
+});
+
+test('"Use the date of “Pay from”" in a message: with the panel closed, the focus goes to "⋯" (SC 2.4.3)', async t => {
+  const page = await site.open(t);
+  const li = h.row(page, 1);
+  await h.fillRow(page, 1, { date: '2026-10-15' });
+  await li.locator('.act-more').click();                   // Closes the panel
+  await li.locator('.fix-btn', { hasText: 'Use the date of “Pay from”' }).focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await focusName(page), 'Type, BIC, date and more for payment 1');
 });
 
 test('links and buttons say what they do (SC 2.4.4, 2.4.6, 1.3.3)', async t => {
   const page = await site.open(t);
   assert.equal(await page.getByRole('link', { name: /\(opens a larger image in a new tab\)$/ }).count(), 6);
   assert.equal(await page.getAttribute('#ref-toggle', 'aria-describedby'), 'ref-text');
-  assert.match(await page.textContent('#faq'), /use the “Type, BIC and more” button \(⋯\) on the row/);
+  assert.match(await page.textContent('#faq'), /use the “Type, BIC, date and more” button \(⋯\) on the row/);
   assert.doesNotMatch(await page.textContent('#faq'), /click “⋯”/);
 });

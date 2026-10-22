@@ -103,8 +103,9 @@ const BANKS = {
   LT: { from: 4, to: 9, names: { '32500': 'Revolut' } },
 };
 
-// Payment fields, in the CSV column order of the command-line tool
-const FIELDS = ['type', 'name', 'iban', 'bic', 'amount', 'desc'];
+// Payment fields. The first six are the CSV columns of the command-line tool, in its order.
+// "date" is the own execution date of a payment. Empty: the date of "Pay from".
+const FIELDS = ['type', 'name', 'iban', 'bic', 'amount', 'desc', 'date'];
 const CSV_HEADER = ['type', 'name', 'iban', 'bic', 'amount', 'description'];
 
 const FIELD_LABELS = {
@@ -1195,12 +1196,7 @@ function renderDebtor() {
   const valid = iban !== '' && isBocIban(iban) && ibanInfo(iban).valid;
   ui.debtorIbanInfo.replaceChildren(valid ? el('span', 'ok', '✓ Bank of Cyprus') : `For example: ${EXAMPLE_DEBTOR_IBAN}`);
 
-  // Below the date: the date in words. Saturday and Sunday are not business days.
-  const date = state.debtor.execDate;
-  const validDate = isValidDate(date);
-  const weekend = validDate && isWeekend(date);
-  ui.dateWords.textContent = validDate ? `${formatDateLong(date)}${weekend ? '. Not a business day.' : ''}` : '';
-  ui.dateWords.classList.toggle('is-warning', weekend);
+  renderDateWords();
   ui.dateInput.min = cyprusNow().date;
 
   // The file reference: one line. "Change" opens the field.
@@ -1210,6 +1206,24 @@ function renderDebtor() {
   if (report.errors.batchRef && isShown('debtor.batchRef')) state.refOpen = true;
   ui.refField.hidden = !state.refOpen;
   ui.refToggle.setAttribute('aria-expanded', state.refOpen ? 'true' : 'false');
+}
+
+/**
+ * Below the date of "Pay from": the date in words, and the number of payments
+ * with their own date. Saturday and Sunday are not business days.
+ */
+function renderDateWords() {
+  const date = state.debtor.execDate;
+  const validDate = isValidDate(date);
+  const weekend = validDate && isWeekend(date);
+  const own = state.rows.filter(row => row.date && !isEmptyPayment(row)).length;
+  let words = validDate ? `${formatDateLong(date)}${weekend ? '. Not a business day.' : ''}` : '';
+  if (own && words && !words.endsWith('.')) words += '.';
+  ui.dateWords.replaceChildren(words);
+  if (own) {
+    ui.dateWords.append(el('span', 'own-dates', `${words ? ' ' : ''}${own === 1 ? '1 payment has its own date.' : `${own} payments have their own date.`}`));
+  }
+  ui.dateWords.classList.toggle('is-warning', weekend);
 }
 
 /** In "Pay from", "Missing." also tells what to enter: "Missing. Enter the company name." */
@@ -1271,7 +1285,7 @@ function updateRow(li, row, index) {
   };
   label('.act-duplicate', `Duplicate payment ${n}`, 'Duplicate');
   label('.act-delete', `Delete payment ${n}`, 'Delete');
-  label('.act-more', `Type, BIC and more for payment ${n}`, 'Type, BIC and more');
+  label('.act-more', `Type, BIC, date and more for payment ${n}`, 'Type, BIC, date and more');
   li.querySelector('[data-row-action="up"]').disabled = index === 0;
   li.querySelector('[data-row-action="down"]').disabled = index === state.rows.length - 1;
 
@@ -1303,6 +1317,8 @@ function refreshChecks() {
     const li = rowEls.get(row.id);
     if (li) updateRowChecks(li, row, reports.get(row.id), groups);
   });
+  // The line below the date of "Pay from" counts the payments with their own date
+  if (ui.dateWords) renderDateWords();
 }
 
 /** The marks in the IBAN cell, the line below it, and the problems of the fields that you completed. */
@@ -1333,6 +1349,7 @@ function updateRowChecks(li, row, report, groups) {
 
   li.querySelector('option[value="auto"]').textContent = iban ? `Auto (${detectType(row.iban).toUpperCase()})` : 'Auto';
   li.querySelector('[data-field="bic"]').placeholder = type === 'tboc' ? 'Not used' : 'Optional';
+  updateRowDate(li, row);
 
   // Each message says in words if it is an error or a warning: "IBAN error: …", "Amount warning: …".
   // The description of each field has only the messages of that field.
@@ -1356,6 +1373,7 @@ function updateRowChecks(li, row, report, groups) {
     errors.forEach(item => addMessage('error', item, item.fix && item.fix.group ? groups.get(`${field}:${item.fix.group}`) : null));
     warnings.forEach(item => addMessage('warning', item, null));
     if (field === 'iban') ids.push(`row-${row.id}-info`);
+    if (field === 'date') ids.push(`row-${row.id}-date-words`);
     if (input.classList.contains('will-change')) ids.push('will-change-note');
     setDescribedBy(input, ids);
   }
@@ -1365,6 +1383,45 @@ function updateRowChecks(li, row, report, groups) {
   li.querySelector('.row-more').hidden = !open;
   li.querySelector('.act-more').setAttribute('aria-expanded', open ? 'true' : 'false');
   li.classList.toggle('is-open', open);
+}
+
+/**
+ * The own date of a payment: a tag on the row, a description of "⋯" for screen readers,
+ * and in the "⋯" panel the date in words and the button "Use the date of “Pay from”".
+ */
+function updateRowDate(li, row) {
+  const date = row.date;
+  const valid = isValidDate(date);
+  const tag = li.querySelector('.date-tag');
+  tag.hidden = !date;
+  tag.textContent = valid ? shortDate(date) : date;
+  tag.title = 'This payment has its own date. Click to change it.';
+  li.classList.toggle('has-date', Boolean(date));
+
+  const description = li.querySelector('.more-desc');
+  description.id = `row-${row.id}-more-desc`;
+  description.textContent = date ? `Own date: ${valid ? formatDateLong(date) : date}.` : '';
+  setDescribedBy(li.querySelector('.act-more'), date ? [description.id] : []);
+
+  const words = li.querySelector('.rm-date-words');
+  words.id = `row-${row.id}-date-words`;
+  li.querySelector('.rm-date-clear').hidden = !date;
+  // The panel shows the rest only while it is open. With 1000 rows, this saves time at each key press.
+  if (!state.openMore.has(row.id)) return;
+  const weekend = valid && isWeekend(date);
+  const payFrom = state.debtor.execDate;
+  if (!date) {
+    words.textContent = `Empty: the date of “Pay from”${isValidDate(payFrom) ? `, ${formatDateLong(payFrom)}` : ''}.`;
+  } else {
+    words.textContent = valid ? `${formatDateLong(date)}${weekend ? '. Not a business day.' : ''}` : '';
+  }
+  words.classList.toggle('is-warning', weekend);
+  li.querySelector('[data-field="date"]').min = cyprusNow().date;
+}
+
+/** "26 OCT": the day and the month, for the tag on the row. */
+function shortDate(iso) {
+  return `${Number(iso.slice(8, 10))} ${MONTHS_SHORT[Number(iso.slice(5, 7)) - 1]}`;
 }
 
 /** The start cards or the list, the steps, the file buttons, and the message after you open a file. */
@@ -1717,7 +1774,7 @@ function goTo(item) {
     }
     revealAndFocus(document.getElementById(DEBTOR_FIELDS[item.field]));
   } else if (item.scope === 'row') {
-    if ((item.field === 'type' || item.field === 'bic') && !state.openMore.has(item.rowId)) {
+    if (['type', 'bic', 'date'].includes(item.field) && !state.openMore.has(item.rowId)) {
       state.openMore.add(item.rowId);
       refreshChecks();
     }
@@ -1857,6 +1914,27 @@ function toggleMore(id) {
   if (open) state.openMore.add(id); else state.openMore.delete(id);
   refreshChecks();
   if (open) rowEls.get(id).querySelector('[data-field="type"]').focus({ preventScroll: true });
+}
+
+/** The date tag on the row: opens the "⋯" panel, and puts the focus on the date. */
+function openDate(id) {
+  if (!state.openMore.has(id)) {
+    state.openMore.add(id);
+    refreshChecks();
+  }
+  rowEls.get(id).querySelector('[data-field="date"]').focus();
+}
+
+/** "Use the date of “Pay from”": the payment has no own date any more. The button goes, so the focus goes to the date. */
+function clearDate(id) {
+  const row = state.rows.find(r => r.id === id);
+  if (!row) return;
+  beginChange();
+  row.date = '';
+  row.sample = false;
+  renderRows();
+  rowEls.get(id).querySelector('[data-field="date"]').focus();
+  announce('The payment now uses the date of “Pay from”.');
 }
 
 function toggleRef() {
@@ -2009,6 +2087,10 @@ function afterFix(target, field) {
     goTo(next);
   } else if (target.scope === 'debtor') {
     revealAndFocus(document.getElementById(DEBTOR_FIELDS[field]));
+  } else if (field === 'date' && !state.openMore.has(target.rowId)) {
+    // The date field is in the closed "⋯" panel. The focus goes to "⋯" of the same payment.
+    const li = rowEls.get(target.rowId);
+    if (li) li.querySelector('.act-more').focus();
   } else {
     focusCell(target.rowId, field === 'type' || field === 'bic' ? 'iban' : field);
   }
@@ -2026,15 +2108,39 @@ function downloadXml(result) {
   const payments = result.filled.map(({ row }) => cleanPayment(row));
   const name = fileName('xml');
   saveFile(buildXml(debtor, payments, batchRef(state.debtor), cyprusNow()), name, 'application/xml');
-  showDone(name, payments.length, result.totalCents, debtor.execDate);
+  showDone(name, payments.length, result.totalCents, dateGroups(payments, debtor.execDate));
 }
 
-/** The window after the download: the values to compare in 1bank, and the upload steps. */
-function showDone(name, count, cents, execDate) {
+/** The payments of each date, in date order: [{ date, count, cents }]. execDate: the date of "Pay from". */
+function dateGroups(payments, execDate) {
+  const groups = new Map();
+  payments.forEach(payment => {
+    const date = payment.date || execDate;
+    const group = groups.get(date) || { date, count: 0, cents: 0 };
+    group.count++;
+    group.cents += payment.cents;
+    groups.set(date, group);
+  });
+  return [...groups.values()].sort((a, b) => (a.date < b.date ? -1 : 1));
+}
+
+/**
+ * The window after the download: the values to compare in 1bank, and the upload steps.
+ * dates: from dateGroups(). With more than one date, a list gives the payments and the total of each date.
+ */
+function showDone(name, count, cents, dates) {
+  const one = dates.length === 1;
   ui.doneName.textContent = name;
   ui.doneCount.textContent = String(count);
   ui.doneTotal.textContent = money(cents);
-  ui.doneDate.textContent = formatDate(execDate);
+  ui.doneDateLabel.textContent = one ? 'Execution date' : 'Execution dates';
+  ui.doneDate.textContent = one ? formatDate(dates[0].date) : `${dates.length} dates`;
+  ui.doneDates.replaceChildren(...(one ? [] : dates.map(group => el('li', '',
+    `${formatDate(group.date)}: ${plural(group.count, 'payment')}, ${money(group.cents)}`))));
+  ui.doneDates.hidden = one;
+  ui.doneNote.textContent = one
+    ? '1bank must show the same three values.'
+    : '1bank must show the same number of payments and the same total.';
   ui.doneStep3.replaceChildren('Make sure that 1bank shows ', el('strong', '', plural(count, 'payment')), ' and ', el('strong', '', money(cents)), '.');
   closeToast();
   ui.done.showModal();
@@ -2448,6 +2554,8 @@ const ROW_ACTIONS = {
   duplicate: duplicateRow,
   delete: deleteRow,
   more: toggleMore,
+  date: openDate,
+  'date-clear': clearDate,
   up: id => moveBy(id, -1),
   down: id => moveBy(id, 1),
 };
@@ -2466,6 +2574,8 @@ function onClick(event) {
   }
   const rowAction = event.target.closest('[data-row-action]');
   if (rowAction && ROW_ACTIONS[rowAction.dataset.rowAction]) {
+    // The date tag is in the label of the description. Without preventDefault, the label puts the focus on the description.
+    event.preventDefault();
     ROW_ACTIONS[rowAction.dataset.rowAction](rowIdOf(rowAction));
   }
 }
@@ -2502,6 +2612,8 @@ function onDebtorInput(event) {
   beginChange();
   state.debtor[field] = event.target.value;
   renderDebtor();
+  // The rows use this date: the duplicate warning, and "Empty: the date of “Pay from”" in the "⋯" panel
+  if (field === 'execDate') refreshChecks();
   renderListChrome();
   renderSummary();
 }
@@ -2512,6 +2624,7 @@ function onDebtorChange(event) {
   state.debtor[field] = field === 'iban' ? normalizeIban(event.target.value) : event.target.value;
   state.touched.add(`debtor.${field}`);
   renderDebtor();
+  if (field === 'execDate') refreshChecks();
   renderSummary();
 }
 
@@ -2773,6 +2886,9 @@ function init() {
     doneCount: byId('done-count'),
     doneTotal: byId('done-total'),
     doneDate: byId('done-date'),
+    doneDateLabel: byId('done-date-label'),
+    doneDates: byId('done-dates'),
+    doneNote: byId('done-note'),
     doneClose: byId('done-close'),
     toast: byId('toast'),
     toastText: byId('toast-text'),

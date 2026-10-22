@@ -150,11 +150,12 @@ async function rowField(page, field) {
 
 /**
  * Types the values into payment n, and leaves each field. Then the page shows
- * the problems of the field. For "type" and "bic", the function opens "⋯".
+ * the problems of the field. For "type", "bic" and "date", the function opens "⋯".
+ * date: 'YYYY-MM-DD', the own execution date of the payment.
  */
 async function fillRow(page, n, values) {
   const li = row(page, n);
-  if (('type' in values || 'bic' in values) && await li.locator('.row-more').isHidden()) {
+  if (['type', 'bic', 'date'].some(field => field in values) && await li.locator('.row-more').isHidden()) {
     await li.locator('.act-more').click();
   }
   for (const [field, value] of Object.entries(values)) {

@@ -9,13 +9,21 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const { test } = require('node:test');
 const h = require('./helpers');
 
 const site = h.useSite();
+const XML = fs.readFileSync(path.join(__dirname, 'golden', 'payments.xml'), 'utf8');
 
 // A correct TBOC payment
 const PAYMENT = { name: 'ANDREAS GEORGIOU', iban: h.IBAN.boc, amount: '2450.00', desc: 'SALARY OCTOBER 2026' };
+
+/** The accessible name of the element with the focus. */
+function focusLabel(page) {
+  return page.evaluate(() => document.activeElement.getAttribute('aria-label'));
+}
 
 test('the page opens with the sample data and an empty "Pay from"', async t => {
   const page = await site.open(t);
@@ -190,6 +198,88 @@ test('the type comes from the IBAN, and you can change it in "⋯"', async t => 
   await h.fillRow(page, 1, { iban: h.IBAN.hellenic });
   assert.equal(await h.text(page, '#payments-meta'), '1 SEPA · 0 TBOC');
   assert.equal(await li.locator('.iban-info').textContent(), 'Valid IBAN. Hellenic Bank · Cyprus · SEPA');
+});
+
+test('a payment can have its own date in "⋯", with a tag on the row and the date in the file', async t => {
+  const page = await site.open(t);
+  await h.openFile(page, 'payments.xml', XML);
+  await page.locator('#opened').waitFor();
+  const li = h.row(page, 2);
+  await li.locator('.act-more').click();
+  assert.equal(await li.locator('.rm-date-words').textContent(), 'Empty: the date of “Pay from”, Monday 19 October 2026.');
+  assert.equal(await li.locator('.rm-date-clear').isHidden(), true);
+
+  await h.fillRow(page, 2, { date: '2026-10-26' });
+  assert.equal(await li.locator('.date-tag').textContent(), '26 OCT');
+  assert.equal(await li.locator('.rm-date-words').textContent(), 'Monday 26 October 2026');
+  assert.equal(await h.text(page, '#debtor-date-words'), 'Monday 19 October 2026. 1 payment has its own date.');
+
+  const file = await h.download(page, () => page.click('#bar-btn'));
+  assert.deepEqual(file.text.match(/<Dt>[\d-]+<\/Dt>/g).map(tag => tag.slice(4, 14)),
+    ['2026-10-19', '2026-10-26', '2026-10-19', '2026-10-19', '2026-10-19', '2026-10-19', '2026-10-19', '2026-10-19']);
+  assert.equal(await h.text(page, '#done-date-label'), 'Execution dates');
+  assert.equal(await h.text(page, '#done-date'), '2 dates');
+  assert.deepEqual(await page.locator('#done-dates li').allTextContents(),
+    ['Mon, 19 Oct 2026: 7 payments, €1,000,008,238.23', 'Mon, 26 Oct 2026: 1 payment, €0.01']);
+  assert.equal(await h.text(page, '#done-note'), '1bank must show the same number of payments and the same total.');
+  await page.click('#done-close');
+
+  // "Use the date of “Pay from”": no own date any more. The button goes, so the focus goes to the date.
+  await li.locator('.rm-date-clear').click();
+  assert.equal(await li.locator('[data-field="date"]').inputValue(), '');
+  assert.equal(await li.locator('.date-tag').isHidden(), true);
+  assert.equal(await h.text(page, '#debtor-date-words'), 'Monday 19 October 2026');
+  assert.equal(await focusLabel(page), 'Execution date, payment 2');
+});
+
+test('a click on the date tag opens "⋯" and goes to the date', async t => {
+  const page = await site.open(t);
+  const li = h.row(page, 3);
+  await h.fillRow(page, 3, { date: '2026-10-30' });
+  await li.locator('.act-more').click();                   // Closes the panel
+  assert.equal(await li.locator('.row-more').isHidden(), true);
+  await li.locator('.date-tag').click();
+  assert.equal(await li.locator('.row-more').isVisible(), true);
+  assert.equal(await focusLabel(page), 'Execution date, payment 3');
+});
+
+test('the duplicate warning needs the same IBAN, the same amount and the same date', async t => {
+  const page = await site.open(t);
+  await h.addPayments(page, [
+    { name: 'OFFICE RENT LTD', iban: h.IBAN.boc, amount: '1500.00', desc: 'RENT OCTOBER' },
+    { name: 'OFFICE RENT LTD', iban: h.IBAN.boc, amount: '1500.00', desc: 'RENT NOVEMBER' },
+  ]);
+  assert.match((await h.rowMessages(page, 2)).join(' '), /the IBAN and the amount are the same as in payment 1/);
+  await h.fillRow(page, 2, { date: '2026-11-02' });
+  assert.deepEqual(await h.rowMessages(page, 1), []);
+  assert.deepEqual(await h.rowMessages(page, 2), []);
+});
+
+test('a past own date is an error. "Download XML" goes to it, and the correction uses "Pay from"', async t => {
+  const page = await site.open(t);
+  await h.addPayments(page, [{ ...PAYMENT, date: '2026-10-15' }]);
+  await h.fillPayFrom(page);
+  assert.deepEqual(await h.rowMessages(page, 1), ['Execution date error: is in the past. [Use the date of “Pay from”]']);
+  await h.row(page, 1).locator('.act-more').click();       // Closes the panel
+  await page.click('#bar-btn');
+  assert.match(await h.text(page, '#bar-status'), /payment 1, date: in the past/);
+  assert.equal(await focusLabel(page), 'Execution date, payment 1', 'The page did not open "⋯" and go to the date.');
+
+  await h.row(page, 1).locator('.fix-btn').click();
+  assert.deepEqual(await h.rowMessages(page, 1), []);
+  assert.equal(await h.row(page, 1).locator('[data-field="date"]').inputValue(), '');
+  assert.equal(await focusLabel(page), 'Execution date, payment 1');
+});
+
+test('"Change all 2 dates" corrects two past own dates, with Undo', async t => {
+  const page = await site.open(t);
+  await h.addPayments(page, [{ ...PAYMENT, date: '2026-10-14' }, { ...PAYMENT, amount: '99.00', date: '2026-10-15' }]);
+  await page.click('.fix-all');
+  assert.equal(await h.text(page, '#toast-text'), '2 dates changed.');
+  const dates = () => page.$$eval('#payments [data-field="date"]', inputs => inputs.map(input => input.value));
+  assert.deepEqual(await dates(), ['', '']);
+  await page.click('#toast-undo');
+  assert.deepEqual(await dates(), ['2026-10-14', '2026-10-15']);
 });
 
 test('"Duplicate" puts a duplicate below the row', async t => {

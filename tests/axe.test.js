@@ -38,6 +38,7 @@ const STATES = [
   ['errors shown', 'desktop', async page => { await page.click('#bar-btn'); }],
   ['start cards', 'desktop', async page => { await h.clearSample(page); }],
   ['"⋯" panel open', 'desktop', async page => { await h.row(page, 1).locator('.act-more').click(); }],
+  ['"⋯" panel with an own date in the past', 'desktop', async page => { await h.fillRow(page, 1, { date: '2026-10-15' }); }],
   ['FAQ open', 'desktop', async page => { await page.click('#faq-toggle'); }],
   ['an old file open', 'desktop', async page => {
     await h.openFile(page, 'old.xml', XML.replaceAll('<Dt>2026-10-19</Dt>', '<Dt>2026-10-01</Dt>'));
@@ -53,8 +54,15 @@ const STATES = [
     await h.download(page, () => page.click('#bar-btn'));
     await page.waitForFunction(() => document.getElementById('done').open);
   }],
+  ['"The file is ready" with two dates', 'desktop', async page => {
+    await h.openFile(page, 'payments.xml', XML.replace(`<Dt>${h.NEXT_BUSINESS_DAY}</Dt>`, '<Dt>2026-10-26</Dt>'));
+    await page.locator('#opened').waitFor();
+    await h.download(page, () => page.click('#bar-btn'));
+    await page.waitForFunction(() => document.getElementById('done').open);
+  }],
   ['sample data', 'phone', async () => {}],
   ['errors shown', 'phone', async page => { await page.click('#bar-btn'); }],
+  ['"⋯" panel with an own date', 'phone', async page => { await h.fillRow(page, 1, { date: '2026-10-24' }); }],
 ];
 
 test('axe-core finds no WCAG 2.2 A or AA issue in the main states of the page', {

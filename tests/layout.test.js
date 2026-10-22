@@ -37,6 +37,15 @@ for (const size of Object.keys(h.SIZES)) {
     await h.fillRow(page, 1, { name: 'W'.repeat(35), desc: 'W'.repeat(140) });
     assert.ok(await extraWidth(page) <= 0, 'with the longest name and description');
 
+    await h.fillRow(page, 1, { date: '2026-10-24' });
+    assert.ok(await extraWidth(page) <= 0, 'with the "⋯" panel and an own date');
+    const tagInField = await h.row(page, 1).evaluate(li => {
+      const tag = li.querySelector('.date-tag').getBoundingClientRect();
+      const field = li.querySelector('[data-field="desc"]').getBoundingClientRect();
+      return tag.width > 0 && tag.left >= field.left && tag.right <= field.right && tag.top >= field.top && tag.bottom <= field.bottom;
+    });
+    assert.ok(tagInField, 'The date tag is not inside the description field.');
+
     await h.paste(page, 'body', `NAME\t${h.IBAN.de}\tCOBADEFFXXX\t3200.00\t${'W'.repeat(140)}\tsepa`);
     await h.dialogBody(page, 'Paste payments');
     const dialog = await page.locator('#dialog').boundingBox();

@@ -378,6 +378,7 @@ input[type="checkbox"] {
 .field-hint, .field-info { margin: 0; font-size: 13px; color: var(--muted); }
 .field-info .ok { color: var(--accent-ink); font-weight: 600; }
 .field-info.is-warning { color: var(--amber-ink); font-weight: 600; }
+.field-info .own-dates { color: var(--muted); font-weight: 400; }
 .field-msg {
   display: flex;
   flex-wrap: wrap;
@@ -540,6 +541,24 @@ input[type="checkbox"] {
 .payment.has-tag .c-iban .input { padding-right: 72px; }
 .payment.has-ok.has-tag .c-iban .input { padding-right: 94px; }
 
+/* In the description cell: the own date of the payment, if it has one. A click opens the "⋯" panel. */
+.desc-wrap { position: relative; display: block; }
+.date-tag {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--on-ink);
+  font: 600 12.5px/1.2 var(--sans);
+  letter-spacing: .04em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.payment.has-date .c-desc .input { padding-right: 80px; }
+
 /* Below the IBAN: bank, country and type. Only while you type in the IBAN. Escape hides it until the next input. */
 .iban-info { display: none; margin: 4px 0 0; font-size: 12.5px; line-height: 1.3; color: var(--muted); }
 .c-iban:focus-within .iban-info:not(:empty) { display: block; }
@@ -583,11 +602,11 @@ input[type="checkbox"] {
 .fix-btn .mono { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
 .fix-all { font-size: 13px; font-weight: 600; }
 
-/* The "⋯" panel: type, BIC and the buttons to move the row */
+/* The "⋯" panel: type, BIC, the date and the buttons to move the row */
 .row-more {
   display: grid;
-  grid-template-columns: 160px 220px minmax(0, 1fr);
-  align-items: end;
+  grid-template-columns: 160px 220px 200px minmax(0, 1fr);
+  align-items: start;
   gap: 10px 16px;
   padding: 12px 14px;
   background: var(--page);
@@ -598,6 +617,10 @@ input[type="checkbox"] {
 .rm-label { font-size: 12.5px; font-weight: 600; color: var(--ink); }
 .rm-hint { margin: 0; font-size: 13px; color: var(--muted); align-self: center; }
 .rm-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; }
+.rm-date { display: grid; gap: 6px; }
+.rm-date-words { margin: 0; font-size: 12.5px; line-height: 1.3; color: var(--muted); }
+.rm-date-words.is-warning { color: var(--amber-ink); font-weight: 600; }
+.rm-date-clear { justify-self: start; }
 
 /* While you drag a row */
 .payment.is-dragging {
@@ -781,7 +804,8 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
   .row-msgs { grid-area: msgs; padding-right: 10px; }
   .row-more { grid-area: more; margin-right: 10px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .rm-hint { grid-column: 1 / -1; }
-  .rm-actions .btn { min-height: 44px; }
+  .rm-actions .btn,
+  .rm-date-clear { min-height: 44px; }
 
   .icon-btn { width: 44px; height: 44px; }
 
@@ -1136,6 +1160,8 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
 .done-nums dt { font-size: 12.5px; font-weight: 600; color: var(--muted); }
 .done-nums dd { margin: 0; font: 600 21px/1.3 var(--mono); color: var(--ink); }
 .done-nums .done-date { font-family: var(--sans); }
+/* A file with more than one date: the payments and the total of each date */
+.done-dates { display: grid; gap: 2px; margin: 8px 0 0; padding: 0 16px; list-style: none; font-size: 14px; color: var(--ink); }
 .done-note { margin: 8px 0 0; font-size: 13.5px; color: var(--muted); }
 .done-sub { margin: 22px 0 6px; font: 700 18px/1.3 var(--sans); letter-spacing: -.01em; color: var(--ink); }
 .guide-sm { margin: 0; padding: 0; list-style: none; border-bottom: 1px solid var(--rule); }

@@ -311,7 +311,7 @@
           </details>
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">SEPA or TBOC: which one?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
-            <div class="faq-a"><p>TBOC is a transfer to a Bank of Cyprus account. SEPA is a euro transfer to a bank in the SEPA zone. The page sets the type from the IBAN. To change it, use the “Type, BIC and more” button (⋯) on the row.</p></div>
+            <div class="faq-a"><p>TBOC is a transfer to a Bank of Cyprus account. SEPA is a euro transfer to a bank in the SEPA zone. The page sets the type from the IBAN. To change it, use the “Type, BIC, date and more” button (⋯) on the row.</p></div>
           </details>
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Which characters can I use?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
@@ -319,7 +319,7 @@
           </details>
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Which execution date can I use?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
-            <div class="faq-a"><p>Today or a later business day. If you open an old file with a past date, the page moves it to the next business day. The bank has cut-off times for each payment type. For the times, see the Bank of Cyprus website or ask your relationship manager.</p></div>
+            <div class="faq-a"><p>Today or a later business day. The date in “Pay from” is for all payments. To give one payment a different date, use the “Type, BIC, date and more” button (⋯) on the row. If you open an old file with a past date, the page moves it to the next business day. The bank has cut-off times for each payment type. For the times, see the Bank of Cyprus website or ask your relationship manager.</p></div>
           </details>
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">How many payments can one file have?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
@@ -327,7 +327,7 @@
           </details>
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">What does the page check?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
-            <div class="faq-a"><p>The same rules as the command-line tool: names, IBANs, BICs, amounts, descriptions and the date. If one check fails, the page does not make the file. The bank name comes from a short list in the page. It does not prove that the account exists.</p></div>
+            <div class="faq-a"><p>The same rules as the command-line tool: names, IBANs, BICs, amounts, descriptions and dates. One difference: the tool has one date for all payments, but here each payment can have its own date. If one check fails, the page does not make the file. The bank name comes from a short list in the page. It does not prove that the account exists.</p></div>
           </details>
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Which CSV format can I open?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
@@ -394,7 +394,11 @@
     </label>
     <label class="c-desc">
       <span class="c-label">Description</span>
-      <input class="input" data-field="desc" type="text" placeholder="What the payment is for" aria-required="true" autocomplete="off" spellcheck="false">
+      <span class="desc-wrap">
+        <input class="input" data-field="desc" type="text" placeholder="What the payment is for" aria-required="true" autocomplete="off" spellcheck="false">
+        <!-- Only if the payment has its own date. Screen readers get the date from the description of "⋯". -->
+        <span class="date-tag" data-row-action="date" aria-hidden="true" hidden></span>
+      </span>
     </label>
     <!-- Row buttons: one Tab stop. The arrow keys move between them. -->
     <div class="c-actions" role="toolbar">
@@ -402,6 +406,7 @@
       <button type="button" class="icon-btn icon-btn-danger act-delete" data-row-action="delete" tabindex="-1"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l.8 12.5h9.4L17.5 7M10 10.5v6M14 10.5v6"/></svg></button>
       <button type="button" class="icon-btn act-more" data-row-action="more" aria-expanded="false" tabindex="0"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/></svg></button>
     </div>
+    <span class="more-desc" hidden></span>
     <ul class="row-msgs"></ul>
     <div class="row-more" hidden>
       <label class="rm-field">
@@ -416,6 +421,14 @@
         <span class="rm-label">Beneficiary BIC</span>
         <input class="input mono caps" data-field="bic" type="text" autocomplete="off" spellcheck="false" autocapitalize="characters">
       </label>
+      <div class="rm-date">
+        <label class="rm-field">
+          <span class="rm-label">Execution date</span>
+          <input class="input" data-field="date" type="date" autocomplete="off">
+        </label>
+        <p class="rm-date-words"></p>
+        <button type="button" class="btn btn-quiet btn-sm rm-date-clear" data-row-action="date-clear" hidden>Use the date of “Pay from”</button>
+      </div>
       <p class="rm-hint">Auto: TBOC for a Bank of Cyprus IBAN, SEPA for all other IBANs. The BIC is optional. TBOC payments do not use it.</p>
       <div class="rm-actions">
         <button type="button" class="btn btn-quiet btn-sm rm-duplicate" data-row-action="duplicate">Duplicate</button>
@@ -429,7 +442,7 @@
 
 <!-- After the download: what to compare in 1bank, and the upload steps -->
 <!-- aria-describedby: screen readers read the file name and the three values with the title -->
-<dialog class="dialog dialog-done" id="done" aria-labelledby="done-title" aria-describedby="done-file done-nums done-note" translate="no">
+<dialog class="dialog dialog-done" id="done" aria-labelledby="done-title" aria-describedby="done-file done-nums done-dates done-note" translate="no">
   <div class="done-head">
     <span class="done-ok" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
     <div>
@@ -440,8 +453,10 @@
   <dl class="done-nums" id="done-nums">
     <div><dt>Payments</dt><dd class="mono" id="done-count"></dd></div>
     <div><dt>Total</dt><dd class="mono" id="done-total"></dd></div>
-    <div><dt>Execution date</dt><dd class="done-date" id="done-date"></dd></div>
+    <div><dt id="done-date-label">Execution date</dt><dd class="done-date" id="done-date"></dd></div>
   </dl>
+  <!-- Only for a file with more than one date: the payments and the total for each date -->
+  <ul class="done-dates" id="done-dates" hidden></ul>
   <p class="done-note" id="done-note">1bank must show the same three values.</p>
   <h3 class="done-sub">Upload the file in 1bank</h3>
   <div id="done-guide"></div>
