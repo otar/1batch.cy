@@ -1973,6 +1973,19 @@ function showDone(name, count, cents, execDate) {
   ui.doneClose.focus();
 }
 
+/**
+ * In "The file is ready", the buttons at the bottom stay on the screen. The scroll padding in
+ * style.css keeps the element with the focus above them. Safari does not always use the scroll
+ * padding. Thus, if the buttons cover the element with the focus, the page scrolls the window.
+ */
+function keepFocusAboveDoneButtons(event) {
+  const actions = ui.done.querySelector('.dialog-actions');
+  if (actions.contains(event.target)) return;
+  const rect = event.target.getBoundingClientRect();
+  const limit = actions.getBoundingClientRect().top - 8;
+  if (rect.bottom > limit) ui.done.scrollTop += Math.min(rect.bottom - limit, rect.top - ui.done.getBoundingClientRect().top);
+}
+
 /** Gives the text to the browser as a file download. The data stays on your device. */
 function saveFile(text, name, type) {
   const url = URL.createObjectURL(new Blob([text], { type: `${type};charset=utf-8` }));
@@ -2720,6 +2733,7 @@ function init() {
     if (!ui.toast.contains(event.target)) lastFocus = event.target;
   });
   document.addEventListener('paste', onPaste);
+  ui.done.addEventListener('focusin', keepFocusAboveDoneButtons);
   ui.debtorBlock.addEventListener('input', onDebtorInput);
   ui.debtorBlock.addEventListener('change', onDebtorChange);
   ui.list.addEventListener('input', onListInput);
