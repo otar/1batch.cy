@@ -38,6 +38,38 @@ test('an XML file with a future date opens with the same date, also on a weekend
   assert.equal(await h.text(page, '#debtor-date-words'), 'Saturday 24 October 2026. Not a business day.');
 });
 
+/** The golden XML file, with the date of some payments changed: { 3: '2026-10-01' } changes payment 3. */
+function withDates(dates) {
+  return XML.split('<PmtInf>').map((block, i) => (dates[i]
+    ? block.replace(`<Dt>${h.NEXT_BUSINESS_DAY}</Dt>`, `<Dt>${dates[i]}</Dt>`)
+    : block)).join('<PmtInf>');
+}
+
+test('an old XML file: a past date of one payment changes to the date of "Pay from"', async t => {
+  const page = await site.open(t);
+  await h.openFile(page, 'one-past.xml', withDates({ 3: '2026-10-01', 4: '2026-02-30' }));
+  await page.locator('#opened').waitFor();
+  assert.equal(await h.text(page, '#opened-text'), 'You opened one-past.xml. 8 payments. '
+    + '1 payment had a past date. It now uses the date of “Pay from”. '
+    + '1 payment had a date that is not valid. It now uses the date of “Pay from”.');
+  assert.equal(await page.inputValue('#debtor-date'), h.NEXT_BUSINESS_DAY);
+  const { text } = await h.download(page, () => page.click('#bar-btn'));
+  assert.equal(text, XML, 'All payments must have the date of "Pay from" again.');
+});
+
+test('an old XML file with two past dates: all payments get the next business day', async t => {
+  const page = await site.open(t);
+  const dates = {};
+  for (let i = 1; i <= 8; i++) dates[i] = i <= 6 ? '2026-10-01' : '2026-10-05';
+  await h.openFile(page, 'september.xml', withDates(dates));
+  await page.locator('#opened').waitFor();
+  assert.equal(await h.text(page, '#opened-text'), 'You opened september.xml. 8 payments. '
+    + 'The date moved from Thu, 1 Oct 2026 to Mon, 19 Oct 2026, the next business day. '
+    + '2 payments had a past date. They now use the date of “Pay from”.');
+  const { text } = await h.download(page, () => page.click('#bar-btn'));
+  assert.equal(text, XML);
+});
+
 test('"New month?" replaces the month in the descriptions, with Undo', async t => {
   const page = await site.open(t);
   const csv = [HEADER,
@@ -119,7 +151,7 @@ test('a file that the page cannot open shows a clear message, and the data stays
       'This is not a pain.001.001.09 payment file. You can open only files from this site or from the boc_payments_xml command-line tool.'],
     ['usd.xml', XML.replace('Ccy="EUR"', 'Ccy="USD"'), CANNOT_OPEN, 'The file has payments in a currency that is not EUR.'],
     ['two-accounts.xml', twoAccounts, CANNOT_OPEN,
-      'The payments in this file use more than one debit account or more than one date. This site makes files with one debit account and one date.'],
+      'The payments in this file use more than one debit account. This site makes files with one debit account.'],
     ['no-payments.xml', noPayments, CANNOT_OPEN, 'The file has no payments.'],
     ['large.csv', Buffer.alloc(5 * 1024 * 1024 + 1, ' '), 'The file is too large',
       'A payment file is much smaller than 5 MB. Make sure that you selected the correct file.'],

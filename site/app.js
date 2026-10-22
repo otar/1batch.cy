@@ -7,6 +7,9 @@
  * The rules and the XML layout are the same as in the command-line tool
  * boc_payments_xml.php (https://github.com/otar/boc_payments_xml). That tool
  * follows the BOC "XML Implementation Guidelines for Multiple Payments" v13.
+ * One difference: in this page, each payment can have its own execution date.
+ * The guide permits this, because each PmtInf block has its own date. The CLI
+ * has one date for all payments.
  *
  * Privacy
  *  - No network. This file does not use fetch, XMLHttpRequest, sendBeacon,
@@ -104,16 +107,21 @@ const BANKS = {
 const FIELDS = ['type', 'name', 'iban', 'bic', 'amount', 'desc'];
 const CSV_HEADER = ['type', 'name', 'iban', 'bic', 'amount', 'description'];
 
-const FIELD_LABELS = { type: 'Type', name: 'Name', iban: 'IBAN', bic: 'BIC', amount: 'Amount', desc: 'Description' };
+const FIELD_LABELS = {
+  type: 'Type', name: 'Name', iban: 'IBAN', bic: 'BIC', amount: 'Amount', desc: 'Description', date: 'Execution date',
+};
 // The names of the fields for screen readers. Each name starts with the visible label, for speech input.
-const FIELD_NAMES = { type: 'Type', name: 'Beneficiary name', iban: 'IBAN', bic: 'Beneficiary BIC', amount: 'Amount, EUR', desc: 'Description' };
+const FIELD_NAMES = {
+  type: 'Type', name: 'Beneficiary name', iban: 'IBAN', bic: 'Beneficiary BIC', amount: 'Amount, EUR', desc: 'Description',
+  date: 'Execution date',
+};
 
 // For "Change all": the plural noun of each field
-const GROUP_NOUNS = { name: 'names', iban: 'IBANs', bic: 'BICs', amount: 'amounts', desc: 'descriptions' };
+const GROUP_NOUNS = { name: 'names', iban: 'IBANs', bic: 'BICs', amount: 'amounts', desc: 'descriptions', date: 'dates' };
 
 // Short field names for the bottom bar: "payment 3, IBAN: check digits"
 const SHORT_LABELS = {
-  row: { type: 'type', name: 'name', iban: 'IBAN', bic: 'BIC', amount: 'amount', desc: 'description' },
+  row: { type: 'type', name: 'name', iban: 'IBAN', bic: 'BIC', amount: 'amount', desc: 'description', date: 'date' },
   debtor: { name: 'company name', iban: 'debit account', execDate: 'date', batchRef: 'file reference' },
 };
 
@@ -547,11 +555,28 @@ function checkPayment(payment) {
   }
 
   checkText(report, 'desc', payment.desc.trim(), DESCRIPTION_MAX);
+
+  // The execution date of this payment. Empty: the date of "Pay from". The same rules as for "Pay from".
+  const date = (payment.date || '').trim();
+  if (date !== '') {
+    const fix = setFix({ date: '' }, 'Use the date of “Pay from”', '', 'payfrom');
+    if (!isValidDate(date)) {
+      report.error('date', 'is not a valid date.', 'not valid', fix);
+    } else if (date < cyprusNow().date) {
+      report.error('date', 'is in the past.', 'in the past', fix);
+    }
+  }
   return report;
 }
 
+/** The execution date of a payment: its own date, or the date of "Pay from". */
+function paymentDate(row) {
+  return (row.date || '').trim() || state.debtor.execDate;
+}
+
 /**
- * Payments with the same IBAN and the same amount. This is often a mistake.
+ * Payments with the same IBAN, the same amount and the same date. This is often a mistake.
+ * Two payments on two dates are normal, for example the rent for two months.
  * Gives a Map: row id → { key, others }. others: the numbers of the other payments.
  * Groups that you marked as correct are not in the Map.
  */
@@ -561,7 +586,7 @@ function findDuplicates() {
     const iban = normalizeIban(row.iban);
     const amount = row.amount.trim();
     if (!iban || !AMOUNT_RE.test(amount)) return;
-    const key = `${iban}|${amountToCents(amount)}`;
+    const key = `${iban}|${amountToCents(amount)}|${paymentDate(row)}`;
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push({ id: row.id, number: index + 1 });
   });
@@ -691,7 +716,8 @@ function escapeXml(text) {
 
 /**
  * debtor:   { name, iban, bic, execDate }, checked and clean
- * payments: [{ type: 'sepa'|'tboc', name, iban, bic, cents, desc }]
+ * payments: [{ type: 'sepa'|'tboc', name, iban, bic, cents, desc, date }]
+ *           date: the own date of the payment, or '' for the date of the debtor
  * ref:      batch reference
  * now:      { date, time } in Cyprus time
  */
@@ -734,7 +760,7 @@ function buildXml(debtor, payments, ref, now) {
     leaf('PmtInfId', `PMT-${stamp}-${rowNo}`);
     leaf('PmtMtd', 'TRF');
     wrap('PmtTpInf/SvcLvl', () => leaf('Cd', isSepa ? 'SEPA' : 'TBOC'));
-    wrap('ReqdExctnDt', () => leaf('Dt', debtor.execDate));
+    wrap('ReqdExctnDt', () => leaf('Dt', payment.date || debtor.execDate));
     wrap('Dbtr', () => leaf('Nm', debtor.name));
     wrap('DbtrAcct/Id', () => leaf('IBAN', debtor.iban));
     wrap('DbtrAgt/FinInstnId', () => leaf('BICFI', debtor.bic));
@@ -769,6 +795,7 @@ function cleanPayment(row) {
     bic: normalizeBic(row.bic),
     cents: amountToCents(row.amount.trim()),
     desc: row.desc.trim(),
+    date: (row.date || '').trim(),
   };
 }
 
@@ -802,14 +829,14 @@ function readXml(text) {
       name: value(block, 'Dbtr/Nm'),
       iban: normalizeIban(value(block, 'DbtrAcct/Id/IBAN')),
       bic: normalizeBic(value(block, 'DbtrAgt/FinInstnId/BICFI')),
-      execDate: value(block, 'ReqdExctnDt/Dt'),
     };
     if (!debtor) {
       debtor = blockDebtor;
     } else if (JSON.stringify(blockDebtor) !== JSON.stringify(debtor)) {
-      throw new Error('The payments in this file use more than one debit account or more than one date. This site makes files with one debit account and one date.');
+      throw new Error('The payments in this file use more than one debit account. This site makes files with one debit account.');
     }
 
+    const date = value(block, 'ReqdExctnDt/Dt');
     const code = value(block, 'PmtTpInf/SvcLvl/Cd').toLowerCase();
     for (const tx of children(block, 'CdtTrfTxInf')) {
       const amount = find(tx, 'Amt/InstdAmt');
@@ -824,6 +851,7 @@ function readXml(text) {
         bic: normalizeBic(value(tx, 'CdtrAgt/FinInstnId/BICFI')),
         amount: amount ? amount.textContent.trim() : '',
         desc: value(tx, 'RmtInf/Strd/AddtlRmtInf'),
+        date,
       });
     }
   }
@@ -831,7 +859,21 @@ function readXml(text) {
 
   // MsgId is "MSG-YYYYMMDD-HHMMSS-<batch reference>"
   const stamp = /^MSG-\d{8}-\d{6}-(.+)$/.exec(value(initiation, 'GrpHdr/MsgId'));
-  return { debtor: { ...debtor, batchRef: stamp ? stamp[1] : '' }, payments };
+  // The date of most payments becomes the date of "Pay from". payment.date stays the date in the file.
+  const execDate = mostCommon(payments.map(payment => payment.date));
+  return { debtor: { ...debtor, execDate, batchRef: stamp ? stamp[1] : '' }, payments };
+}
+
+/** The value that most items have. With two values that have the same count: the smaller one, thus the earlier date. */
+function mostCommon(values) {
+  const counts = new Map();
+  values.forEach(value => counts.set(value, (counts.get(value) || 0) + 1));
+  let best = null;
+  for (const [value, count] of counts) {
+    const bestCount = best === null ? 0 : counts.get(best);
+    if (count > bestCount || (count === bestCount && value < best)) best = value;
+  }
+  return best;
 }
 
 /**
@@ -984,12 +1026,13 @@ function detectColumns(lines, known = []) {
 
 const state = {
   debtor: null,             // { name, iban, bic, execDate, batchRef }. bic: from an opened file, else empty.
-  rows: [],                 // [{ id, type: 'auto'|'sepa'|'tboc', name, iban, bic, amount, desc }]
+  rows: [],                 // [{ id, type: 'auto'|'sepa'|'tboc', name, iban, bic, amount, desc, date }]
+                            // date: the own execution date of the payment, or '' for the date of "Pay from"
   touched: new Set(),       // fields that you completed one or more times: "debtor.iban", "12.amount"
   showAll: false,           // after a click on "Download XML" with problems: show all problems
   openMore: new Set(),      // ids of the rows with the "⋯" panel open
   refOpen: false,           // the field for the file reference is open
-  dupOk: new Set(),         // duplicate groups that you marked as correct: "IBAN|cents"
+  dupOk: new Set(),         // duplicate groups that you marked as correct: "IBAN|cents|date"
   opened: null,             // after you open a file: { name, count, note, monthFrom, monthTo, monthOffer }
   randomRef: randomRef(BATCH_REF_LEN),
   errorKey: '',             // the problem that the page showed last
@@ -1004,7 +1047,7 @@ let nextRowId = 1;
 
 function newPayment(values) {
   // sample: a sample payment that you did not change
-  return { id: nextRowId++, type: 'auto', name: '', iban: '', bic: '', amount: '', desc: '', sample: false, ...values };
+  return { id: nextRowId++, type: 'auto', name: '', iban: '', bic: '', amount: '', desc: '', date: '', sample: false, ...values };
 }
 
 function emptyDebtor() {
@@ -1761,8 +1804,8 @@ function duplicateRow(id) {
   const index = state.rows.findIndex(row => row.id === id);
   if (index < 0) return;
   beginChange();
-  const { type, name, iban, bic, amount, desc } = state.rows[index];
-  const copy = newPayment({ type, name, iban, bic, amount, desc });
+  const { type, name, iban, bic, amount, desc, date } = state.rows[index];
+  const copy = newPayment({ type, name, iban, bic, amount, desc, date });
   state.rows.splice(index + 1, 0, copy);
   FIELDS.forEach(field => {
     if (state.touched.has(`${id}.${field}`)) state.touched.add(`${copy.id}.${field}`);
@@ -2124,16 +2167,38 @@ async function loadXml(text, name) {
   const copy = hasUserData() ? snapshot() : null;
 
   const today = cyprusNow().date;
-  let execDate = data.debtor.execDate;
-  let note = '';
+  const fileDate = data.debtor.execDate;
+  let execDate = fileDate;
+  const notes = [];
   if (!isValidDate(execDate)) {
     execDate = nextBusinessDay(today);
-    note = `The file had no valid date. The page uses ${formatDate(execDate)}, the next business day.`;
+    notes.push(`The file had no valid date. The page uses ${formatDate(execDate)}, the next business day.`);
   } else if (execDate < today) {
     const moved = nextBusinessDay(today);
-    note = `The date moved from ${formatDate(execDate)} to ${formatDate(moved)}, the next business day.`;
+    notes.push(`The date moved from ${formatDate(execDate)} to ${formatDate(moved)}, the next business day.`);
     execDate = moved;
   }
+
+  // A payment with a different date keeps it as its own date. The bank does not accept a past date.
+  // Thus the page removes a past own date, and the payment uses the date of "Pay from".
+  let past = 0;
+  let notValid = 0;
+  const payments = data.payments.map(({ date, ...payment }) => {
+    let own = date === fileDate || date === execDate ? '' : date;
+    if (own && !isValidDate(own)) {
+      notValid++;
+      own = '';
+    } else if (own && own < today) {
+      past++;
+      own = '';
+    }
+    return { ...payment, date: own };
+  });
+  const changed = (count, what) => (count === 1
+    ? `1 payment had ${what}. It now uses the date of “Pay from”.`
+    : `${count} payments had ${what}. They now use the date of “Pay from”.`);
+  if (past) notes.push(changed(past, 'a past date'));
+  if (notValid) notes.push(changed(notValid, 'a date that is not valid'));
 
   resetView();
   state.debtor = {
@@ -2143,11 +2208,11 @@ async function loadXml(text, name) {
     execDate,
     batchRef: data.debtor.batchRef,
   };
-  state.rows = data.payments.map(payment => newPayment(payment));
+  state.rows = payments.map(payment => newPayment(payment));
   state.dupOk = new Set();
   touchDebtor();
   state.rows.forEach(touchRow);
-  showOpened(name, note);
+  showOpened(name, notes.join(' '));
   renderAll();
   showFileOpened();
   if (copy) toast('The file replaced the data on the page.', copy, { selector: '.top-actions [data-action="open"]' });

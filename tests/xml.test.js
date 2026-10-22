@@ -74,6 +74,23 @@ test('an XML file from the page opens, and downloads again with the same bytes',
   assert.equal(file.text, xml.toString('utf8'));
 });
 
+test('an XML file with two dates opens, and downloads again with the same bytes', async t => {
+  const page = await site.open(t);
+  const xml = fs.readFileSync(path.join(GOLDEN, 'payments.xml'), 'utf8');
+  // Payments 2 and 5 on Monday 26 October. The other 6 payments stay on Monday 19 October.
+  const twoDates = xml.split('<PmtInf>').map((block, i) => ([2, 5].includes(i)
+    ? block.replace(`<Dt>${h.NEXT_BUSINESS_DAY}</Dt>`, '<Dt>2026-10-26</Dt>')
+    : block)).join('<PmtInf>');
+  assert.equal(twoDates.match(/<Dt>2026-10-26<\/Dt>/g).length, 2);
+  await h.openFile(page, 'two-dates.xml', twoDates);
+  await page.locator('#opened').waitFor();
+  assert.equal(await h.text(page, '#opened-text'), 'You opened two-dates.xml. 8 payments.');
+  assert.equal(await page.inputValue('#debtor-date'), h.NEXT_BUSINESS_DAY, 'The date of most payments goes into "Pay from".');
+
+  const file = await h.download(page, () => page.click('#bar-btn'));
+  assert.equal(file.text, twoDates);
+});
+
 test('Export CSV is the same as tests/golden/payments-export.csv', async t => {
   const page = await site.open(t);
   await openInput(page);

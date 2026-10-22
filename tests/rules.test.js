@@ -100,6 +100,12 @@ const PAYMENT_CASES = [
   ['a description with curly quotes', { desc: '“QUOTE”' },
     ["desc: the bank does not accept ““” and “””. [Change to 'QUOTE']"], []],
   ['a description with 141 characters', { desc: 'D'.repeat(141) }, ['desc: has 141 characters. The maximum is 140.'], []],
+
+  ['an own date in the future', { date: '2026-10-26' }, [], []],
+  ['an own date today', { date: h.TODAY }, [], []],
+  ['an own date on a Saturday: only a note, as for "Pay from"', { date: '2026-10-24' }, [], []],
+  ['an own date in the past', { date: '2026-10-15' }, ['date: is in the past. [Use the date of “Pay from”]'], []],
+  ['an own date that does not exist', { date: '2026-02-30' }, ['date: is not a valid date. [Use the date of “Pay from”]'], []],
 ];
 
 // [what the case tests, the changed values, the number of payments, the expected errors]
@@ -150,6 +156,8 @@ const HELPER_CASES = [
   ['nextBusinessDay', ['2026-10-17'], '2026-10-19'],
   ['nextBusinessDay', ['2026-10-19'], '2026-10-20'],
   ['nextBusinessDay', ['2026-12-31'], '2027-01-01'],
+  ['mostCommon', [['2026-10-19', '2026-10-26', '2026-10-19']], '2026-10-19'],
+  ['mostCommon', [['2026-10-26', '2026-10-19']], '2026-10-19'],
   ['detectType', [h.IBAN.boc], 'tboc'],
   ['detectType', ['cy21 0020 0195 0000 3570 0123 4567'], 'tboc'],
   ['detectType', [h.IBAN.hellenic], 'sepa'],
