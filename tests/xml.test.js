@@ -10,6 +10,8 @@
  *                         the minimum and maximum amounts and lengths
  *   payments.xml          the correct "Download XML" output for this input
  *   payments-export.csv   the correct "Export CSV" output for this input
+ *   payments-dates-export.csv   the "Export CSV" output when payments 2 and 5
+ *                         have their own date: a 7th column "date"
  *
  * If you change the XML or CSV layout on purpose, make the files again:
  *   UPDATE_GOLDEN=1 node --test tests/xml.test.js
@@ -74,21 +76,40 @@ test('an XML file from the page opens, and downloads again with the same bytes',
   assert.equal(file.text, xml.toString('utf8'));
 });
 
-test('an XML file with two dates opens, and downloads again with the same bytes', async t => {
-  const page = await site.open(t);
+/** tests/golden/payments.xml with payments 2 and 5 on Monday 26 October. The other 6 payments stay on Monday 19 October. */
+function twoDatesXml() {
   const xml = fs.readFileSync(path.join(GOLDEN, 'payments.xml'), 'utf8');
-  // Payments 2 and 5 on Monday 26 October. The other 6 payments stay on Monday 19 October.
-  const twoDates = xml.split('<PmtInf>').map((block, i) => ([2, 5].includes(i)
+  const result = xml.split('<PmtInf>').map((block, i) => ([2, 5].includes(i)
     ? block.replace(`<Dt>${h.NEXT_BUSINESS_DAY}</Dt>`, '<Dt>2026-10-26</Dt>')
     : block)).join('<PmtInf>');
-  assert.equal(twoDates.match(/<Dt>2026-10-26<\/Dt>/g).length, 2);
-  await h.openFile(page, 'two-dates.xml', twoDates);
+  assert.equal(result.match(/<Dt>2026-10-26<\/Dt>/g).length, 2);
+  return result;
+}
+
+test('an XML file with two dates opens, and downloads again with the same bytes', async t => {
+  const page = await site.open(t);
+  await h.openFile(page, 'two-dates.xml', twoDatesXml());
   await page.locator('#opened').waitFor();
   assert.equal(await h.text(page, '#opened-text'), 'You opened two-dates.xml. 8 payments.');
   assert.equal(await page.inputValue('#debtor-date'), h.NEXT_BUSINESS_DAY, 'The date of most payments goes into "Pay from".');
 
   const file = await h.download(page, () => page.click('#bar-btn'));
-  assert.equal(file.text, twoDates);
+  assert.equal(file.text, twoDatesXml());
+});
+
+test('with own dates, Export CSV adds a 7th column: tests/golden/payments-dates-export.csv', async t => {
+  const page = await site.open(t);
+  await h.openFile(page, 'two-dates.xml', twoDatesXml());
+  await page.locator('#opened').waitFor();
+  const file = await h.download(page, () => page.click('[data-action="export-csv"]'));
+  assertGolden('payments-dates-export.csv', file.text);
+  assert.match(await h.text(page, '#toast-text'), /It has a 7th column with the own dates\. The command-line tool cannot read this file\./);
+
+  // The CSV file opens again with the same own dates. "Pay from" stays from the XML file.
+  await h.openFile(page, 'payments-dates-export.csv', file.text);
+  await page.locator('#opened').waitFor();
+  const xml = await h.download(page, () => page.click('#bar-btn'));
+  assert.equal(xml.text, twoDatesXml());
 });
 
 test('Export CSV is the same as tests/golden/payments-export.csv', async t => {

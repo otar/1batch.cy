@@ -107,6 +107,8 @@ const BANKS = {
 // "date" is the own execution date of a payment. Empty: the date of "Pay from".
 const FIELDS = ['type', 'name', 'iban', 'bic', 'amount', 'desc', 'date'];
 const CSV_HEADER = ['type', 'name', 'iban', 'bic', 'amount', 'description'];
+// A CSV file from this page with own dates has a 7th column. The command-line tool cannot read it.
+const CSV_HEADER_DATES = [...CSV_HEADER, 'date'];
 
 const FIELD_LABELS = {
   type: 'Type', name: 'Name', iban: 'IBAN', bic: 'BIC', amount: 'Amount', desc: 'Description', date: 'Execution date',
@@ -929,39 +931,51 @@ function parseDelimited(text, delimiter) {
   return rows;
 }
 
-/** Reads a CSV in the CLI format. The header is "type,name,iban,bic,amount,description". */
+/**
+ * Reads a CSV in the CLI format. The header is "type,name,iban,bic,amount,description".
+ * A file from this page can have a 7th column "date": the own date of a payment, or empty.
+ */
 function readCsv(text) {
   const lines = parseDelimited(text, ',');
   const header = (lines[0] || []).map(cell => cell.trim().toLowerCase());
   if (!lines.length || header.every(cell => cell === '')) throw new Error('The file is empty.');
-  if (header.join(',') !== CSV_HEADER.join(',')) {
-    throw new Error(`The first line must be “${CSV_HEADER.join(',')}”. This is the format of the command-line tool.`);
+  const known = [CSV_HEADER, CSV_HEADER_DATES].find(list => header.join(',') === list.join(','));
+  if (!known) {
+    throw new Error(`The first line must be “${CSV_HEADER.join(',')}”. This is the format of the command-line tool. `
+      + 'A file from this page can also have a 7th column “date”.');
   }
+  const width = known.length;
 
   const payments = [];
   const notes = [];
   lines.slice(1).forEach((cells, i) => {
     const line = i + 2;
     if (cells.every(cell => cell.trim() === '')) return;   // empty line
-    if (cells.length !== CSV_HEADER.length) {
-      notes.push(`Line ${line}: the line must have 6 columns, but it has ${cells.length}. The page did not load this line.`);
+    if (cells.length !== width) {
+      notes.push(`Line ${line}: the line must have ${width} columns, but it has ${cells.length}. The page did not load this line.`);
       return;
     }
-    const [type, name, iban, bic, amount, desc] = cells.map(cell => cell.trim());
-    const payment = { name, iban: normalizeIban(iban), bic: normalizeBic(bic), amount, desc };
+    const [type, name, iban, bic, amount, desc, date = ''] = cells.map(cell => cell.trim());
+    const payment = { name, iban: normalizeIban(iban), bic: normalizeBic(bic), amount, desc, date };
     payment.type = typeFromText(type, payment.iban, notes, `Line ${line}`);
+    if (date && !isValidDate(date)) {
+      notes.push(`Line ${line}: the date “${date}” is not a valid date in the format YYYY-MM-DD. The payment uses the date of “Pay from”.`);
+      payment.date = '';
+    }
     payments.push(payment);
   });
   return { payments, notes };
 }
 
+/** The CLI format. If a payment has its own date, a 7th column "date" (empty for the date of "Pay from"). */
 function buildCsv(rows) {
   const quote = value => (/[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value);
-  const lines = [CSV_HEADER.join(',')];
+  const dates = rows.some(row => row.date);
+  const lines = [(dates ? CSV_HEADER_DATES : CSV_HEADER).join(',')];
   for (const row of rows) {
-    lines.push([
-      resolvedType(row), row.name.trim(), normalizeIban(row.iban), normalizeBic(row.bic), row.amount.trim(), row.desc.trim(),
-    ].map(quote).join(','));
+    const cells = [resolvedType(row), row.name.trim(), normalizeIban(row.iban), normalizeBic(row.bic), row.amount.trim(), row.desc.trim()];
+    if (dates) cells.push(row.date);
+    lines.push(cells.map(quote).join(','));
   }
   return lines.join('\r\n') + '\r\n';
 }
@@ -974,7 +988,13 @@ const HEADER_WORDS = {
   bic: 'bic', swift: 'bic', 'bic/swift': 'bic',
   amount: 'amount', 'amount, eur': 'amount', 'amount (eur)': 'amount', 'amount eur': 'amount',
   description: 'desc', desc: 'desc', details: 'desc', reference: 'desc',
+  date: 'date', 'execution date': 'date', 'payment date': 'date',
 };
+
+// The bank needs dates as YYYY-MM-DD. The page also finds other forms of a date, for example
+// 26/10/2026, but it does not change them: a day and a month in the wrong order is a wrong payment.
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const DATE_LIKE_RE = /^(\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[./-]\d{1,2}[./-]\d{2,4})$/;
 
 /** If the first pasted row is a header, this gives the field of each column. Unknown words give null. */
 function headerColumns(cells) {
@@ -985,8 +1005,9 @@ function headerColumns(cells) {
 /**
  * Smart paste: finds the field of each column from the values.
  * known: the fields from a header row. The page tests only the other columns.
- * IBAN, amount, type and BIC have a clear shape. The first column with
+ * IBAN, date, amount, type and BIC have a clear shape. The first column with
  * other text is the name. The second column with other text is the description.
+ * The date comes before the amount, because 26.10.2026 has the shape of an amount too.
  */
 function detectColumns(lines, known = []) {
   const width = Math.max(...lines.map(cells => cells.length));
@@ -994,6 +1015,7 @@ function detectColumns(lines, known = []) {
   const used = new Set(columns.filter(Boolean));
   const tests = {
     iban: v => /^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(normalizeIban(v)),
+    date: v => DATE_LIKE_RE.test(v),
     amount: v => /^[€\s]*\d[\d\s.,']*$/.test(v),
     type: v => ['sepa', 'tboc', 'auto'].includes(v.toLowerCase()),
     bic: v => BIC_RE.test(v.toUpperCase()) && Boolean(SEPA_IBAN_LEN[v.toUpperCase().slice(4, 6)]),
@@ -1965,7 +1987,10 @@ function exportCsv() {
     return;
   }
   saveFile(buildCsv(rows), fileName('csv'), 'text/csv');
-  toast(`CSV file saved with ${plural(rows.length, 'payment')}. It does not include the “Pay from” data. Keep the file safe.`);
+  const dates = rows.some(row => row.date)
+    ? ' It has a 7th column with the own dates. The command-line tool cannot read this file.'
+    : '';
+  toast(`CSV file saved with ${plural(rows.length, 'payment')}. It does not include the “Pay from” data.${dates} Keep the file safe.`);
 }
 
 /* ---------- Download and problems ---------- */
@@ -2260,6 +2285,36 @@ async function loadFile(file) {
   else await loadCsv(text, file.name);
 }
 
+/**
+ * The own dates in an old file. The bank does not accept a past date. Thus the page removes
+ * a past own date, and the payment uses the date of "Pay from". The same for a date that is
+ * not valid. An own date that is the date of "Pay from" is not an own date.
+ * payFrom: the date of "Pay from". Gives { payments, notes }.
+ */
+function removeOldDates(payments, payFrom) {
+  const today = cyprusNow().date;
+  let past = 0;
+  let notValid = 0;
+  const result = payments.map(payment => {
+    let date = payment.date === payFrom ? '' : payment.date;
+    if (date && !isValidDate(date)) {
+      notValid++;
+      date = '';
+    } else if (date && date < today) {
+      past++;
+      date = '';
+    }
+    return { ...payment, date };
+  });
+  const sentence = (count, what) => (count === 1
+    ? `1 payment had ${what}. It now uses the date of “Pay from”.`
+    : `${count} payments had ${what}. They now use the date of “Pay from”.`);
+  const notes = [];
+  if (past) notes.push(sentence(past, 'a past date'));
+  if (notValid) notes.push(sentence(notValid, 'a date that is not valid'));
+  return { payments: result, notes };
+}
+
 /** Loads the file as it is. Only a past date moves, because the bank does not accept it. */
 async function loadXml(text, name) {
   let data;
@@ -2285,26 +2340,10 @@ async function loadXml(text, name) {
     execDate = moved;
   }
 
-  // A payment with a different date keeps it as its own date. The bank does not accept a past date.
-  // Thus the page removes a past own date, and the payment uses the date of "Pay from".
-  let past = 0;
-  let notValid = 0;
-  const payments = data.payments.map(({ date, ...payment }) => {
-    let own = date === fileDate || date === execDate ? '' : date;
-    if (own && !isValidDate(own)) {
-      notValid++;
-      own = '';
-    } else if (own && own < today) {
-      past++;
-      own = '';
-    }
-    return { ...payment, date: own };
-  });
-  const changed = (count, what) => (count === 1
-    ? `1 payment had ${what}. It now uses the date of “Pay from”.`
-    : `${count} payments had ${what}. They now use the date of “Pay from”.`);
-  if (past) notes.push(changed(past, 'a past date'));
-  if (notValid) notes.push(changed(notValid, 'a date that is not valid'));
+  // A payment with a different date keeps it as its own date
+  const own = data.payments.map(payment => ({ ...payment, date: payment.date === fileDate ? '' : payment.date }));
+  const { payments, notes: dateNotes } = removeOldDates(own, execDate);
+  notes.push(...dateNotes);
 
   resetView();
   state.debtor = {
@@ -2344,12 +2383,13 @@ async function loadCsv(text, name) {
   const hadDebtor = state.debtor.name.trim() !== '' || state.debtor.iban.trim() !== '';
   resetView();
   keptTouched.forEach(key => state.touched.add(key));
-  state.rows = data.payments.map(payment => newPayment(payment));
+  const { payments, notes: dateNotes } = removeOldDates(data.payments, state.debtor.execDate);
+  state.rows = payments.map(payment => newPayment(payment));
   state.dupOk = new Set();
   state.rows.forEach(touchRow);
-  showOpened(name, hadDebtor
+  showOpened(name, [hadDebtor
     ? 'A CSV file has no “Pay from” data. The “Pay from” fields did not change.'
-    : 'A CSV file has no “Pay from” data. Fill in “Pay from” above.');
+    : 'A CSV file has no “Pay from” data. Fill in “Pay from” above.', ...dateNotes].join(' '));
   renderAll();
   showFileOpened();
 
@@ -2394,7 +2434,14 @@ function onPaste(event) {
   smartPaste(text);
 }
 
-const PASTE_FIELDS = ['name', 'iban', 'amount', 'desc', 'bic', 'type'];
+const PASTE_FIELDS = ['name', 'iban', 'amount', 'desc', 'bic', 'type', 'date'];
+
+/** A pasted date: '' for no own date, or 'YYYY-MM-DD'. null if the date has a different form. */
+function pastedDate(value) {
+  const date = value.trim();
+  if (date === '') return '';
+  return ISO_DATE_RE.test(date) && isValidDate(date) ? date : null;
+}
 
 /** Finds the columns, shows a preview, then adds the rows. */
 async function smartPaste(text) {
@@ -2417,6 +2464,7 @@ async function smartPaste(text) {
   while (index > 0 && isEmptyPayment(state.rows[index - 1])) index--;
 
   const notes = [];
+  const otherDates = [];                                   // dates that are not YYYY-MM-DD
   lines.forEach((cells, offset) => {
     let row = state.rows[index + offset];
     if (!row) {
@@ -2432,16 +2480,29 @@ async function smartPaste(text) {
       else if (field === 'iban') row.iban = normalizeIban(value);
       else if (field === 'bic') row.bic = normalizeBic(value);
       else if (field === 'amount') row.amount = (picked.fixAmounts && !AMOUNT_RE.test(clean) && suggestAmount(clean)) || clean;
-      else row[field] = clean;
+      else if (field === 'date') {
+        const date = pastedDate(value);
+        if (date === null) otherDates.push(clean);
+        // The date of "Pay from" is not an own date
+        row.date = date && date !== state.debtor.execDate ? date : '';
+      } else row[field] = clean;
     });
     if (typeText !== null) row.type = typeFromText(typeText, row.iban, notes, `Payment ${index + offset + 1}`);
     touchRow(row);
   });
+  if (otherDates.length) notes.push(otherDatesNote(otherDates));
 
   renderRows();
   const first = state.rows[index];
   if (first) focusCell(first.id, 'name');
   toast(`${plural(lines.length, 'payment')} added.${notes.length ? ` ${notes.join(' ')}` : ''}`, copy);
+}
+
+/** "2 dates are not in the format YYYY-MM-DD, for example “26/10/2026”. These payments use the date of “Pay from”." */
+function otherDatesNote(dates) {
+  const one = dates.length === 1;
+  return `${plural(dates.length, 'date')} ${one ? 'is' : 'are'} not in the format YYYY-MM-DD, for example “${dates[0]}”. `
+    + `${one ? 'This payment uses' : 'These payments use'} the date of “Pay from”.`;
 }
 
 /** The preview dialog. You can change the field of each column. Gives { fields, fixAmounts }, or null. */
@@ -2478,6 +2539,10 @@ async function pastePreview(lines, columns) {
   const fixText = el('span');
   fixBox.append(fixCheck, fixText);
 
+  // Dates in a different form: the page does not change them. The note tells you what to do.
+  const dateNote = el('p', 'preview-note');
+  dateNote.setAttribute('role', 'status');
+
   // A field can be in one column only
   const refresh = () => {
     selects.forEach((select, c) => {
@@ -2492,6 +2557,14 @@ async function pastePreview(lines, columns) {
     if (fixable.length) {
       fixText.textContent = `Correct ${plural(fixable.length, 'amount')}: “${fixable[0]}” becomes “${suggestAmount(fixable[0])}”. The bank needs a dot for decimals and no thousands separator.`;
     }
+    const dateColumn = selects.findIndex(select => select.value === 'date');
+    const others = dateColumn < 0 ? [] : lines
+      .map(cells => (cells[dateColumn] || '').trim())
+      .filter(value => pastedDate(value) === null);
+    dateNote.hidden = others.length === 0;
+    dateNote.textContent = others.length
+      ? `${otherDatesNote(others)} To keep the dates, format the column as yyyy-mm-dd in the spreadsheet. Then paste again.`
+      : '';
   };
   selects.forEach(select => select.addEventListener('change', () => {
     if (select.value) selects.forEach(other => { if (other !== select && other.value === select.value) other.value = ''; });
@@ -2501,7 +2574,7 @@ async function pastePreview(lines, columns) {
 
   const wrap = el('div', 'preview-wrap');
   wrap.append(table);
-  const parts = [`The page found ${plural(lines.length, 'row')}. Make sure that the field above each column is correct.`, wrap, fixBox];
+  const parts = [`The page found ${plural(lines.length, 'row')}. Make sure that the field above each column is correct.`, wrap, fixBox, dateNote];
   if (lines.length > 6) parts.push(el('p', 'preview-more', `The preview shows 6 rows. The page adds all ${lines.length}.`));
 
   const answer = await ask({

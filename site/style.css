@@ -1202,6 +1202,7 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
 .preview td { max-width: 260px; padding: 6px 8px; overflow: hidden; border-top: 1px solid var(--rule); white-space: nowrap; text-overflow: ellipsis; }
 .preview td.is-skip { color: var(--muted); }
 .preview-more { font-size: 13px; color: var(--muted); }
+.preview-note { font-size: 13.5px; font-weight: 600; color: var(--amber-ink); }
 .preview-fix {
   display: flex;
   align-items: flex-start;

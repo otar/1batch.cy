@@ -134,6 +134,51 @@ test('a CSV file with bad lines opens the good lines, and lists the bad lines', 
   assert.deepEqual(await h.rowField(page, 'name'), ['ANDREAS GEORGIOU', 'MICHALIS IOANNOU']);
 });
 
+test('a CSV file with a date column: own dates, a past date, a date in a different form', async t => {
+  const page = await site.open(t);
+  await h.fillPayFrom(page);
+  const csv = [`${HEADER},date`,
+    `,ANDREAS GEORGIOU,${h.IBAN.boc},,2450.00,SALARY,2026-10-26`,
+    `,ELENI CHRISTOU,${h.IBAN.boc},,2180.00,SALARY,`,
+    `,MICHALIS IOANNOU,${h.IBAN.boc},,1960.50,SALARY,2026-10-01`,
+    `,LIMASSOL OFFICE RENT LTD,${h.IBAN.hellenic},,1500.00,RENT,26/10/2026`,
+    `,SIX COLUMNS LTD,${h.IBAN.boc},,10.00,TEXT`].join('\n');
+  await h.openFile(page, 'dates.csv', csv);
+  assert.equal(await h.dialogBody(page, '4 payments loaded'), 'Look at these lines:\n\n'
+    + 'Line 5: the date “26/10/2026” is not a valid date in the format YYYY-MM-DD. The payment uses the date of “Pay from”.\n'
+    + 'Line 6: the line must have 7 columns, but it has 6. The page did not load this line.');
+  await h.dialogButton(page, 'OK');
+  assert.equal(await h.text(page, '#opened-text'), 'You opened dates.csv. 4 payments. '
+    + 'A CSV file has no “Pay from” data. The “Pay from” fields did not change. '
+    + '1 payment had a past date. It now uses the date of “Pay from”.');
+  assert.deepEqual(await page.$$eval('#payments [data-field="date"]', inputs => inputs.map(input => input.value)),
+    ['2026-10-26', '', '', '']);
+});
+
+test('smart paste: the page finds a column of dates, and does not change a date in a different form', async t => {
+  const page = await site.open(t);
+  await h.fillPayFrom(page);
+  await h.paste(page, 'body', [
+    `ANDREAS GEORGIOU\t${h.IBAN.boc}\t2450.00\tSALARY\t2026-10-26`,
+    `ELENI CHRISTOU\t${h.IBAN.boc}\t2180.00\tSALARY\t${h.NEXT_BUSINESS_DAY}`].join('\n'));
+  await h.dialogBody(page, 'Paste payments');
+  assert.deepEqual(await page.$$eval('#dialog select', selects => selects.map(select => select.value)),
+    ['name', 'iban', 'amount', 'desc', 'date']);
+  await h.dialogButton(page, 'Add 2 payments');
+  const dates = () => page.$$eval('#payments [data-field="date"]', inputs => inputs.map(input => input.value));
+  assert.deepEqual(await dates(), ['2026-10-26', ''], 'The date of "Pay from" is not an own date.');
+
+  await h.paste(page, 'body', [
+    `MICHALIS IOANNOU\t${h.IBAN.boc}\t1960.50\tSALARY\t26/10/2026`,
+    `DE VRIES B.V.\t${h.IBAN.nl}\t875.25\tINVOICE\t27.10.2026`].join('\n'));
+  const body = await h.dialogBody(page, 'Paste payments');
+  assert.match(body, /2 dates are not in the format YYYY-MM-DD, for example “26\/10\/2026”\. These payments use the date of “Pay from”\. To keep the dates, format the column as yyyy-mm-dd in the spreadsheet\. Then paste again\./);
+  await h.dialogButton(page, 'Add 2 payments');
+  assert.match(await h.text(page, '#toast-text'), /^2 payments added\. 2 dates are not in the format YYYY-MM-DD, for example “26\/10\/2026”\./);
+  assert.deepEqual(await dates(), ['2026-10-26', '', '', '']);
+  assert.deepEqual(await h.rowField(page, 'amount'), ['2450.00', '2180.00', '1960.50', '875.25']);
+});
+
 test('a file that the page cannot open shows a clear message, and the data stays', async t => {
   const page = await site.open(t);
   const blocks = XML.split('<PmtInf>');
@@ -144,7 +189,8 @@ test('a file that the page cannot open shows a clear message, and the data stays
   // [file name, file content, dialog title, dialog text]
   const cases = [
     ['notes.txt', 'Hello', CANNOT_OPEN,
-      'The first line must be “type,name,iban,bic,amount,description”. This is the format of the command-line tool.'],
+      'The first line must be “type,name,iban,bic,amount,description”. This is the format of the command-line tool. '
+      + 'A file from this page can also have a 7th column “date”.'],
     ['empty.csv', '', CANNOT_OPEN, 'The file is empty.'],
     ['header.csv', `${HEADER}\n`, 'No payments found', 'header.csv has no payment rows.'],
     ['other.xml', '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03"/>', CANNOT_OPEN,

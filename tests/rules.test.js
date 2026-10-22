@@ -170,6 +170,12 @@ const HELPER_CASES = [
   ['monthSuggestion', [[{ desc: 'INVOICE 17' }]], null],
   ['detectColumns', [[['2450.00', h.IBAN.boc, 'ANDREAS GEORGIOU', 'SALARY'], ['99.50', h.IBAN.de, 'MUELLER GMBH', 'INVOICE 7']]],
     ['amount', 'iban', 'name', 'desc']],
+  ['detectColumns', [[['26.10.2026', 'ANDREAS GEORGIOU', h.IBAN.boc, '2450.00', 'SALARY'], ['27.10.2026', 'MUELLER GMBH', h.IBAN.de, '99.50', 'INVOICE 7']]],
+    ['date', 'name', 'iban', 'amount', 'desc']],
+  ['pastedDate', ['2026-10-26'], '2026-10-26'],
+  ['pastedDate', [' '], ''],
+  ['pastedDate', ['26/10/2026'], null],
+  ['pastedDate', ['2026-02-30'], null],
   ['parseDelimited', ['a,"b,c","d ""e"""\r\nf', ','], [['a', 'b,c', 'd "e"'], ['f']]],
 ];
 
