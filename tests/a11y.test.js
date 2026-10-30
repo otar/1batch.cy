@@ -389,7 +389,7 @@ test('dialogs give their main text to screen readers (SC 4.1.2)', async t => {
 
 test('links and buttons say what they do (SC 2.4.4, 2.4.6, 1.3.3)', async t => {
   const page = await site.open(t);
-  assert.equal(await page.getByRole('link', { name: /\(opens a larger image in a new tab\)$/ }).count(), 6);
+  assert.equal(await page.getByRole('link', { name: /\(opens a larger image in a new tab\)$/ }).count(), 4);
   assert.equal(await page.getAttribute('#ref-toggle', 'aria-describedby'), 'ref-text');
   assert.match(await page.textContent('#faq'), /use the “Type, BIC and more” button \(⋯\) on the row/);
   assert.doesNotMatch(await page.textContent('#faq'), /click “⋯”/);

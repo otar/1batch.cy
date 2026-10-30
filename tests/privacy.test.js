@@ -39,7 +39,7 @@ function attribute(tag, name) {
   return found ? found[1] : null;
 }
 
-/** The addresses of the site files: '/', '/app.js', '/img/1bank-step-1.png' and more. */
+/** The addresses of the site files: '/', '/app.js', '/img/1bank-step-1.webp' and more. */
 function siteFiles() {
   const files = new Set(['/']);
   const walk = folder => {
