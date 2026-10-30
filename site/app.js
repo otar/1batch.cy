@@ -1967,7 +1967,8 @@ function showDone(name, count, cents, execDate) {
   ui.doneCount.textContent = String(count);
   ui.doneTotal.textContent = money(cents);
   ui.doneDate.textContent = formatDate(execDate);
-  ui.doneStep3.replaceChildren('Make sure that 1bank shows ', el('strong', '', plural(count, 'payment')), ' and ', el('strong', '', money(cents)), '.');
+  ui.doneCheck.replaceChildren('Make sure that the list has ', el('strong', '', plural(count, 'payment')),
+    `, with the same ${count === 1 ? 'amount' : 'amounts'} and execution date as this page.`);
   closeToast();
   ui.done.showModal();
   ui.doneClose.focus();
@@ -2695,10 +2696,11 @@ function init() {
     n.setAttribute('aria-hidden', 'true');
     const text = step.querySelector('p').cloneNode(true);
     li.append(n, text, step.querySelector('.shot').cloneNode(true));
-    if (i === 2) ui.doneStep3 = text;
     doneGuide.append(li);
   });
   byId('done-guide').replaceWith(doneGuide);
+  // Step 3 in the window: showDone() puts the number of payments of the file here
+  ui.doneCheck = doneGuide.querySelector('.guide-check');
 
   // The paste box: the words for a keyboard or for a touch screen
   const mac = /Mac|iPhone|iPad/.test(navigator.userAgent);

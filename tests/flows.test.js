@@ -71,8 +71,11 @@ test('after the download, the window shows the values to compare in 1bank', asyn
   assert.equal(await h.text(page, '#done-count'), '2');
   assert.equal(await h.text(page, '#done-total'), '€2,450.50');
   assert.equal(await h.text(page, '#done-date'), 'Mon, 19 Oct 2026');
-  assert.equal(await page.locator('#done .guide-sm > li').count(), 6, 'The window shows the 6 upload steps.');
-  assert.match(await h.text(page, '#done .guide-sm > li:nth-child(3)'), /Make sure that 1bank shows 2 payments and €2,450\.50\./);
+  assert.equal(await page.locator('#done .guide-sm > li').count(), 4, 'The window shows the 4 upload steps.');
+  assert.match(await h.text(page, '#done .guide-sm > li:nth-child(3) p'),
+    /^Make sure that the list has 2 payments, with the same amounts and execution date as this page\. 1bank shows no total\./);
+  assert.match(await h.text(page, '#guide > li:nth-child(3) p'), /^Make sure that the list has the same number of payments,/,
+    'The guide below the editor keeps the general text.');
 
   await page.click('#done-close');
   assert.equal(await page.evaluate(() => document.getElementById('done').open), false);

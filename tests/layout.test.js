@@ -75,6 +75,27 @@ for (const size of ['tablet', 'phone']) {
   });
 }
 
+// The upload guide below the editor: the number of steps in each row
+const GUIDE_COLUMNS = { desktop: 2, tablet: 2, phone: 1 };
+
+for (const [size, columns] of Object.entries(GUIDE_COLUMNS)) {
+  test(`${size}: the upload guide has ${columns} ${columns === 1 ? 'step' : 'steps'} in each row, and the screenshots have their real sizes`, async t => {
+    const page = await site.open(t, { size });
+    await page.locator('#guide').scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => Array.from(document.querySelectorAll('#guide img')).every(img => img.complete));
+    const shots = await page.locator('#guide img').evaluateAll(images => images.map(img => ({
+      file: img.getAttribute('src'),
+      html: `${img.getAttribute('width')}x${img.getAttribute('height')}`,
+      real: `${img.naturalWidth}x${img.naturalHeight}`,
+      left: Math.round(img.getBoundingClientRect().left),
+    })));
+    assert.equal(shots.length, 4, 'The guide does not have 4 screenshots.');
+    // A wrong width or height in index.html makes the page move when the image comes
+    for (const shot of shots) assert.equal(shot.html, shot.real, `${shot.file}: the width and height in index.html are not the size of the image.`);
+    assert.equal(new Set(shots.map(shot => shot.left)).size, columns);
+  });
+}
+
 test('phone: type a payment and download the file', async t => {
   const page = await site.open(t, { size: 'phone' });
   await h.fillPayFrom(page);
@@ -84,4 +105,7 @@ test('phone: type a payment and download the file', async t => {
   assert.match(file.text, /<NbOfTxs>1<\/NbOfTxs>/);
   await page.waitForFunction(() => document.getElementById('done').open);
   assert.ok(await extraWidth(page) <= 0, 'with the "file is ready" window');
+  // With 1 payment, step 3 in the window uses the singular
+  assert.match(await h.text(page, '#done .guide-sm > li:nth-child(3) p'),
+    /^Make sure that the list has 1 payment, with the same amount and execution date as this page\./);
 });

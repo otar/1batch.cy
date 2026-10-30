@@ -65,7 +65,7 @@
   <ol class="steps" id="steps" aria-label="How it works">
     <li><span class="step-n" aria-hidden="true">1</span><span><strong>Add the payments</strong> <span class="step-text">Type them, paste from Excel, or open an old XML file.</span></span></li>
     <li><span class="step-n" aria-hidden="true">2</span><span><strong>Download one XML file</strong> <span class="step-text">The page checks each payment first, with the rules of the bank.</span></span></li>
-    <li><span class="step-n" aria-hidden="true">3</span><span><strong>Upload it in 1bank</strong> <span class="step-text">In Multiple Payments, for Bank of Cyprus business customers. Then confirm with Digipass.</span></span></li>
+    <li><span class="step-n" aria-hidden="true">3</span><span><strong>Upload it in 1bank</strong> <span class="step-text">In Mass payments, for Bank of Cyprus business customers. Then approve the payments with Digipass.</span></span></li>
   </ol>
 
   <!-- translate="no": online page translators do not get the payment data -->
@@ -233,39 +233,31 @@
     <section class="guide-card" id="upload" aria-labelledby="upload-title">
       <div class="guide-head">
         <h2 class="info-title" id="upload-title">Upload in 1bank</h2>
-        <p class="guide-lead">After “Download XML”, do these six steps. You need your Digipass two times.</p>
+        <p class="guide-lead">After “Download XML”, do these four steps in 1bank. You need your Digipass two times.</p>
       </div>
-      <!-- app.js copies these steps into the window that opens after the download -->
+      <!-- app.js copies these steps into the window that opens after the download.
+           The numbers in brackets, for example (1), are the numbers of the red arrows in the screenshot. -->
       <ol class="guide" id="guide">
         <li class="guide-step" data-step="1">
-          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">1</span>Open Multiple Payments</h3>
-          <p>Log in to 1bank. Go to <strong>Transfers &amp; Payments › Mass Payments › Multiple Payments</strong>.</p>
-          <a class="shot" href="/img/1bank-step-1.png" target="_blank" rel="noopener"><img src="/img/1bank-step-1.png" alt="1bank: the Multiple Payments page" width="1600" height="1000" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
+          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">1</span>Upload the file</h3>
+          <p>Log in to 1bank. Go to <strong>Transfer &amp; pay › Mass payments</strong> (1, 2). Click <strong>Choose a file</strong> (3). Select the XML file. Then click <strong>Confirm</strong>. 1bank opens the <strong>Verification method</strong> window. Do the same as in step 4.</p>
+          <a class="shot" href="/img/1bank-step-1.webp" target="_blank" rel="noopener"><img src="/img/1bank-step-1.webp" alt="1bank, the Mass payments page. Arrows point to Transfer &amp; pay, Mass payments and Choose a file." width="1600" height="1039" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
         </li>
         <li class="guide-step" data-step="2">
-          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">2</span>Upload the file</h3>
-          <p>Click <strong>Select file</strong> and select the XML file. Then click <strong>Upload</strong>.</p>
-          <a class="shot" href="/img/1bank-step-2.png" target="_blank" rel="noopener"><img src="/img/1bank-step-2.png" alt="1bank: Select file and Upload" width="1600" height="1000" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
+          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">2</span>Open the pending payments</h3>
+          <p>1bank shows a confirmation page. Click <strong>Pending for Approval</strong> (1) in the text. You can also go to <strong>Transfer &amp; pay › Pending approval</strong>.</p>
+          <a class="shot" href="/img/1bank-step-2.webp" target="_blank" rel="noopener"><img src="/img/1bank-step-2.webp" alt="1bank, the confirmation page after the upload. An arrow points to the link Pending for Approval." width="1600" height="1070" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
         </li>
         <li class="guide-step" data-step="3">
-          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">3</span>Compare the totals</h3>
-          <p>Make sure that 1bank shows the same number of payments and the same total as this page.</p>
-          <a class="shot" href="/img/1bank-step-3.png" target="_blank" rel="noopener"><img src="/img/1bank-step-3.png" alt="1bank: the number of payments and the total" width="1600" height="1000" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
+          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">3</span>Check and approve</h3>
+          <!-- In the window after the download, app.js puts the number of payments in .guide-check -->
+          <p><span class="guide-check">Make sure that the list has the same number of payments, amounts and execution date as this page.</span> 1bank shows no total. Select <strong>Approve</strong> (1) for each payment. If the list has more than one page, do this on each page. Then click <strong>Submit</strong> (2) one time.</p>
+          <a class="shot" href="/img/1bank-step-3.webp" target="_blank" rel="noopener"><img src="/img/1bank-step-3.webp" alt="1bank, the list of pending payments. Arrows point to an Approve box and to the Submit button." width="1600" height="1078" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
         </li>
         <li class="guide-step" data-step="4">
-          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">4</span>Confirm the upload</h3>
-          <p>Enter the Digipass code. Then click <strong>Confirm</strong>.</p>
-          <a class="shot" href="/img/1bank-step-4.png" target="_blank" rel="noopener"><img src="/img/1bank-step-4.png" alt="1bank: the Digipass code and Confirm" width="1600" height="1000" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
-        </li>
-        <li class="guide-step" data-step="5">
-          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">5</span>Read the result</h3>
-          <p>Read the result in 1bank <strong>Messages</strong>. Now 1bank makes a pending payment for each payment in the file. If 1bank rejects a payment, make a new file with only that payment.</p>
-          <a class="shot" href="/img/1bank-step-5.png" target="_blank" rel="noopener"><img src="/img/1bank-step-5.png" alt="1bank: the result in Messages" width="1600" height="1000" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
-        </li>
-        <li class="guide-step" data-step="6">
-          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">6</span>Confirm the pending payments</h3>
-          <p>Go to <strong>[Pending Payments]</strong>. Confirm the payments with a second Digipass code. Then the bank sends them.</p>
-          <a class="shot" href="/img/1bank-step-6.png" target="_blank" rel="noopener"><img src="/img/1bank-step-6.png" alt="1bank: the pending payments" width="1600" height="1000" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
+          <h3 class="guide-sum"><span class="guide-n" aria-hidden="true">4</span>Confirm with Digipass</h3>
+          <p>Select <strong>QR Code</strong> or <strong>Notification</strong>. For QR Code, scan the code with the Digipass app. For Notification, approve the notification on your phone. Then the bank sends the payments on the execution date.</p>
+          <a class="shot" href="/img/1bank-step-4.webp" target="_blank" rel="noopener"><img src="/img/1bank-step-4.webp" alt="1bank, the Verification method window, with the options QR Code and Notification." width="657" height="426" loading="lazy"><span class="sr-only"> (opens a larger image in a new tab)</span></a>
         </li>
       </ol>
     </section>
@@ -283,7 +275,7 @@
       <div class="faq-list" id="faq-list">
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Who can use this page?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
-            <div class="faq-a"><p>Bank of Cyprus business customers who use 1bank with Multiple Payments. The debit account must be a Bank of Cyprus account in euro. If you do not see Multiple Payments in 1bank, ask your relationship manager.</p></div>
+            <div class="faq-a"><p>Bank of Cyprus business customers who use 1bank with Mass payments. The debit account must be a Bank of Cyprus account in euro. If you do not see Mass payments in 1bank, ask your relationship manager.</p></div>
           </details>
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">Is it free? Who made it?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
@@ -335,11 +327,11 @@
           </details>
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">1bank does not accept the file. What now?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
-            <div class="faq-a"><p>Read the message in 1bank. Make the correction here, then download a new file and upload it. If the message is not clear, ask your relationship manager.</p></div>
+            <div class="faq-a"><p>Read the message in 1bank Messages. Make the correction here, then download a new file and upload it. If the message is not clear, ask your relationship manager.</p></div>
           </details>
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">1bank rejected one payment. What now?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
-            <div class="faq-a"><p>Make a new file with only that payment. Do not upload the full file again: the other payments would go two times.</p></div>
+            <div class="faq-a"><p>1bank tells you in Messages. Then the list in Pending approval has fewer payments than this page. Make a new file with only that payment. Do not upload the full file again: the other payments would go two times.</p></div>
           </details>
           <details class="faq-item">
             <summary><span class="faq-n" aria-hidden="true"></span><span class="faq-q">What are the bank fees?</span><span class="faq-btn" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path class="v" d="M12 5v14"/></svg></span></summary>
@@ -442,7 +434,7 @@
     <div><dt>Total</dt><dd class="mono" id="done-total"></dd></div>
     <div><dt>Execution date</dt><dd class="done-date" id="done-date"></dd></div>
   </dl>
-  <p class="done-note" id="done-note">1bank must show the same three values.</p>
+  <p class="done-note" id="done-note">In 1bank, the list must have the same number of payments and the same execution date.</p>
   <h3 class="done-sub">Upload the file in 1bank</h3>
   <div id="done-guide"></div>
   <p class="done-keep"><strong>Keep this file.</strong> Next month, open it here. Then change only what is new.</p>

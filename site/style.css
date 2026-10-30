@@ -915,7 +915,7 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
 }
 .info-title { margin: 0; font: 700 24px/1.2 var(--sans); letter-spacing: -.02em; color: var(--ink); }
 
-/* The 1bank steps: all six visible */
+/* The 1bank steps: all four visible, two in each row */
 .guide-card {
   background: var(--sheet);
   border: 1px solid var(--rule);
@@ -927,7 +927,7 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
 .guide-lead { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
 .guide {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 28px 24px;
   margin: 0;
   padding: 22px;
@@ -1252,7 +1252,6 @@ body.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: non
   .start-act { min-height: 0; }
   .debtor-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .f-iban { grid-column: 1 / -1; grid-row: 2; }
-  .guide { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
